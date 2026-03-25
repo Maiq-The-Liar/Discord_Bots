@@ -231,8 +231,8 @@ async def assign_house_role(guild: discord.Guild, member: discord.Member, house_
 
 def make_base_embed(title: str, description: str, bot_user: discord.ClientUser | None) -> discord.Embed:
     embed = discord.Embed(title=title, description=description)
-    if bot_user:
-        embed.set_author(name=bot_user.name, icon_url=bot_user.display_avatar.url)
+    #if bot_user:
+    #    embed.set_author(name=bot_user.name, icon_url=bot_user.display_avatar.url)
     embed.set_thumbnail(url=DEFAULT_CREST)
     return embed
 
@@ -249,8 +249,8 @@ def make_house_embed(
         description=description,
         color=style.get("color", discord.Color.blurple()),
     )
-    if bot_user:
-        embed.set_author(name=bot_user.name, icon_url=bot_user.display_avatar.url)
+    #if bot_user:
+    #    embed.set_author(name=bot_user.name, icon_url=bot_user.display_avatar.url)
     if style.get("thumbnail"):
         embed.set_thumbnail(url=style["thumbnail"])
     return embed
