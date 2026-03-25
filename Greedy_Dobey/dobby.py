@@ -24,7 +24,7 @@ TASTED_FLAVOURS_FILE = DATA_DIR / "tasted_flavours.json"
 EVENT_TITLE = "\"Would Master kindly give Dobby another sock?\""
 EVENT_DESCRIPTION = (
     "Dobby has appeared and is in desperate need of some socks.\n"
-    "Each person may click exactly one button. Make sure you give him his favourite one..."
+    "Each person may click exactly one button. Make sure you give him his favourite one...!"
 )
 
 EVENT_GIF_URLS = [
