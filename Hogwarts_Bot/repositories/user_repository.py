@@ -1,0 +1,172 @@
+import sqlite3
+
+
+class UserRepository:
+    def __init__(self, conn: sqlite3.Connection):
+        self.conn = conn
+
+    def ensure_user(self, user_id: int) -> None:
+        self.conn.execute(
+            """
+            INSERT INTO users (user_id)
+            VALUES (?)
+            ON CONFLICT(user_id) DO NOTHING
+            """,
+            (user_id,),
+        )
+        self.conn.execute(
+            """
+            INSERT INTO inventories (user_id)
+            VALUES (?)
+            ON CONFLICT(user_id) DO NOTHING
+            """,
+            (user_id,),
+        )
+        self.conn.commit()
+
+    def get_user(self, user_id: int) -> sqlite3.Row:
+        row = self.conn.execute(
+            "SELECT * FROM users WHERE user_id = ?",
+            (user_id,),
+        ).fetchone()
+
+        if row is None:
+            raise ValueError(f"User {user_id} not found.")
+        return row
+
+    def add_sickles(self, user_id: int, amount: int) -> None:
+        self.conn.execute(
+            """
+            UPDATE users
+            SET sickles_balance = sickles_balance + ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = ?
+            """,
+            (amount, user_id),
+        )
+        self.conn.commit()
+
+    def deduct_sickles(self, user_id: int, amount: int) -> bool:
+        cur = self.conn.execute(
+            """
+            UPDATE users
+            SET sickles_balance = sickles_balance - ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = ?
+              AND sickles_balance >= ?
+            """,
+            (amount, user_id, amount),
+        )
+        self.conn.commit()
+        return cur.rowcount > 0
+
+    def add_lifetime_house_points(self, user_id: int, points: int) -> None:
+        self.conn.execute(
+            """
+            UPDATE users
+            SET lifetime_house_points = lifetime_house_points + ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = ?
+            """,
+            (points, user_id),
+        )
+        self.conn.commit()
+
+    def set_patronus_id(self, user_id: int, patronus_id: int) -> None:
+        self.conn.execute(
+            """
+            UPDATE users
+            SET patronus_id = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = ?
+            """,
+            (str(patronus_id), user_id),
+        )
+        self.conn.commit()
+
+    def get_patronus_id(self, user_id: int) -> int | None:
+        row = self.conn.execute(
+            "SELECT patronus_id FROM users WHERE user_id = ?",
+            (user_id,),
+        ).fetchone()
+
+        if row is None or row["patronus_id"] is None:
+            return None
+
+        return int(row["patronus_id"])
+
+    def set_bio(self, user_id: int, bio: str) -> None:
+        self.conn.execute(
+            """
+            UPDATE users
+            SET bio = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = ?
+            """,
+            (bio, user_id),
+        )
+        self.conn.commit()
+
+    def get_bio(self, user_id: int) -> str | None:
+        row = self.conn.execute(
+            "SELECT bio FROM users WHERE user_id = ?",
+            (user_id,),
+        ).fetchone()
+
+        if row is None:
+            return None
+
+        return row["bio"]
+
+    def set_birthday(self, user_id: int, day: int, month: int) -> None:
+        self.conn.execute(
+            """
+            UPDATE users
+            SET birth_day = ?,
+                birth_month = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = ?
+            """,
+            (day, month, user_id),
+        )
+        self.conn.commit()
+
+    def clear_birthday(self, user_id: int) -> None:
+        self.conn.execute(
+            """
+            UPDATE users
+            SET birth_day = NULL,
+                birth_month = NULL,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = ?
+            """,
+            (user_id,),
+        )
+        self.conn.commit()
+
+    def get_birthday(self, user_id: int) -> tuple[int | None, int | None]:
+        row = self.conn.execute(
+            """
+            SELECT birth_day, birth_month
+            FROM users
+            WHERE user_id = ?
+            """,
+            (user_id,),
+        ).fetchone()
+
+        if row is None:
+            return None, None
+
+        return row["birth_day"], row["birth_month"]
+
+    def get_users_with_birthday(self, day: int, month: int) -> list[int]:
+        rows = self.conn.execute(
+            """
+            SELECT user_id
+            FROM users
+            WHERE birth_day = ? AND birth_month = ?
+            """,
+            (day, month),
+        ).fetchall()
+
+        return [int(row["user_id"]) for row in rows]

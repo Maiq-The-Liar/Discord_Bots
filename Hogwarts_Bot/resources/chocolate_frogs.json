@@ -1,0 +1,608 @@
+[
+  {
+    "id": 1,
+    "name": "Merlin",
+    "description": "Medieval, dates unknown.\nMost famous wizard of all time. Sometimes known as the Prince of Enchanters. Part of the Court of King Arthur.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/6/68/Merlin-01-chocFrogCard.png/revision/latest?cb=20160606202336"
+  },
+  {
+    "id": 2,
+    "name": "Cornelius Agrippa",
+    "description": "1486\u20131535\nCelebrated wizard imprisoned by non-magical folks for his writings.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/3/3a/Cornelius_Agrippa_Chocolate_Frog_Card.png/revision/latest?cb=20160606202201"
+  },
+  {
+    "id": 3,
+    "name": "Elfrida Clagg",
+    "description": "1612-1687\nChieftaness of Warlock's Council.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/7/71/Elfrida_Clagg-03-chocFrogCard.png/revision/latest?cb=20160606202226"
+  },
+  {
+    "id": 4,
+    "name": "Grogan Stump",
+    "description": "1770-1884\nPopular Minister for Magic, appointed 1811.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/4/4d/Grogan_Stump-04-chocFrogCard.png/revision/latest?cb=20160606202258"
+  },
+  {
+    "id": 5,
+    "name": "Gulliver Pokeby",
+    "description": "1750-1839\nExpert on magical birds. First to identify meaning of Augurey song.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/5/55/Gulliver_Pokeby-05-chocFrogCard.png/revision/latest?cb=20210419225920"
+  },
+  {
+    "id": 6,
+    "name": "Glanmore Peakes",
+    "description": "1677-1761\nFamous slayer of the Sea Serpent of Cromer.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/d/d7/Glanmore_Peakes-06-chocFrogCard.png/revision/latest?cb=20160606202243"
+  },
+  {
+    "id": 7,
+    "name": "Hesper Starkey",
+    "description": "1881-1973\nWitch who studied the use of phases of the moon in potion-making.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/6/6c/Hesper_Starkey-07-chocFrogCard.png/revision/latest?cb=20210419230733"
+  },
+  {
+    "id": 8,
+    "name": "Derwent Shimpling",
+    "description": "1912-present\nAte an entire Venomous Tentacula on a bet and survived, though is still purple.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/e/e1/Derwent_Shimpling-08-chocFrogCard.png/revision/latest?cb=20160606202212"
+  },
+  {
+    "id": 9,
+    "name": "Gunhilda of Gorsemoor",
+    "description": "1556-1639\nOne-eyed, hump-backed witch famous for developing a cure for Dragon pox.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/e/e3/Gunhilda_De_Gorsemoor-09-chocFrogCard.png/revision/latest?cb=20160606202302"
+  },
+  {
+    "id": 10,
+    "name": "Burdock Muldoon",
+    "description": "1429-1490\nChief of Wizards' Council 1448-50.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/1/15/Burdock_Muldoon-10-chocFrogCard.png/revision/latest?cb=20160606202148"
+  },
+  {
+    "id": 11,
+    "name": "Herpo the Foul",
+    "description": "Ancient Greek.\nFirst known creator of the basilisk.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/7/78/Herpo_The_Foul-11-chocFrogCard.png/revision/latest?cb=20210419231815"
+  },
+  {
+    "id": 12,
+    "name": "Merwyn the Malicious",
+    "description": "Medieval, dates unknown.Credited with the invention of many unpleasant jinxes and hexes.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/2/2a/Merwyn_The_Malicious-12-chocFrogCard.png/revision/latest?cb=20210419234348"
+  },
+  {
+    "id": 13,
+    "name": "Andros the Invincible",
+    "description": "Ancient Greek.\nAlleged to have been the only known wizard to produce a Patronus the size of a giant.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/3/32/Andros_The_Invincible-13-chocFrogCard.png/revision/latest?cb=20160606202132"
+  },
+  {
+    "id": 14,
+    "name": "Fulbert the Fearful",
+    "description": "1014-1097\nFamous for being so cowardly he never ventured out of his house. Died when a Defensive Charm backfired and the roof fell in.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/4/41/Fulbert_The_Fearful-14-chocFrogCard.png/revision/latest?cb=20210419234700"
+  },
+  {
+    "id": 15,
+    "name": "Paracelsus",
+    "description": "1493-1591\nContemporary of Copernicus and Leonardo Da Vinci, a medical genius whose bold theories Challenged medieval thought. Credited with discovering Parseltongue.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/9/9a/Paracelsus-15-chocFrogCard.png/revision/latest?cb=20160606202405"
+  },
+  {
+    "id": 16,
+    "name": "Cliodne",
+    "description": "Medieval, dates unknown.\nIrish druidess who first discovered properties of moondew.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/9/95/Cliodne-16-chocFrogCard.png/revision/latest?cb=20160606202159"
+  },
+  {
+    "id": 17,
+    "name": "Morgan le Fay",
+    "description": "Medieval, dates unknown.\nKing Arthur's half sister. Dark sorceress. Enemy of Merlin.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/1/18/Morgan_Le_Fay-17-chocFrogCard.png/revision/latest?cb=20210419235006"
+  },
+  {
+    "id": 18,
+    "name": "Uric the Oddball",
+    "description": "Medieval, dates unknown.\nHighly eccentric wizard who is famed, among other things, for wearing a jellyfish for a hat.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/a/a3/Uric_The_Oddball-18-chocFrogCard.png/revision/latest?cb=20160606202431"
+  },
+  {
+    "id": 19,
+    "name": "Newt Scamander",
+    "description": "1897\u2013present\nCelebrated author of 'Fantastic Beasts and Where to Find Them'.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/1/15/Newt_Scamander-19-chocFrogCard.png/revision/latest?cb=20210419235332"
+  },
+  {
+    "id": 20,
+    "name": "Wendelin the Weird",
+    "description": "Medieval, dates unknown.\nAlleged to have enjoyed being burnt at the stake so much that she allowed herself to be captured fourteen times in various disguises.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/e/e6/Wendelin_The_Weird-20-chocFrogCard.png/revision/latest?cb=20160606202432"
+  },
+  {
+    "id": 21,
+    "name": "Lord Stoddard Withers",
+    "description": "1672-1769\nBreeder of flying horses.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/5/55/Lord_Stoddard_Withers-21-chocFrogCard.png/revision/latest?cb=20160606202333"
+  },
+  {
+    "id": 22,
+    "name": "Circe",
+    "description": "Ancient Greek Witch who lived on Island of Aeaea. Expert at turning lost sailors into pigs.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/7/79/Circe-22-chocFrogCard.png/revision/latest?cb=20210419235603"
+  },
+  {
+    "id": 23,
+    "name": "Glenda Chittock",
+    "description": "1964-present\nPopular presenter of the W.W.N. (Wizarding Wireless Network) programme Witching Hour.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/c/cf/Glenda_Chittock-23-chocFrogCard.png/revision/latest?cb=20210420000033"
+  },
+  {
+    "id": 24,
+    "name": "Adalbert Waffling",
+    "description": "1899\u20131981\nFamous magical theoretician.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/8/87/Adalbert_Waffling-24-chocFrogCard.png/revision/latest?cb=20160606202123"
+  },
+  {
+    "id": 25,
+    "name": "Perpetua Fancourt",
+    "description": "1900-1991\nWitch who invented the Lunascope.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/1/1b/Perpetua_Fancourt-25-chocFrogCard.png/revision/latest?cb=20160606202408"
+  },
+  {
+    "id": 26,
+    "name": "Almeric Sawbridge",
+    "description": "1602\u20131699\nFamous for conquering the river troll that was terrorising those trying to cross the Wye River. River troll in question believed to be one of the largest ever to exist in Britain with a weight of one tonne.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/1/19/Almeric_Sawbridge-26-chocFrogCard.png/revision/latest?cb=20210420000505"
+  },
+  {
+    "id": 27,
+    "name": "Mirabella Plunkett",
+    "description": "1839-unknown\nFamous for falling in love with a merman in Loch Lomond while on holiday. When her parents forbade her to marry him, she transfigured herself into a haddock and was never seen again.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/3/38/Mirabella_Plunkett-27-chocFrogCard.png/revision/latest?cb=20210420000912"
+  },
+  {
+    "id": 28,
+    "name": "Tilly Toke",
+    "description": "1903-1991\nGained Order of Merlin, First Class for saving non-magical lives during the Ilfracombe Incident of 1932, when a dragon swooped down on a beach full of sunbathers.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/d/d6/Tilly_Toke-28-chocFrogCard.png/revision/latest?cb=20160606202429"
+  },
+  {
+    "id": 29,
+    "name": "Archibald Alderton",
+    "description": "1568-1623\nFamous for blowing up a hamlet of Little Dropping, Hampshire whilst attempting to magically mix a birthday cake.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/8/80/Archibald_Alderton-29-chocFrogCard.png/revision/latest?cb=20160606202134"
+  },
+  {
+    "id": 30,
+    "name": "Artemisia Lufkin",
+    "description": "1754-1825\nFirst witch to become Minister for Magic.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/f/f1/Artemisia_Lufkin-30-chocFrogCard.png/revision/latest?cb=20160606202135"
+  },
+  {
+    "id": 31,
+    "name": "Balfour Blane",
+    "description": "1566-1629\nEstablished the Committee on Experimental Charms.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/7/79/Balfour_Blane-31-chocFrogCard.png/revision/latest?cb=20210420001155"
+  },
+  {
+    "id": 32,
+    "name": "Bridget Wenlock",
+    "description": "1202\u20131285\nFamous Arithmancer. First to establish the magical properties of the number seven.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/a/af/Bridget_Wenlock-32-chocFrogCard.png/revision/latest?cb=20210420001824"
+  },
+  {
+    "id": 33,
+    "name": "Beaumont Marjoribanks",
+    "description": "1742-1845\nPioneer of Herbology and collector of many rare and magical flowers. Discovered Gillyweed.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/f/f8/Beaumont_Marjoribanks-33-chocFrogCard.png/revision/latest?cb=20160606202140"
+  },
+  {
+    "id": 34,
+    "name": "Donaghan Tremlett",
+    "description": "1972-present\nBass player with the popular wizarding band The Weird Sisters",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/e/ed/Donaghan_Tremlett-34-chocFrogCard.png/revision/latest?cb=20160606202215"
+  },
+  {
+    "id": 35,
+    "name": "Bowman Wright",
+    "description": "1492-1560\nFamous for developing the Golden Snitch.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/9/9a/Bowman_Wright-35-chocFrogCard.png/revision/latest?cb=20160606202145"
+  },
+  {
+    "id": 36,
+    "name": "Joscelind Wadcock",
+    "description": "1911-present\nChaser for Puddlemere United Quidditch team. Record for highest number of goals during British season this century (against Ballycastle Bats, 1931).",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/8/8b/Joscelind_Wadcock-36-chocFrogCard.png/revision/latest?cb=20160606202326"
+  },
+  {
+    "id": 37,
+    "name": "Cassandra Vablatsky",
+    "description": "1894-1997\nCelebrated Seer and author of 'Unfogging the Future'.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/7/7e/Cassandra_Vablatsky-37-chocFrogCard.png/revision/latest?cb=20160606202151"
+  },
+  {
+    "id": 38,
+    "name": "Chauncey Oldridge",
+    "description": "1342\u20131379\nFirst known victim of Dragon Pox.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/5/5e/Chauncey_Oldridge-38-chocFrogCard.png/revision/latest?cb=20210420002034"
+  },
+  {
+    "id": 39,
+    "name": "Gwenog Jones",
+    "description": "1968-present\nCaptain and Beater of the all-female national Quidditch team, the Holyhead Harpies.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/0/0a/Gwenog_Jones-39-chocFrogCard.png/revision/latest?cb=20210420002241"
+  },
+  {
+    "id": 40,
+    "name": "Carlotta Pinkstone",
+    "description": "1922-present\nFamous campaigner for lifting the International Confederation of Wizard\u2019s Statute of Secrecy and telling non-magical folks that wizards still exist. Ms. Pinkstone has been imprisoned several times for her blatant and deliberate use of magic in public places.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/d/da/Carlotta_Pinkstone-40-chocFrogCard.png/revision/latest?cb=20160606202149"
+  },
+  {
+    "id": 41,
+    "name": "Godric Gryffindor",
+    "description": "Medieval, dates unknown\nCo-founder of Hogwarts. Gave his name to one of the four Hogwarts houses.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/2/24/Godric_Gryffindor-41-chocFrogCard.png/revision/latest?cb=20160606202248"
+  },
+  {
+    "id": 42,
+    "name": "Crispin Cronk",
+    "description": "1795-1872\nSent to Azkaban for continuing to keep Sphinxes in his back garden despite repeated warnings.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/4/45/Crispin_Cronk-42-chocFrogCard.png/revision/latest?cb=20160606202204"
+  },
+  {
+    "id": 43,
+    "name": "Cyprian Youdle",
+    "description": "1312\u20131357\nOnly Quidditch referee ever to die during a match. The originator of the curse was never caught but believed to have been a member of the crowd.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/c/ce/Cyprian_Youdle-43-chocFrogCard.png/revision/latest?cb=20160606202207"
+  },
+  {
+    "id": 44,
+    "name": "Devlin Whitehorn",
+    "description": "1945-present\nFounder of the Nimbus racing broom company.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/0/05/Devlin_Whitehorn-44-chocFrogCard.png/revision/latest?cb=20160606202213"
+  },
+  {
+    "id": 45,
+    "name": "Dunbar Oglethorpe",
+    "description": "1968-present\nChief of Q.U.A.B.B.L.E. (Quidditch Union for the Administration and Betterment of the British League and its Endeavours).",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/f/fc/Dunbar_Oglethorpe-45-chocFrogCard.png/revision/latest?cb=20160606202218"
+  },
+  {
+    "id": 46,
+    "name": "Miranda Goshawk",
+    "description": "Miranda Goshawk is the author of The Standard Book of Spells series, which are set textbooks for the students of Hogwarts.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/f/f9/Miranda_Goshawk-46-chocFrogCard.png/revision/latest?cb=20160606202345"
+  },
+  {
+    "id": 47,
+    "name": "Edgar Stroulger",
+    "description": "1703-1798\nInventor of the Sneakoscope.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/4/4b/Edgar_Stroulger-47-chocFrogCard.png/revision/latest?cb=20160606202224"
+  },
+  {
+    "id": 48,
+    "name": "Salazar Slytherin",
+    "description": "Medieval, dates unknown\nCo-founder of Hogwarts. Gave his name to one of the four Hogwarts Houses.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/8/84/Salazar_Slytherin-48-chocFrogCard.png/revision/latest?cb=20160606202426"
+  },
+  {
+    "id": 49,
+    "name": "Elladora Ketteridge",
+    "description": "1656-1729\nWitch who discovered the use of Gillyweed when she nearly suffocated after eating it and recovered only when she stuck her head into a bucket of water.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/e/e5/Elladora_Ketteridge-49-chocFrogCard.png/revision/latest?cb=20160606202228"
+  },
+  {
+    "id": 50,
+    "name": "Musidora Barkwith",
+    "description": "1520-1666\nComposer of the unfinished Wizarding Suite, which features an exploding tuba. Its performance has been banned since its last performance in 1902, when it blew the roof out of Ackerley Town Hall.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/5/57/Musidora_Barkwith-50-chocFrogCard.png/revision/latest?cb=20210420002520"
+  },
+  {
+    "id": 51,
+    "name": "Ethelred the Ever-Ready",
+    "description": "Medieval, dates unknown\nFamous for taking offence at nothing and cursing innocent bystanders. Died in Gaol.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/d/d6/Ethelred_The_Ever-ready-51-chocFrogCard.png/revision/latest?cb=20160606202229"
+  },
+  {
+    "id": 52,
+    "name": "Felix Summerbee",
+    "description": "1447-1508\nInventor of Cheering Charms.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/7/7c/Felix_Summerbee-52-chocFrogCard.png/revision/latest?cb=20160606202231"
+  },
+  {
+    "id": 53,
+    "name": "Greta Catchlove",
+    "description": "1960-present\nAuthor of 'Charm Your Own Cheese'.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/d/da/Greta_Catchlove-53-chocFrogCard.png/revision/latest?cb=20160606202256"
+  },
+  {
+    "id": 54,
+    "name": "Gaspard Shingleton",
+    "description": "1959-present\nCelebrated inventor of the Self-Stirring Cauldron.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/1/10/Gaspard_Shingleton-54-chocFrogCard.png/revision/latest?cb=20210420002823"
+  },
+  {
+    "id": 55,
+    "name": "Honoria Nutcombe",
+    "description": "1665-1743\nFounded the Society for the Reformation of Hags.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/6/62/Honoria_Nutcombe-55-chocFrogCard.png/revision/latest?cb=20210420003045"
+  },
+  {
+    "id": 56,
+    "name": "Gideon Crumb",
+    "description": "1975-present\nPlays bagpipes with the popular wizarding band The Weird Sisters.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/4/44/Gideon_Crumb-56-chocFrogCard.png/revision/latest?cb=20160606202237"
+  },
+  {
+    "id": 57,
+    "name": "Gifford Ollerton",
+    "description": "1390\u20131441\nFamous giant-slayer, killed the giant Hengist of Upper Barnton.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/7/74/Gifford_Ollerton-57-chocFrogCard.png/revision/latest?cb=20160606202241"
+  },
+  {
+    "id": 58,
+    "name": "Glover Hipworth",
+    "description": "1742-1805\nInventor of the Pepperup Potion, cure for the common cold.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/a/a0/Glover_Hipworth-58-chocFrogCard.png/revision/latest?cb=20160606202246"
+  },
+  {
+    "id": 59,
+    "name": "Gregory the Smarmy",
+    "description": "Medieval, dates unknown\nFamous originator of Gregory's Unctuous Unction - potion to persuade the drinker that the giver is their very best friend. Alleged to have wormed his way into King Richard's confidence and thus made his fortune.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/a/a3/Gregory_The_Swarmy-59-chocFrogCard.png/revision/latest?cb=20210420003259"
+  },
+  {
+    "id": 60,
+    "name": "Laverne de Montmorency",
+    "description": "1823-1893\nInventor of many Love Potions.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/c/ca/Laverne_De_Montmorency-60-chocFrogCard.png/revision/latest?cb=20160606202330"
+  },
+  {
+    "id": 61,
+    "name": "Havelock Sweeting",
+    "description": "1634-1710\nUnicorn expert. Helped set up unicorn reservations throughout Britain.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/3/37/Havelock_Sweeting-61-chocFrogCard.png/revision/latest?cb=20160606202308"
+  },
+  {
+    "id": 62,
+    "name": "Ignatia Wildsmith",
+    "description": "1227\u20131320\nWitch who invented Floo powder.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/8/84/Ignatia_Wildsmith-62-chocFrogCard.png/revision/latest?cb=20160606202322"
+  },
+  {
+    "id": 63,
+    "name": "Herman Wintringham",
+    "description": "1974-present\nPlays lute with the popular wizarding band The Weird Sisters.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/2/2c/Herman_Wintringham-63-chocFrogCard.png/revision/latest?cb=20160606202314"
+  },
+  {
+    "id": 64,
+    "name": "Jocunda Sykes",
+    "description": "1915\u2013present\nFamous for flying across the Atlantic on a broomstick -the first person to do so.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/7/72/Jocunda_Sykes_Chocolate_Frog_Card.png/revision/latest?cb=20160606202324"
+  },
+  {
+    "id": 65,
+    "name": "Gondoline Oliphant",
+    "description": "1720-1799\nFamous for studies of life and habits of trolls. Clubbed to death in the Cotswolds while sketching.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/0/02/Gondoline_Oliphant-65-chocFrogCard.png/revision/latest?cb=20160606202250"
+  },
+  {
+    "id": 66,
+    "name": "Flavius Belby",
+    "description": "1715-1791\nOnly wizard ever to survive a Lethifold attack.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/4/4f/Flavius_Belby-66-chocFrogCard.png/revision/latest?cb=20210420003452"
+  },
+  {
+    "id": 67,
+    "name": "Justus Pilliwickle",
+    "description": "1862-1953\nCelebrated Head of the Department of Magical Law Enforcement.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/a/ab/Justus_Pilliwickle-67-chocFrogCard.png/revision/latest?cb=20160606202327"
+  },
+  {
+    "id": 68,
+    "name": "Kirley Duke",
+    "description": "1971-present\nPlays lead guitar with the popular wizarding band The Weird Sisters.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/7/73/Kirley_Duke-68-chocFrogCard.png/revision/latest?cb=20160606202328"
+  },
+  {
+    "id": 69,
+    "name": "Bertie Bott",
+    "description": "1935\u2013present\nInventor of Bertie Bott's Every Flavour Beans.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/7/72/Bertie_Bott-69-chocFrogCard.png/revision/latest?cb=20210420004133"
+  },
+  {
+    "id": 70,
+    "name": "Leopoldina Smethwyck",
+    "description": "1829-1910\nFirst British witch to referee a Quidditch match.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/6/64/Leopoldina_Smethwyck-70-chocFrogCard.png/revision/latest?cb=20160606202331"
+  },
+  {
+    "id": 71,
+    "name": "Queen Maeve",
+    "description": "Legendary witch who trained young sorcerers in Ireland prior to the establishment of Hogwarts.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/f/f5/Queen_Maeve-71-chocFrogCard.png/revision/latest?cb=20160606202413"
+  },
+  {
+    "id": 72,
+    "name": "Helga Hufflepuff",
+    "description": "Medieval, dates unknown\nCo-founder of Hogwarts. Gave her name to one of the four Hogwarts houses.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/0/0d/Helga_Hufflepuff-72-chocFrogCard.png/revision/latest?cb=20210420004315"
+  },
+  {
+    "id": 73,
+    "name": "Mopsus",
+    "description": "Ancient Greek\nSoothsayer who vanquished the Seer Calchas in a contest of their powers.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/d/df/Mopsus-73-chocFrogCard.png/revision/latest?cb=20210420004456"
+  },
+  {
+    "id": 74,
+    "name": "Montague Knightley",
+    "description": "1506-1588\nWizard's Chess Champion.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/5/50/Montague_Knightley-74-chocFrogCard.png/revision/latest?cb=20160606202347"
+  },
+  {
+    "id": 75,
+    "name": "Mungo Bonham",
+    "description": "1560-1659\nFamous wizard healer. Founded Saint Mungo's Hospital for Magical Ailments and Injuries.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/4/4e/Mungo_Bonham-75-chocFrogCard.png/revision/latest?cb=20160606202352"
+  },
+  {
+    "id": 76,
+    "name": "Myron Wagtail",
+    "description": "1970-present\nLead singer of popular wizarding band the Weird Sisters.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/b/bc/Myron_Wagtail-76-chocFrogCard.png/revision/latest?cb=20160606202355"
+  },
+  {
+    "id": 77,
+    "name": "Norvel Twonk",
+    "description": "1888\u20131957\nDied saving a non-magical child from a runaway Manticore. Posthumously awarded the Order of Merlin, First Class.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/f/fe/Norvel_Twonk-77-chocFrogCard.png/revision/latest?cb=20210420004643"
+  },
+  {
+    "id": 78,
+    "name": "Orsino Thruston",
+    "description": "1976-present\nPlays drums with the popular wizarding band the Weird Sisters.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/c/c8/Orsino_Thruston-78-chocFrogCard.png/revision/latest?cb=20160606202401"
+  },
+  {
+    "id": 79,
+    "name": "Oswald Beamish",
+    "description": "1850-1932\nPioneer of Goblin rights.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/1/19/Oswald_Beamish-79-chocFrogCard.png/revision/latest?cb=20160606202403"
+  },
+  {
+    "id": 80,
+    "name": "Beatrix Bloxam",
+    "description": "1794-1910\nAuthor of the Toadstool Tales, a series of childrens' books since banned because they have been found to cause nausea and vomiting.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/1/15/Beatrix_Bloxam-80-chocFrogCard.png/revision/latest?cb=20210420004825"
+  },
+  {
+    "id": 81,
+    "name": "Quong Po",
+    "description": "1443\u20131539\nChinese wizard who discovered the uses of powered fireball eggs.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/2/25/Quong_Po-81-chocFrogCard.png/revision/latest?cb=20210420005159"
+  },
+  {
+    "id": 82,
+    "name": "Rowena Ravenclaw",
+    "description": "Medieval, dates unknown.\nCo-founder of Hogwarts. Gave her name to one of the four Hogwarts houses.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/2/22/Rowena_Ravenclaw-82-chocFrogCard.png/revision/latest?cb=20160606202422"
+  },
+  {
+    "id": 83,
+    "name": "Roderick Plumpton",
+    "description": "1889\u20131987\nSeeker for the English Quidditch Team. Holds British record for fastest capture of Snitch during game: three and a half seconds.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/b/b3/Roderick_Plumpton%27s_Chocolate_Frog_Card.png/revision/latest?cb=20160606202419"
+  },
+  {
+    "id": 84,
+    "name": "Roland Kegg",
+    "description": "1903\u2013present\nPresident of English Gobstones Team.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/2/2d/Roland_Kegg-84-chocFrogCard.png/revision/latest?cb=20160606202420"
+  },
+  {
+    "id": 85,
+    "name": "Blenheim Stalk",
+    "description": "1920-present\nNon-magical expert and author of many books including 'Non-Magical Who Notice,' a study of non-magical awareness of magic.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/9/91/Blenheim_Stalk-85-chocFrogCard.png/revision/latest?cb=20210420005433"
+  },
+  {
+    "id": 86,
+    "name": "Dorcas Wellbeloved",
+    "description": "1812-1904\nFounder of the Society for Distressed Witches.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/2/2d/Dorcas_Wellbeloved-86-chocFrogCard.png/revision/latest?cb=20160606202216"
+  },
+  {
+    "id": 87,
+    "name": "Thaddeus Thurkell",
+    "description": "1632-1692\nFamous for producing seven Squib sons and turning them all into hedgehogs in disgust.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/a/a9/Thaddeus_Thurkell-87-chocFrogCard.png/revision/latest?cb=20160606202428"
+  },
+  {
+    "id": 88,
+    "name": "Celestina Warbeck",
+    "description": "1917\u2013present\nPopular singing sorceress.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/8/80/Celestina_Warbeck-88-chocFrogCard.png/revision/latest?cb=20210420005922"
+  },
+  {
+    "id": 89,
+    "name": "Alberta Toothill",
+    "description": "1391\u20131483\nWinner of the All-England Wizarding Duelling Competition of 1430. Famously overcame the favourite, Samson Wiblin, with a Blasting Curse.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/d/d8/Alberta_Toothill-89-chocFrogCard.png/revision/latest?cb=20160606202127"
+  },
+  {
+    "id": 90,
+    "name": "Sacharissa Tugwood",
+    "description": "1874-1966\nPioneer of Beautifying Potions. Discovered the pimple-curing properties of Bubotuber Pus.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/b/b5/Sacharissa_Tugwood_FWC_COSG.png/revision/latest?cb=20210420010045"
+  },
+  {
+    "id": 91,
+    "name": "Wilfred Elphick",
+    "description": "1112\u20131199\nFirst wizard to be gored by an African Erumpent.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/9/9f/Wilfred_Elphick-91-chocFrogCard.png/revision/latest?cb=20160606202434"
+  },
+  {
+    "id": 92,
+    "name": "Xavier Rastrick",
+    "description": "1750-1836\nFlamboyant wizard entertainer who vanished unexpectedly while tapdancing to a crowd of three hundred in Painswick and was never seen again.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/5/51/Xavier_Rastrick-92-chocFrogCard.png/revision/latest/scale-to-width-down/125?cb=20160606202435"
+  },
+  {
+    "id": 93,
+    "name": "Heathcote Barbary",
+    "description": "1974-present\nPlays rhythm guitar with the popular wizarding band The Weird Sisters.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/f/fc/Heathcote_Barbary-93-chocFrogCard.png/revision/latest?cb=20160606202310"
+  },
+  {
+    "id": 94,
+    "name": "Merton Graves",
+    "description": "1978-present\nPlays cello with the popular wizarding band The Weird Sisters.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/9/9b/Merton_Graves-94-chocFrogCard.png/revision/latest?cb=20160606202340"
+  },
+  {
+    "id": 95,
+    "name": "Yardley Platt",
+    "description": "1446-1557\nSerial goblin-killer.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/3/3e/Yardley_Platt-95-chocFrogCard.png/revision/latest?cb=20160606202437"
+  },
+  {
+    "id": 96,
+    "name": "Hengist of Woodcroft",
+    "description": "Medieval, dates unknown\nDriven away from his home by non-magical persecutors, Hengist is supposed to have settled in Scotland where he founded the village of Hogsmeade. The Three Broomsticks inn is alleged to be Hengist's old home.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/d/d2/Hengist_Of_Woodcroft-96-chocFrogCard.png/revision/latest?cb=20160606202313"
+  },
+  {
+    "id": 97,
+    "name": "Alberic Grunnion",
+    "description": "1803\u20131882\nInventor of the Dungbomb.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/3/30/Alberic_Grunnion-97-chocFrogCard.png/revision/latest?cb=20160606202125"
+  },
+  {
+    "id": 98,
+    "name": "Dymphna Furmage",
+    "description": "1612\u20141698\nFamously abducted by pixies while on holiday in Cornwall and lived in mortal dread of them thereafter. Failed to persuade the Ministry of Magic to have all pixies humanely destroyed.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/c/c8/Dymphna_Furmage-98-chocFrogCard.png/revision/latest?cb=20160606202222"
+  },
+  {
+    "id": 99,
+    "name": "Daisy Dodderidge",
+    "description": "1467-1555\nFirst landlady of the Leaky Cauldron.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/e/e4/Daisy_Dodderidge-99-chocFrogCard.png/revision/latest?cb=20160606202209"
+  },
+  {
+    "id": 100,
+    "name": "Harry Potter",
+    "description": "The boy who lived.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/b/b3/Harry_Potter-100-chocFrogCard.png/revision/latest?cb=20160606202307"
+  },
+  {
+    "id": 101,
+    "name": "Albus Dumbledore",
+    "description": "Albus Dumbledore, currently Headmaster of Hogwarts.\nConsidered by many the greatest wizard of modern times, Professor Dumbledore is particularly famous for his defeat of the dark wizard Grindelwald in 1945, for the discovery of the twelve uses of dragon\u2019s blood and his work on alchemy with his partner, Nicolas Flamel. Professor Dumbledore enjoys chamber music and tenpin bowling.",
+    "url": "https://static.wikia.nocookie.net/harrypotter/images/d/dd/Albus_Dumbledore-101-chocFrogCard.png/revision/latest?cb=20160606202128"
+  }
+]

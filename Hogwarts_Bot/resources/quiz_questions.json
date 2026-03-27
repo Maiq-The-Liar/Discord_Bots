@@ -1,0 +1,3172 @@
+[
+  {
+    "id": 1,
+    "question": "What is Harry Potter's middle name?",
+    "answers": [
+      "james"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 2,
+    "question": "What is Hermione's middle name?",
+    "answers": [
+      "jean"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 3,
+    "question": "What is Ron's middle name?",
+    "answers": [
+      "bilius"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 4,
+    "question": "What house is Draco Malfoy in?",
+    "answers": [
+      "slytherin"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 5,
+    "question": "Name one of the four Hogwarts houses.",
+    "answers": [
+      "gryffindor",
+      "slytherin",
+      "hufflepuff",
+      "ravenclaw"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 6,
+    "question": "Who is Harry Potter's main enemy?",
+    "answers": [
+      "lord voldemort",
+      "voldemort",
+      "tom riddle"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 7,
+    "question": "What is Voldemort's real first name?",
+    "answers": [
+      "tom"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 8,
+    "question": "What is Voldemort's last name before he changed it?",
+    "answers": [
+      "riddle"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 9,
+    "question": "What is the name of Harry's school?",
+    "answers": [
+      "hogwarts",
+      "hogwarts school of witchcraft and wizardry"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 10,
+    "question": "Who teaches Potions in Harry's first year?",
+    "answers": [
+      "severus snape",
+      "snape"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 11,
+    "question": "Who is the head of Gryffindor house?",
+    "answers": [
+      "minerva mcgonagall",
+      "mcgonagall"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 12,
+    "question": "What is the name of Hagrid's dog?",
+    "answers": [
+      "fang"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 13,
+    "question": "What magical object shows your deepest desires?",
+    "answers": [
+      "mirror of erised",
+      "erised"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 14,
+    "question": "What is the name of the train that takes students to Hogwarts?",
+    "answers": [
+      "hogwarts express"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 15,
+    "question": "What creature guards the Philosopher's Stone initially?",
+    "answers": [
+      "fluffy",
+      "three headed dog",
+      "three-headed dog"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 16,
+    "question": "Who created the Philosopher's Stone?",
+    "answers": [
+      "nicolas flamel",
+      "flamel"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 17,
+    "question": "What is the killing curse?",
+    "answers": [
+      "avada kedavra"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 18,
+    "question": "What spell produces light from a wand?",
+    "answers": [
+      "lumos"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 19,
+    "question": "What spell turns off light?",
+    "answers": [
+      "nox"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 20,
+    "question": "Who is the caretaker of Hogwarts?",
+    "answers": [
+      "argus filch",
+      "filch"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 21,
+    "question": "What is the name of Filch's cat?",
+    "answers": [
+      "mrs norris",
+      "norris"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 22,
+    "question": "What is the name of the forbidden forest?",
+    "answers": [
+      "forbidden forest"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 23,
+    "question": "What sport involves scoring with a quaffle?",
+    "answers": [
+      "quidditch"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 24,
+    "question": "How many players are on a Quidditch team?",
+    "answers": [
+      "7",
+      "seven"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 25,
+    "question": "What position tries to catch the Golden Snitch?",
+    "answers": [
+      "seeker"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 26,
+    "question": "What ball scores 10 points in Quidditch?",
+    "answers": [
+      "quaffle"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 27,
+    "question": "What creatures guard Azkaban?",
+    "answers": [
+      "dementors",
+      "dementor"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 28,
+    "question": "What spell repels Dementors?",
+    "answers": [
+      "expecto patronum",
+      "patronus"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 29,
+    "question": "What animal form is Harry's Patronus?",
+    "answers": [
+      "stag"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 30,
+    "question": "What animal is Hermione's Patronus?",
+    "answers": [
+      "otter"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 31,
+    "question": "What animal is Ron's Patronus?",
+    "answers": [
+      "jack russell terrier",
+      "dog"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 32,
+    "question": "Who killed Sirius Black?",
+    "answers": [
+      "bellatrix lestrange",
+      "bellatrix"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 33,
+    "question": "What is the name of the Weasley twins?",
+    "answers": [
+      "fred and george",
+      "fred weasley and george weasley"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 34,
+    "question": "Which twin dies?",
+    "answers": [
+      "fred",
+      "fred weasley"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 35,
+    "question": "What is the name of Ron's sister?",
+    "answers": [
+      "ginny",
+      "ginny weasley"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 36,
+    "question": "Who becomes Harry's wife?",
+    "answers": [
+      "ginny",
+      "ginny weasley"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 37,
+    "question": "Who becomes Ron's wife?",
+    "answers": [
+      "hermione",
+      "hermione granger"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 38,
+    "question": "What is the name of the Weasley home?",
+    "answers": [
+      "the burrow",
+      "burrow"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 39,
+    "question": "What creature is Buckbeak?",
+    "answers": [
+      "hippogriff"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 40,
+    "question": "Who teaches Defense Against the Dark Arts in year 3?",
+    "answers": [
+      "remus lupin",
+      "lupin"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 41,
+    "question": "What is Lupin's condition?",
+    "answers": [
+      "werewolf"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 42,
+    "question": "Name one Marauder.",
+    "answers": [
+      "james potter",
+      "sirius black",
+      "remus lupin",
+      "peter pettigrew"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 43,
+    "question": "What animal does Peter Pettigrew turn into?",
+    "answers": [
+      "rat"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 44,
+    "question": "What is Voldemort's snake called?",
+    "answers": [
+      "nagini"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 45,
+    "question": "What is the name of the goblin who helps Harry?",
+    "answers": [
+      "griphook"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 46,
+    "question": "What bank do wizards use?",
+    "answers": [
+      "gringotts"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 47,
+    "question": "What is the name of the giant spider in the forest?",
+    "answers": [
+      "aragog"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 48,
+    "question": "Who is Aragog's friend?",
+    "answers": [
+      "hagrid",
+      "rubeus hagrid"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 49,
+    "question": "What is the name of Harry's aunt?",
+    "answers": [
+      "petunia dursley",
+      "petunia"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 50,
+    "question": "What is the name of Harry's uncle?",
+    "answers": [
+      "vernon dursley",
+      "vernon"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 51,
+    "question": "What is the name of Harry's cousin?",
+    "answers": [
+      "dudley dursley",
+      "dudley"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 52,
+    "question": "What room does Harry live in at the Dursleys?",
+    "answers": [
+      "cupboard under the stairs",
+      "the cupboard under the stairs",
+      "cupboard"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 53,
+    "question": "Who delivers Harry's Hogwarts letter?",
+    "answers": [
+      "hagrid",
+      "rubeus hagrid"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 54,
+    "question": "What is the core of Harry's wand?",
+    "answers": [
+      "phoenix feather"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 55,
+    "question": "Who owns the phoenix whose feather is in Harry's wand?",
+    "answers": [
+      "dumbledore",
+      "albus dumbledore"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 56,
+    "question": "What is the name of Dumbledore's phoenix?",
+    "answers": [
+      "fawkes"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 57,
+    "question": "What is the name of the street where the Dursleys live?",
+    "answers": [
+      "privet drive"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 58,
+    "question": "What number house do the Dursleys live in?",
+    "answers": [
+      "4",
+      "four"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 59,
+    "question": "Who is the Half-Blood Prince?",
+    "answers": [
+      "severus snape",
+      "snape"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 60,
+    "question": "What is the name of the tournament in Goblet of Fire?",
+    "answers": [
+      "triwizard tournament",
+      "triwizard"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 61,
+    "question": "How many champions compete in the Triwizard Tournament initially?",
+    "answers": [
+      "3",
+      "three"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 62,
+    "question": "Who is the fourth unexpected champion?",
+    "answers": [
+      "harry potter",
+      "harry"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 63,
+    "question": "What dragon does Harry face?",
+    "answers": [
+      "hungarian horntail",
+      "horntail"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 64,
+    "question": "Who kills Cedric Diggory?",
+    "answers": [
+      "peter pettigrew",
+      "pettigrew"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 65,
+    "question": "What house is Cedric Diggory in?",
+    "answers": [
+      "hufflepuff"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 66,
+    "question": "Who impersonates Mad-Eye Moody?",
+    "answers": [
+      "barty crouch jr",
+      "barty crouch junior"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 67,
+    "question": "What magical object chooses Triwizard champions?",
+    "answers": [
+      "goblet of fire"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 68,
+    "question": "What is the name of the newspaper in the wizarding world?",
+    "answers": [
+      "daily prophet"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 69,
+    "question": "Who edits The Quibbler?",
+    "answers": [
+      "xenophilius lovegood"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 70,
+    "question": "What is Luna Lovegood's first name?",
+    "answers": [
+      "luna"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 71,
+    "question": "What house is Luna in?",
+    "answers": [
+      "ravenclaw"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 72,
+    "question": "What creatures pull the Hogwarts carriages?",
+    "answers": [
+      "thestrals"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 73,
+    "question": "What is the name of the secret student group Harry forms?",
+    "answers": [
+      "dumbledores army",
+      "da"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 74,
+    "question": "Who is the leader of Dumbledore's Army?",
+    "answers": [
+      "harry potter",
+      "harry"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 75,
+    "question": "Who is the Defense Against the Dark Arts teacher in Order of the Phoenix?",
+    "answers": [
+      "dolores umbridge",
+      "umbridge"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 76,
+    "question": "What creature does Umbridge resemble?",
+    "answers": [
+      "toad"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 77,
+    "question": "What prison is Sirius held in?",
+    "answers": [
+      "azkaban"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 78,
+    "question": "What is Sirius Black's nickname?",
+    "answers": [
+      "padfoot"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 79,
+    "question": "What is James Potter's nickname?",
+    "answers": [
+      "prongs"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 80,
+    "question": "What is Remus Lupin's nickname?",
+    "answers": [
+      "moony"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 81,
+    "question": "What is Peter Pettigrew's nickname?",
+    "answers": [
+      "wormtail"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 82,
+    "question": "What is the name of the Weasleys' joke shop?",
+    "answers": [
+      "weasleys wizard wheezes"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 83,
+    "question": "What is the wizard shopping street called?",
+    "answers": [
+      "diagon alley"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 84,
+    "question": "What is the dark version of Diagon Alley?",
+    "answers": [
+      "knockturn alley"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 85,
+    "question": "What is the name of the wand shop owner?",
+    "answers": [
+      "ollivander",
+      "garrick ollivander"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 86,
+    "question": "What spell unlocks doors?",
+    "answers": [
+      "alohomora"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 87,
+    "question": "What spell levitates objects?",
+    "answers": [
+      "wingardium leviosa"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 88,
+    "question": "What spell petrifies someone?",
+    "answers": [
+      "petrificus totalus"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 89,
+    "question": "What spell summons objects?",
+    "answers": [
+      "accio"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 90,
+    "question": "What spell repels objects?",
+    "answers": [
+      "depulso"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 91,
+    "question": "What spell creates water?",
+    "answers": [
+      "aguamenti"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 92,
+    "question": "What spell heals minor injuries?",
+    "answers": [
+      "episkey"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 93,
+    "question": "What spell causes laughter?",
+    "answers": [
+      "rictusempra"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 94,
+    "question": "What spell disarms an opponent?",
+    "answers": [
+      "expelliarmus"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 95,
+    "question": "What spell causes objects to explode?",
+    "answers": [
+      "bombarda"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 96,
+    "question": "Name one Horcrux.",
+    "answers": [
+      "diary",
+      "ring",
+      "locket",
+      "cup",
+      "diadem",
+      "nagini",
+      "harry"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 97,
+    "question": "Who destroys the diary?",
+    "answers": [
+      "harry potter",
+      "harry"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 98,
+    "question": "Who destroys the locket?",
+    "answers": [
+      "ron weasley",
+      "ron"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 99,
+    "question": "Who destroys the cup?",
+    "answers": [
+      "hermione granger",
+      "hermione"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 100,
+    "question": "Who destroys the diadem?",
+    "answers": [
+      "harry potter",
+      "harry"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 101,
+    "question": "Who destroys the ring?",
+    "answers": [
+      "albus dumbledore",
+      "dumbledore"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 102,
+    "question": "What object is the Resurrection Stone?",
+    "answers": [
+      "stone",
+      "resurrection stone"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 103,
+    "question": "What cloak does Harry own?",
+    "answers": [
+      "invisibility cloak"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 104,
+    "question": "Who owned the Elder Wand before Harry?",
+    "answers": [
+      "draco malfoy",
+      "draco"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 105,
+    "question": "Who originally owned the Elder Wand?",
+    "answers": [
+      "antioch peverell"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 106,
+    "question": "Who kills Bellatrix Lestrange?",
+    "answers": [
+      "molly weasley",
+      "molly"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 107,
+    "question": "Who is Molly Weasley married to?",
+    "answers": [
+      "arthur weasley",
+      "arthur"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 108,
+    "question": "What job does Arthur Weasley have?",
+    "answers": [
+      "misuse of muggle artifacts office"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 109,
+    "question": "Who becomes Minister for Magic after Voldemort?",
+    "answers": [
+      "kingsley shacklebolt",
+      "kingsley"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 110,
+    "question": "What is the wizard government called?",
+    "answers": [
+      "ministry of magic"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 111,
+    "question": "What magical bus rescues Harry?",
+    "answers": [
+      "knight bus"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 112,
+    "question": "What color is the Knight Bus?",
+    "answers": [
+      "purple"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 113,
+    "question": "Who drives the Knight Bus?",
+    "answers": [
+      "ernie prang"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 114,
+    "question": "Who conducts the Knight Bus?",
+    "answers": [
+      "stan shunpike"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 115,
+    "question": "What pub is the entrance to Diagon Alley?",
+    "answers": [
+      "leaky cauldron"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 116,
+    "question": "Who is the landlord of the Leaky Cauldron?",
+    "answers": [
+      "tom"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 117,
+    "question": "Who frees Dobby?",
+    "answers": [
+      "harry potter",
+      "harry"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 118,
+    "question": "What family owns Dobby initially?",
+    "answers": [
+      "malfoy family",
+      "malfoys"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 119,
+    "question": "What is the name of Draco's father?",
+    "answers": [
+      "lucius malfoy",
+      "lucius"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 120,
+    "question": "What is the name of Draco's mother?",
+    "answers": [
+      "narcissa malfoy",
+      "narcissa"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 121,
+    "question": "Who is a known Metamorphmagus?",
+    "answers": [
+      "nymphadora tonks",
+      "tonks"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 122,
+    "question": "Who is Tonks married to?",
+    "answers": [
+      "remus lupin",
+      "lupin"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 123,
+    "question": "What is the name of Harry's son?",
+    "answers": [
+      "albus severus potter",
+      "albus severus"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 124,
+    "question": "What is the name of Harry's daughter?",
+    "answers": [
+      "lily luna potter",
+      "lily luna"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 125,
+    "question": "What is the name of Harry's other son?",
+    "answers": [
+      "james sirius potter",
+      "james sirius"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 126,
+    "question": "What is Hermione's maiden name?",
+    "answers": [
+      "granger"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 127,
+    "question": "What subject does Snape teach besides Potions later?",
+    "answers": [
+      "defense against the dark arts",
+      "defense"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 128,
+    "question": "What is the name of the Room of Requirement?",
+    "answers": [
+      "room of requirement"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 129,
+    "question": "Who finds the Room of Requirement for Dumbledore's Army?",
+    "answers": [
+      "dobby"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 130,
+    "question": "What is the name of Hagrid's giant half-brother?",
+    "answers": [
+      "grawp"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 131,
+    "question": "What creature is Norbert?",
+    "answers": [
+      "dragon"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 132,
+    "question": "Who gives Harry the Marauder's Map?",
+    "answers": [
+      "fred and george"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 133,
+    "question": "What is the password phrase to activate the map?",
+    "answers": [
+      "i solemnly swear that i am up to no good"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 134,
+    "question": "What phrase closes the map?",
+    "answers": [
+      "mischief managed"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 135,
+    "question": "Who kills Voldemort?",
+    "answers": [
+      "harry potter",
+      "harry"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 136,
+    "question": "What is the name of the spell that creates a shield?",
+    "answers": [
+      "protego"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 137,
+    "question": "What is the name of the spell that controls someone's actions?",
+    "answers": [
+      "imperio",
+      "imperius curse"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 138,
+    "question": "What is the name of the torture curse?",
+    "answers": [
+      "crucio",
+      "cruciatus curse"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 139,
+    "question": "Who teaches Herbology at Hogwarts?",
+    "answers": [
+      "pomona sprout",
+      "sprout"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 140,
+    "question": "What plant screams when uprooted?",
+    "answers": [
+      "mandrake"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 141,
+    "question": "What potion restores petrified victims?",
+    "answers": [
+      "mandrake restorative draught"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 142,
+    "question": "What potion allows you to take another person's appearance?",
+    "answers": [
+      "polyjuice potion",
+      "polyjuice"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 143,
+    "question": "Who brews Polyjuice Potion in Chamber of Secrets?",
+    "answers": [
+      "hermione granger",
+      "hermione"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 144,
+    "question": "What animal does Hermione accidentally turn into using Polyjuice?",
+    "answers": [
+      "cat"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 145,
+    "question": "What is the name of the ghost of Gryffindor house?",
+    "answers": [
+      "nearly headless nick",
+      "nick"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 146,
+    "question": "Who is the Grey Lady?",
+    "answers": [
+      "helena ravenclaw",
+      "ravenclaws daughter"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 147,
+    "question": "Who killed the Grey Lady?",
+    "answers": [
+      "bloody baron"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 148,
+    "question": "What house is the Bloody Baron associated with?",
+    "answers": [
+      "slytherin"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 149,
+    "question": "What is the name of the Slytherin common room location?",
+    "answers": [
+      "dungeons"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 150,
+    "question": "Who guards the Gryffindor common room entrance?",
+    "answers": [
+      "fat lady"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 151,
+    "question": "What is the Ravenclaw house symbol?",
+    "answers": [
+      "eagle"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 152,
+    "question": "What is the Hufflepuff house symbol?",
+    "answers": [
+      "badger"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 153,
+    "question": "What is the Slytherin house symbol?",
+    "answers": [
+      "snake",
+      "serpent"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 154,
+    "question": "What is the Gryffindor house symbol?",
+    "answers": [
+      "lion"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 155,
+    "question": "What element is associated with Slytherin?",
+    "answers": [
+      "water"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 156,
+    "question": "What element is associated with Gryffindor?",
+    "answers": [
+      "fire"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 157,
+    "question": "What element is associated with Ravenclaw?",
+    "answers": [
+      "air"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 158,
+    "question": "What element is associated with Hufflepuff?",
+    "answers": [
+      "earth"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 159,
+    "question": "Name one Hogwarts founder.",
+    "answers": [
+      "godric gryffindor",
+      "salazar slytherin",
+      "rowena ravenclaw",
+      "helga hufflepuff"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 160,
+    "question": "Who founded Slytherin house?",
+    "answers": [
+      "salazar slytherin"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 161,
+    "question": "Who founded Ravenclaw house?",
+    "answers": [
+      "rowena ravenclaw"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 162,
+    "question": "Who founded Hufflepuff house?",
+    "answers": [
+      "helga hufflepuff"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 163,
+    "question": "What language allows someone to control the basilisk?",
+    "answers": [
+      "parseltongue"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 164,
+    "question": "Who can speak Parseltongue?",
+    "answers": [
+      "harry potter",
+      "voldemort",
+      "tom riddle"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 165,
+    "question": "What is the name of the sword that Harry uses to kill the basilisk?",
+    "answers": [
+      "sword of gryffindor"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 166,
+    "question": "Who pulls the sword of Gryffindor from the Sorting Hat in Chamber of Secrets?",
+    "answers": [
+      "harry potter",
+      "harry"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 167,
+    "question": "What does the sword absorb that makes it stronger?",
+    "answers": [
+      "basilisk venom",
+      "venom"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 168,
+    "question": "Who becomes headmaster after Dumbledore dies?",
+    "answers": [
+      "severus snape",
+      "snape"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 169,
+    "question": "Who becomes headmaster after Snape?",
+    "answers": [
+      "minerva mcgonagall",
+      "mcgonagall"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 170,
+    "question": "Who kills Fred Weasley?",
+    "answers": [
+      "augustus rookwood",
+      "rookwood"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 171,
+    "question": "Who is Neville Longbottom's love interest later?",
+    "answers": [
+      "hannah abbott",
+      "hannah"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 172,
+    "question": "What subject does Professor Flitwick teach?",
+    "answers": [
+      "charms"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 173,
+    "question": "What subject does Professor Trelawney teach?",
+    "answers": [
+      "divination"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 174,
+    "question": "What subject does Professor Binns teach?",
+    "answers": [
+      "history of magic"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 175,
+    "question": "What subject does Hagrid teach?",
+    "answers": [
+      "care of magical creatures"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 176,
+    "question": "Who does Hermione take to the Yule Ball?",
+    "answers": [
+      "viktor krum",
+      "krum"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 177,
+    "question": "What spell conjures a snake in the dueling club?",
+    "answers": [
+      "serpensortia"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 178,
+    "question": "Who speaks Parseltongue during the dueling club?",
+    "answers": [
+      "harry potter",
+      "harry"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 179,
+    "question": "What animal is conjured during the dueling club?",
+    "answers": [
+      "snake"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 180,
+    "question": "Who is the Heir of Slytherin?",
+    "answers": [
+      "tom riddle",
+      "voldemort"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 181,
+    "question": "What object contains Tom Riddle's memory?",
+    "answers": [
+      "diary",
+      "tom riddles diary"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 182,
+    "question": "Who opened the Chamber of Secrets in Harry's second year?",
+    "answers": [
+      "ginny weasley",
+      "ginny"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 183,
+    "question": "What creature lives in the Chamber of Secrets?",
+    "answers": [
+      "basilisk"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 184,
+    "question": "What part of the basilisk is deadly to look at?",
+    "answers": [
+      "eyes"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 185,
+    "question": "What creature's tears heal Harry in the Chamber of Secrets?",
+    "answers": [
+      "fawkes",
+      "phoenix"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 186,
+    "question": "What object does Fawkes bring into the Chamber of Secrets?",
+    "answers": [
+      "sorting hat"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 187,
+    "question": "What weapon does Harry pull from the Sorting Hat?",
+    "answers": [
+      "sword of gryffindor"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 188,
+    "question": "What magical object stores memories?",
+    "answers": [
+      "pensieve"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 189,
+    "question": "Who owns the Pensieve Harry uses?",
+    "answers": [
+      "albus dumbledore",
+      "dumbledore"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 190,
+    "question": "Who teaches Potions in Harry's sixth year?",
+    "answers": [
+      "horace slughorn",
+      "slughorn"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 191,
+    "question": "What club does Slughorn organize?",
+    "answers": [
+      "slug club"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 192,
+    "question": "What potion is known as Liquid Luck?",
+    "answers": [
+      "felix felicis"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 193,
+    "question": "Who gives Harry Felix Felicis?",
+    "answers": [
+      "horace slughorn",
+      "slughorn"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 194,
+    "question": "What book helps Harry excel in Potions?",
+    "answers": [
+      "half blood prince book",
+      "potions book"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 195,
+    "question": "What object does Draco Malfoy repair?",
+    "answers": [
+      "vanishing cabinet"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 196,
+    "question": "Where does the Vanishing Cabinet lead to?",
+    "answers": [
+      "borgin and burkes"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 197,
+    "question": "In which alley is Borgin and Burkes located?",
+    "answers": [
+      "knockturn alley"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 198,
+    "question": "What spell does Harry use on Draco in the bathroom duel?",
+    "answers": [
+      "sectumsempra"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 199,
+    "question": "Who created the spell Sectumsempra?",
+    "answers": [
+      "severus snape",
+      "snape"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 200,
+    "question": "What spell does Snape use to heal Draco?",
+    "answers": [
+      "vulnera sanentur"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 201,
+    "question": "Who kills Albus Dumbledore?",
+    "answers": [
+      "severus snape",
+      "snape"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 202,
+    "question": "Who planned Dumbledore's death with Snape?",
+    "answers": [
+      "albus dumbledore",
+      "dumbledore"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 203,
+    "question": "What magical bank do Harry, Ron, and Hermione break into?",
+    "answers": [
+      "gringotts"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 204,
+    "question": "What creature guards the Lestrange vault in Gringotts?",
+    "answers": [
+      "dragon"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 205,
+    "question": "What Horcrux is hidden in the Lestrange vault?",
+    "answers": [
+      "hufflepuff cup",
+      "cup"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 206,
+    "question": "Which Hogwarts founder owned the cup Horcrux?",
+    "answers": [
+      "helga hufflepuff",
+      "hufflepuff"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 207,
+    "question": "What Horcrux is associated with Ravenclaw?",
+    "answers": [
+      "diadem"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 208,
+    "question": "Where is the Ravenclaw diadem hidden?",
+    "answers": [
+      "room of requirement"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 209,
+    "question": "What destructive magical fire is released in the Room of Requirement?",
+    "answers": [
+      "fiendfyre"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 210,
+    "question": "Who casts Fiendfyre in the Room of Requirement?",
+    "answers": [
+      "crabbe"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 211,
+    "question": "What object destroys the Ravenclaw diadem?",
+    "answers": [
+      "fiendfyre"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 212,
+    "question": "Who pulls the Sword of Gryffindor from the Sorting Hat during the final battle?",
+    "answers": [
+      "neville longbottom",
+      "neville"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 213,
+    "question": "Where does Harry meet Dumbledore after being struck by Voldemort?",
+    "answers": [
+      "kings cross",
+      "kings cross station"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 214,
+    "question": "What object is destroyed inside Harry when Voldemort attacks him in the forest?",
+    "answers": [
+      "horcrux",
+      "voldemort soul fragment"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 215,
+    "question": "What wand does Voldemort use in the final battle?",
+    "answers": [
+      "elder wand"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 216,
+    "question": "Who is the true master of the Elder Wand at the end?",
+    "answers": [
+      "harry potter",
+      "harry"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 217,
+    "question": "What spell does Harry use in the final duel with Voldemort?",
+    "answers": [
+      "expelliarmus"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 218,
+    "question": "What spell does Voldemort use in the final duel?",
+    "answers": [
+      "avada kedavra"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 219,
+    "question": "What magical ability allows communication with snakes?",
+    "answers": [
+      "parseltongue"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 220,
+    "question": "Who becomes headmaster after the final battle?",
+    "answers": [
+      "minerva mcgonagall",
+      "mcgonagall"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 221,
+    "question": "Name a magical creature from Harry Potter.",
+    "answers": [
+      "hippogriff",
+      "basilisk",
+      "dementor",
+      "house elf",
+      "dragon",
+      "phoenix",
+      "acromantula",
+      "thestral",
+      "centaur",
+      "werewolf"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 222,
+    "question": "Name a Weasley family member.",
+    "answers": [
+      "ron",
+      "ginny",
+      "fred",
+      "george",
+      "percy",
+      "arthur",
+      "molly",
+      "bill",
+      "charlie"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 223,
+    "question": "Name a Hogwarts professor.",
+    "answers": [
+      "snape",
+      "mcgonagall",
+      "dumbledore",
+      "flitwick",
+      "sprout",
+      "trelawney",
+      "slughorn",
+      "lupin",
+      "umbridge"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 224,
+    "question": "Name a spell from Harry Potter.",
+    "answers": [
+      "expelliarmus",
+      "lumos",
+      "nox",
+      "accio",
+      "alohomora",
+      "protego",
+      "stupefy",
+      "expecto patronum"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 225,
+    "question": "What is the name of Harry's broomstick in third year?",
+    "answers": [
+      "firebolt"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 226,
+    "question": "What platform number do Hogwarts students depart from?",
+    "answers": [
+      "9 3/4",
+      "platform 9 3/4"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 227,
+    "question": "Name a member of the Order of the Phoenix.",
+    "answers": [
+      "sirius black",
+      "remus lupin",
+      "mad eye moody",
+      "tonks",
+      "arthur weasley",
+      "molly weasley",
+      "kingsley shacklebolt"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 228,
+    "question": "What is the name of Sirius Black's house?",
+    "answers": [
+      "grimmauld place",
+      "12 grimmauld place"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 229,
+    "question": "Name a Horcrux.",
+    "answers": [
+      "diary",
+      "ring",
+      "locket",
+      "cup",
+      "diadem",
+      "nagini",
+      "harry"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 230,
+    "question": "What is the name of the locket Horcrux owner?",
+    "answers": [
+      "salazar slytherin",
+      "slytherin"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 231,
+    "question": "What is the name of the ring Horcrux owner?",
+    "answers": [
+      "marvolo gaunt",
+      "gaunt"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 232,
+    "question": "Name a Death Eater.",
+    "answers": [
+      "bellatrix lestrange",
+      "lucius malfoy",
+      "snape",
+      "yaxley",
+      "dolohov"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 233,
+    "question": "Who is Voldemort's most loyal follower?",
+    "answers": [
+      "bellatrix lestrange",
+      "bellatrix"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 234,
+    "question": "Name a Hogwarts subject.",
+    "answers": [
+      "potions",
+      "charms",
+      "transfiguration",
+      "herbology",
+      "defense against the dark arts",
+      "divination",
+      "history of magic"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 235,
+    "question": "Who teaches Charms?",
+    "answers": [
+      "flitwick",
+      "filius flitwick"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 236,
+    "question": "What subject does McGonagall teach?",
+    "answers": [
+      "transfiguration"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 237,
+    "question": "What subject does Sprout teach?",
+    "answers": [
+      "herbology"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 238,
+    "question": "What subject does Lupin teach?",
+    "answers": [
+      "defense against the dark arts",
+      "defense"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 239,
+    "question": "Name a magical location in Harry Potter.",
+    "answers": [
+      "hogwarts",
+      "diagon alley",
+      "knockturn alley",
+      "hogsmeade",
+      "azkaban",
+      "ministry of magic"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 240,
+    "question": "What village is near Hogwarts?",
+    "answers": [
+      "hogsmeade"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 241,
+    "question": "Name a shop in Diagon Alley.",
+    "answers": [
+      "ollivanders",
+      "weasleys wizard wheezes",
+      "flourish and blotts"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 242,
+    "question": "Name a member of Dumbledore's Army.",
+    "answers": [
+      "harry",
+      "ron",
+      "hermione",
+      "neville",
+      "luna",
+      "ginny"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 243,
+    "question": "Name a member of the Malfoy family.",
+    "answers": [
+      "draco",
+      "lucius",
+      "narcissa"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 244,
+    "question": "What is Draco Malfoy's first name?",
+    "answers": [
+      "draco"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 245,
+    "question": "What is Lucius Malfoy's last name?",
+    "answers": [
+      "malfoy"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 246,
+    "question": "Name a magical object in Harry Potter.",
+    "answers": [
+      "invisibility cloak",
+      "elder wand",
+      "resurrection stone",
+      "time turner",
+      "pensieve"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 247,
+    "question": "Name a Hogwarts founder.",
+    "answers": [
+      "gryffindor",
+      "slytherin",
+      "ravenclaw",
+      "hufflepuff"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 248,
+    "question": "What is Godric Gryffindor's first name?",
+    "answers": [
+      "godric"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 249,
+    "question": "What is Salazar Slytherin's first name?",
+    "answers": [
+      "salazar"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 250,
+    "question": "What is Rowena Ravenclaw's first name?",
+    "answers": [
+      "rowena"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 251,
+    "question": "What is Helga Hufflepuff's first name?",
+    "answers": [
+      "helga"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 252,
+    "question": "Name a magical creature that can fly.",
+    "answers": [
+      "dragon",
+      "hippogriff",
+      "thestral",
+      "phoenix"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 253,
+    "question": "Name a spell used in dueling.",
+    "answers": [
+      "expelliarmus",
+      "stupefy",
+      "protego",
+      "sectumsempra"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 254,
+    "question": "Name a Hogwarts ghost.",
+    "answers": [
+      "nearly headless nick",
+      "bloody baron",
+      "grey lady",
+      "fat friar"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 255,
+    "question": "Name a Triwizard Tournament champion.",
+    "answers": [
+      "harry potter",
+      "cedric diggory",
+      "viktor krum",
+      "fleur delacour"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 256,
+    "question": "Name a magical transportation method.",
+    "answers": [
+      "broomstick",
+      "floo powder",
+      "apparition",
+      "portkey"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 257,
+    "question": "What powder is used for fireplace travel?",
+    "answers": [
+      "floo powder"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 258,
+    "question": "What is teleportation called in Harry Potter?",
+    "answers": [
+      "apparition"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 259,
+    "question": "What is an object that transports you instantly called?",
+    "answers": [
+      "portkey"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 260,
+    "question": "Name a magical pet owned by a main character.",
+    "answers": [
+      "hedwig",
+      "scabbers",
+      "crookshanks"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 261,
+    "question": "What type of animal is Crookshanks?",
+    "answers": [
+      "cat"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 262,
+    "question": "What type of animal is Scabbers?",
+    "answers": [
+      "rat"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 263,
+    "question": "What type of animal is Hedwig?",
+    "answers": [
+      "owl"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 264,
+    "question": "Name a wand core type.",
+    "answers": [
+      "phoenix feather",
+      "dragon heartstring",
+      "unicorn hair"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 265,
+    "question": "Name a Hogwarts house trait.",
+    "answers": [
+      "bravery",
+      "cunning",
+      "intelligence",
+      "loyalty"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 266,
+    "question": "Name a spell used for light or darkness.",
+    "answers": [
+      "lumos",
+      "nox"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 267,
+    "question": "Name a Hogwarts student.",
+    "answers": [
+      "harry",
+      "ron",
+      "hermione",
+      "draco",
+      "neville",
+      "luna",
+      "ginny"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 268,
+    "question": "Name a member of the Black family.",
+    "answers": [
+      "sirius",
+      "bellatrix",
+      "narcissa",
+      "regulus"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 269,
+    "question": "Name a magical object used in time travel.",
+    "answers": [
+      "time turner",
+      "time-turner"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 270,
+    "question": "Name a spell used to stun an opponent.",
+    "answers": [
+      "stupefy"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 271,
+    "question": "Name a spell used for protection.",
+    "answers": [
+      "protego"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 272,
+    "question": "Name a Hogwarts location.",
+    "answers": [
+      "great hall",
+      "common room",
+      "forbidden forest",
+      "hogwarts grounds"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 273,
+    "question": "What is the name of the Hogwarts dining hall?",
+    "answers": [
+      "great hall"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 274,
+    "question": "What magical creature is Aragog?",
+    "answers": [
+      "acromantula",
+      "giant spider"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 275,
+    "question": "Who raised Aragog?",
+    "answers": [
+      "hagrid",
+      "rubeus hagrid"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 276,
+    "question": "Name a dragon type in Harry Potter.",
+    "answers": [
+      "hungarian horntail",
+      "norwegian ridgeback",
+      "chinese fireball"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 277,
+    "question": "What dragon does Hagrid raise?",
+    "answers": [
+      "norbert",
+      "norberta"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 278,
+    "question": "Name a magical school other than Hogwarts.",
+    "answers": [
+      "beauxbatons",
+      "durmstrang"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 279,
+    "question": "What school does Viktor Krum attend?",
+    "answers": [
+      "durmstrang"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 280,
+    "question": "What school does Fleur Delacour attend?",
+    "answers": [
+      "beauxbatons"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 281,
+    "question": "Name a Triwizard Tournament task.",
+    "answers": [
+      "dragon task",
+      "lake task",
+      "maze"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 282,
+    "question": "Name a magical plant.",
+    "answers": [
+      "mandrake",
+      "devils snare"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 283,
+    "question": "What plant can strangle you if you panic?",
+    "answers": [
+      "devils snare",
+      "devil's snare"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 284,
+    "question": "Name a magical drink.",
+    "answers": [
+      "butterbeer",
+      "pumpkin juice"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 285,
+    "question": "What drink is popular in Hogsmeade?",
+    "answers": [
+      "butterbeer"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 286,
+    "question": "Name a Hogwarts exam.",
+    "answers": [
+      "owl",
+      "newt"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 287,
+    "question": "What does OWL stand for?",
+    "answers": [
+      "ordinary wizarding level"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 288,
+    "question": "What does NEWT stand for?",
+    "answers": [
+      "nastily exhausting wizarding test"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 289,
+    "question": "Name a magical transportation animal.",
+    "answers": [
+      "hippogriff",
+      "thestral"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 290,
+    "question": "Name a spell used in defense.",
+    "answers": [
+      "protego",
+      "expelliarmus"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 291,
+    "question": "Name a spell used in attack.",
+    "answers": [
+      "stupefy",
+      "sectumsempra",
+      "avada kedavra"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 292,
+    "question": "Name one of the Unforgivable Curses.",
+    "answers": [
+      "avada kedavra",
+      "crucio",
+      "imperio"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 293,
+    "question": "Name a magical job.",
+    "answers": [
+      "auror",
+      "professor",
+      "curse breaker",
+      "minister"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 294,
+    "question": "What is Harry Potter's job as an adult?",
+    "answers": [
+      "auror"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 295,
+    "question": "Name a wizarding government role.",
+    "answers": [
+      "minister of magic",
+      "auror"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 296,
+    "question": "Name a magical shop.",
+    "answers": [
+      "ollivanders",
+      "weasleys wizard wheezes",
+      "flourish and blotts"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 297,
+    "question": "Name a magical object used in invisibility.",
+    "answers": [
+      "invisibility cloak"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 298,
+    "question": "Name a Deathly Hallow.",
+    "answers": [
+      "elder wand",
+      "resurrection stone",
+      "invisibility cloak"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 299,
+    "question": "Name a magical creature in the Forbidden Forest.",
+    "answers": [
+      "centaur",
+      "acromantula",
+      "unicorn"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 300,
+    "question": "Name a Hogwarts sport-related object.",
+    "answers": [
+      "quaffle",
+      "bludger",
+      "snitch"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 301,
+    "question": "What ball is worth 150 points in Quidditch?",
+    "answers": [
+      "golden snitch",
+      "snitch"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 302,
+    "question": "Name a Quidditch position.",
+    "answers": [
+      "seeker",
+      "chaser",
+      "beater",
+      "keeper"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 303,
+    "question": "Name a wizarding currency.",
+    "answers": [
+      "galleon",
+      "sickle",
+      "knut"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 304,
+    "question": "What is the highest value wizarding coin?",
+    "answers": [
+      "galleon"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 305,
+    "question": "Name a magical object used in dueling.",
+    "answers": [
+      "wand"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 306,
+    "question": "Name a Hogwarts house color.",
+    "answers": [
+      "red",
+      "green",
+      "blue",
+      "yellow",
+      "gold",
+      "silver"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 307,
+    "question": "Name a magical creature that lives in water.",
+    "answers": [
+      "mermaid",
+      "grindylow"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 308,
+    "question": "Name a member of the Dursley family.",
+    "answers": [
+      "vernon",
+      "petunia",
+      "dudley"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 309,
+    "question": "What is the name of the wizard chess game?",
+    "answers": [
+      "wizard chess"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 310,
+    "question": "Who is Ron Weasley's best friend?",
+    "answers": [
+      "harry potter",
+      "harry"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 311,
+    "question": "Name a wand material.",
+    "answers": [
+      "holly",
+      "yew",
+      "oak",
+      "unicorn hair",
+      "dragon heartstring",
+      "phoenix feather",
+      "wood"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 312,
+    "question": "Name a magical item owned by Harry.",
+    "answers": [
+      "invisibility cloak",
+      "wand",
+      "nimbus 2000",
+      "firebolt"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 313,
+    "question": "What is the name of Harry's vault at Gringotts?",
+    "answers": [
+      "vault 687",
+      "687"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 314,
+    "question": "Name a magical creature that can fly.",
+    "answers": [
+      "dragon",
+      "phoenix",
+      "hippogriff",
+      "thestral"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 315,
+    "question": "Name a magical potion.",
+    "answers": [
+      "polyjuice potion",
+      "felix felicis",
+      "amortentia"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 316,
+    "question": "What potion creates love or attraction?",
+    "answers": [
+      "amortentia"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 317,
+    "question": "Name a Hogwarts building or area.",
+    "answers": [
+      "great hall",
+      "tower",
+      "dungeons",
+      "library"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 318,
+    "question": "What is the name of the Hogwarts library?",
+    "answers": [
+      "library",
+      "hogwarts library"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 319,
+    "question": "Name a magical creature that changes form.",
+    "answers": [
+      "werewolf",
+      "animagus"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 320,
+    "question": "What is a wizard who can turn into an animal called?",
+    "answers": [
+      "animagus"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 321,
+    "question": "Name a known Animagus.",
+    "answers": [
+      "sirius black",
+      "james potter",
+      "peter pettigrew"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 322,
+    "question": "What animal does Sirius Black turn into?",
+    "answers": [
+      "dog"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 323,
+    "question": "What animal does James Potter turn into?",
+    "answers": [
+      "stag"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 324,
+    "question": "What animal does Peter Pettigrew turn into?",
+    "answers": [
+      "rat"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 325,
+    "question": "Name a magical competition.",
+    "answers": [
+      "triwizard tournament"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 326,
+    "question": "Name a magical creature used in the Triwizard Tournament.",
+    "answers": [
+      "dragon",
+      "mermaid"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 327,
+    "question": "Name a magical object used in Hogwarts.",
+    "answers": [
+      "wand",
+      "sorting hat",
+      "pensieve"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 328,
+    "question": "Name a magical creature that guards treasure.",
+    "answers": [
+      "dragon"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 329,
+    "question": "Name a magical creature that lives in forests.",
+    "answers": [
+      "centaur",
+      "acromantula"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 330,
+    "question": "Name a magical spell used for light.",
+    "answers": [
+      "lumos"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 331,
+    "question": "Name a magical spell used in combat.",
+    "answers": [
+      "expelliarmus",
+      "stupefy"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 332,
+    "question": "Name a Hogwarts founder relic.",
+    "answers": [
+      "sword",
+      "cup",
+      "diadem",
+      "locket"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 333,
+    "question": "Name a magical creature that can be a pet.",
+    "answers": [
+      "owl",
+      "cat",
+      "rat"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 334,
+    "question": "Name a magical creature that can speak.",
+    "answers": [
+      "house elf",
+      "centaur"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 335,
+    "question": "Name a magical building in the wizarding world.",
+    "answers": [
+      "hogwarts",
+      "ministry of magic",
+      "azkaban"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 336,
+    "question": "Name a magical sport.",
+    "answers": [
+      "quidditch"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 337,
+    "question": "Name a Quidditch ball.",
+    "answers": [
+      "quaffle",
+      "bludger",
+      "snitch"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 338,
+    "question": "Name a magical creature that transforms.",
+    "answers": [
+      "werewolf",
+      "animagus"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 339,
+    "question": "Name a magical creature used in Hogwarts lessons.",
+    "answers": [
+      "hippogriff",
+      "blast ended skrewt",
+      "niffler"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 340,
+    "question": "Name a magical creature that hoards treasure.",
+    "answers": [
+      "niffler"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 341,
+    "question": "Name a magical creature associated with prophecy.",
+    "answers": [
+      "centaur"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 342,
+    "question": "Name a magical object used for memory viewing.",
+    "answers": [
+      "pensieve"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 343,
+    "question": "Name a magical object used for power.",
+    "answers": [
+      "elder wand"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 344,
+    "question": "Name a magical item used in duels.",
+    "answers": [
+      "wand"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 345,
+    "question": "Name a magical item used in potion making.",
+    "answers": [
+      "cauldron"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 346,
+    "question": "Name a magical plant used in potions.",
+    "answers": [
+      "mandrake"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 347,
+    "question": "Name a magical creature used in Triwizard tasks.",
+    "answers": [
+      "dragon",
+      "mermaid"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 348,
+    "question": "Name a magical creature in the Hogwarts forest.",
+    "answers": [
+      "centaur",
+      "acromantula"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 349,
+    "question": "Name a magical creature that can kill with a gaze.",
+    "answers": [
+      "basilisk"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 350,
+    "question": "Name a magical creature associated with treasure.",
+    "answers": [
+      "niffler"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 351,
+    "question": "Name a magical creature associated with invisibility abilities.",
+    "answers": [
+      "demiguise"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 352,
+    "question": "Name a magical creature associated with magical transport.",
+    "answers": [
+      "thestral",
+      "hippogriff"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 353,
+    "question": "Name a magical creature associated with gold or treasure hunting.",
+    "answers": [
+      "niffler"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 354,
+    "question": "Name a magical creature associated with Hogwarts lessons.",
+    "answers": [
+      "hippogriff",
+      "niffler",
+      "skrewt"
+    ],
+    "image_url": null
+  },
+  {
+    "id": 355,
+    "question": "Name a magical creature from the Harry Potter universe.",
+    "answers": [
+      "dragon",
+      "phoenix",
+      "hippogriff",
+      "basilisk",
+      "dementor",
+      "centaur",
+      "niffler",
+      "thestral"
+    ],
+    "image_url": null
+  }
+]

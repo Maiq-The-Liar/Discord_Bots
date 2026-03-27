@@ -1,0 +1,848 @@
+[
+  {
+    "id": 1,
+    "name": "Aardvark",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Aardvark.gif?raw=true"
+  },
+  {
+    "id": 2,
+    "name": "Abraxan Winged Horse",
+    "rarity": "rare",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Abraxan_Winged_Horse.gif?raw=true"
+  },
+  {
+    "id": 3,
+    "name": "Adder",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Adder.gif?raw=true"
+  },
+  {
+    "id": 4,
+    "name": "Badger",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Badger.gif?raw=true"
+  },
+  {
+    "id": 5,
+    "name": "Basset Hound",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Basset_Hound.gif?raw=true"
+  },
+  {
+    "id": 6,
+    "name": "Bat",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Bat.gif?raw=true"
+  },
+  {
+    "id": 7,
+    "name": "Bay Mare",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Bay_Mare.gif?raw=true"
+  },
+  {
+    "id": 8,
+    "name": "Bay Stallion",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Bay_Stallion.gif?raw=true"
+  },
+  {
+    "id": 9,
+    "name": "Beagle",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Beagle.gif?raw=true"
+  },
+  {
+    "id": 10,
+    "name": "Black and White Cat",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Black_and_White_Cat.gif?raw=true"
+  },
+  {
+    "id": 11,
+    "name": "Black Bear",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Black_Bear.gif?raw=true"
+  },
+  {
+    "id": 12,
+    "name": "Black Mamba",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Black_Mamba.gif?raw=true"
+  },
+  {
+    "id": 13,
+    "name": "Black Mare",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Black_Mare.gif?raw=true"
+  },
+  {
+    "id": 14,
+    "name": "Black Stallion",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Black_Stallion.gif?raw=true"
+  },
+  {
+    "id": 15,
+    "name": "Black Swan",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Black_Swan.gif?raw=true"
+  },
+  {
+    "id": 16,
+    "name": "Blackbird",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Blackbird.gif?raw=true"
+  },
+  {
+    "id": 17,
+    "name": "Blood Hound",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Blood_Hound.gif?raw=true"
+  },
+  {
+    "id": 18,
+    "name": "Borzoi",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Borzoi.gif?raw=true"
+  },
+  {
+    "id": 19,
+    "name": "Brown Bear",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Brown_Bear.gif?raw=true"
+  },
+  {
+    "id": 20,
+    "name": "Brown Hare",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Brown_Hare.gif?raw=true"
+  },
+  {
+    "id": 21,
+    "name": "Brown Owl",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Brown_Owl.gif?raw=true"
+  },
+  {
+    "id": 22,
+    "name": "Buffalo",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Buffalo.gif?raw=true"
+  },
+  {
+    "id": 23,
+    "name": "Buzzard",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Buzzard.gif?raw=true"
+  },
+  {
+    "id": 24,
+    "name": "Capuchin Monkey",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Capuchin_Monkey.gif?raw=true"
+  },
+  {
+    "id": 25,
+    "name": "Cheetah",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Cheetah.gif?raw=true"
+  },
+  {
+    "id": 26,
+    "name": "Chestnut Mare",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Chestnut_Mare.gif?raw=true"
+  },
+  {
+    "id": 27,
+    "name": "Chestnut Stallion",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Chestnut_Stallion.gif?raw=true"
+  },
+  {
+    "id": 28,
+    "name": "Chow Dog",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Chow_Dog.gif?raw=true"
+  },
+  {
+    "id": 29,
+    "name": "Claico Cat",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Claico_Cat.gif?raw=true"
+  },
+  {
+    "id": 30,
+    "name": "Crow",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Crow.gif?raw=true"
+  },
+  {
+    "id": 31,
+    "name": "Dapple Grey Mare",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Dapple_Grey_Mare.gif?raw=true"
+  },
+  {
+    "id": 32,
+    "name": "Dapple Grey Stallion",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Dapple_Grey_Stallion.gif?raw=true"
+  },
+  {
+    "id": 33,
+    "name": "Deerhound",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Deerhound.gif?raw=true"
+  },
+  {
+    "id": 34,
+    "name": "Doe",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Doe.gif?raw=true"
+  },
+  {
+    "id": 35,
+    "name": "Dolphin",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Dolphin.gif?raw=true"
+  },
+  {
+    "id": 36,
+    "name": "Dragon",
+    "rarity": "rare",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Dragon.gif?raw=true"
+  },
+  {
+    "id": 37,
+    "name": "Dragonfly",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Dragonfly.gif?raw=true"
+  },
+  {
+    "id": 38,
+    "name": "Dun Mare",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Dun_Mare.gif?raw=true"
+  },
+  {
+    "id": 39,
+    "name": "Dun Stallion",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Dun_Stallion.gif?raw=true"
+  },
+  {
+    "id": 40,
+    "name": "Eagle",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Eagle.gif?raw=true"
+  },
+  {
+    "id": 41,
+    "name": "Eagle Owl",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Eagle_Owl.gif?raw=true"
+  },
+  {
+    "id": 42,
+    "name": "Elephant",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Elephant.gif?raw=true"
+  },
+  {
+    "id": 43,
+    "name": "Erumpent",
+    "rarity": "rare",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Erumpent.gif?raw=true"
+  },
+  {
+    "id": 44,
+    "name": "Falcon",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Falcon.gif?raw=true"
+  },
+  {
+    "id": 45,
+    "name": "Field Mouse",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Field_Mouse.gif?raw=true"
+  },
+  {
+    "id": 46,
+    "name": "Fire-Dewlling Salamander",
+    "rarity": "rare",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Fire-Dwelling_Salamander.gif?raw=true"
+  },
+  {
+    "id": 47,
+    "name": "Fox",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Fox.gif?raw=true"
+  },
+  {
+    "id": 48,
+    "name": "Fox Terrier",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Fox_Terrier.gif?raw=true"
+  },
+  {
+    "id": 49,
+    "name": "Ginger Cat",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Ginger_Cat.gif?raw=true"
+  },
+  {
+    "id": 50,
+    "name": "Goshwak",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Goshwak.gif?raw=true"
+  },
+  {
+    "id": 51,
+    "name": "Granian Winged Horse",
+    "rarity": "rare",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Granian_Winged_Horse.gif?raw=true"
+  },
+  {
+    "id": 52,
+    "name": "Grass Snake",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Grass_Snake.gif?raw=true"
+  },
+  {
+    "id": 53,
+    "name": "Great Grey Owl",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Great_Grey_Owl.gif?raw=true"
+  },
+  {
+    "id": 54,
+    "name": "Grey Squirrel",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Grey_Squirrel.gif?raw=true"
+  },
+  {
+    "id": 55,
+    "name": "Greyhound",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Greyhound.gif?raw=true"
+  },
+  {
+    "id": 56,
+    "name": "Hedgehog",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Hedgehog.gif?raw=true"
+  },
+  {
+    "id": 57,
+    "name": "Heron",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Heron.gif?raw=true"
+  },
+  {
+    "id": 58,
+    "name": "Hippogriff",
+    "rarity": "rare",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Hippogriff.gif?raw=true"
+  },
+  {
+    "id": 59,
+    "name": "Hummingbird",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Hummingbird.gif?raw=true"
+  },
+  {
+    "id": 60,
+    "name": "Husky",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Husky.gif?raw=true"
+  },
+  {
+    "id": 61,
+    "name": "Hyena",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Hyena.gif?raw=true"
+  },
+  {
+    "id": 62,
+    "name": "Ibizan Hound",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Ibizan_Hound.gif?raw=true"
+  },
+  {
+    "id": 63,
+    "name": "Impala",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Impala.gif?raw=true"
+  },
+  {
+    "id": 64,
+    "name": "Irish Wolfhound",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Irish_Wolfhound.gif?raw=true"
+  },
+  {
+    "id": 65,
+    "name": "King Cobra",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/King_Cobra.gif?raw=true"
+  },
+  {
+    "id": 66,
+    "name": "Kingfisher",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Kingfisher.gif?raw=true"
+  },
+  {
+    "id": 67,
+    "name": "Leopard",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Leopard.gif?raw=true"
+  },
+  {
+    "id": 68,
+    "name": "Leopardess",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Leopardess.gif?raw=true"
+  },
+  {
+    "id": 69,
+    "name": "Lion",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Lion.gif?raw=true"
+  },
+  {
+    "id": 70,
+    "name": "Lioness",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Lioness.gif?raw=true"
+  },
+  {
+    "id": 71,
+    "name": "Little Owl",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Little_Owl.gif?raw=true"
+  },
+  {
+    "id": 72,
+    "name": "Lynx",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Lynx.gif?raw=true"
+  },
+  {
+    "id": 73,
+    "name": "Magpie",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Magpie.gif?raw=true"
+  },
+  {
+    "id": 74,
+    "name": "Manx Cat",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Manx_Cat.gif?raw=true"
+  },
+  {
+    "id": 75,
+    "name": "Marsh Harrier",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Marsh_Harrier.gif?raw=true"
+  },
+  {
+    "id": 76,
+    "name": "Mastiff",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Mastiff.gif?raw=true"
+  },
+  {
+    "id": 77,
+    "name": "Mink",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Mink.gif?raw=true"
+  },
+  {
+    "id": 78,
+    "name": "Mole",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Mole.gif?raw=true"
+  },
+  {
+    "id": 79,
+    "name": "Mongrel Dog",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Mongrel_Dog.gif?raw=true"
+  },
+  {
+    "id": 80,
+    "name": "Mountain Hare",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Mountain_Hare.gif?raw=true"
+  },
+  {
+    "id": 81,
+    "name": "Nebelung Cat",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Nebelung_Cat.gif?raw=true"
+  },
+  {
+    "id": 82,
+    "name": "Newfoundland",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Newfoundland.gif?raw=true"
+  },
+  {
+    "id": 83,
+    "name": "Nightjar",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Nightjar.gif?raw=true"
+  },
+  {
+    "id": 84,
+    "name": "Occamy",
+    "rarity": "rare",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Occamy.gif?raw=true"
+  },
+  {
+    "id": 85,
+    "name": "Ocicat",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Ocicat.gif?raw=true"
+  },
+  {
+    "id": 86,
+    "name": "Orangutan",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Orangutan.gif?raw=true"
+  },
+  {
+    "id": 87,
+    "name": "Orca",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Orca.gif?raw=true"
+  },
+  {
+    "id": 88,
+    "name": "Oryx",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Oryx.gif?raw=true"
+  },
+  {
+    "id": 89,
+    "name": "Osprey",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Osprey.gif?raw=true"
+  },
+  {
+    "id": 90,
+    "name": "Otter",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Otter.gif?raw=true"
+  },
+  {
+    "id": 91,
+    "name": "Peacock",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Peacock.gif?raw=true"
+  },
+  {
+    "id": 92,
+    "name": "Pheasant",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Pheasant.gif?raw=true"
+  },
+  {
+    "id": 93,
+    "name": "Piebald Mare",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Piebald_Mare.gif?raw=true"
+  },
+  {
+    "id": 94,
+    "name": "Piebald Stallion",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Piebald_Stallion.gif?raw=true"
+  },
+  {
+    "id": 95,
+    "name": "Pine Marten",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Pine_Marten.gif?raw=true"
+  },
+  {
+    "id": 96,
+    "name": "Polar Bear",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Polar_Bear.gif?raw=true"
+  },
+  {
+    "id": 97,
+    "name": "Polecat",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Polecat.gif?raw=true"
+  },
+  {
+    "id": 98,
+    "name": "Python",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Python.gif?raw=true"
+  },
+  {
+    "id": 99,
+    "name": "Ragdoll Cat",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Ragdoll_Cat.gif?raw=true"
+  },
+  {
+    "id": 100,
+    "name": "Rat",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Rat.gif?raw=true"
+  },
+  {
+    "id": 101,
+    "name": "Rattlesnake",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Rattlesnake.gif?raw=true"
+  },
+  {
+    "id": 102,
+    "name": "Raven",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Raven.gif?raw=true"
+  },
+  {
+    "id": 103,
+    "name": "Red Squirrel",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Red_Squirrel.gif?raw=true"
+  },
+  {
+    "id": 104,
+    "name": "Rhinoceros",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Rhinoceros.gif?raw=true"
+  },
+  {
+    "id": 105,
+    "name": "Robin",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Robin.gif?raw=true"
+  },
+  {
+    "id": 106,
+    "name": "Rottweiler",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Rottweiler.gif?raw=true"
+  },
+  {
+    "id": 107,
+    "name": "Runespoor",
+    "rarity": "rare",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Runespoor.gif?raw=true"
+  },
+  {
+    "id": 108,
+    "name": "Russia Blue Cat",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Russian_Blue_Cat.gif?raw=true"
+  },
+  {
+    "id": 109,
+    "name": "Salmon",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Salmon.gif?raw=true"
+  },
+  {
+    "id": 110,
+    "name": "Scops Owl",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Scops_Owl.gif?raw=true"
+  },
+  {
+    "id": 111,
+    "name": "Seal",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Seal.gif?raw=true"
+  },
+  {
+    "id": 112,
+    "name": "Shark",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Shark.gif?raw=true"
+  },
+  {
+    "id": 113,
+    "name": "Shrew",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Shrew.gif?raw=true"
+  },
+  {
+    "id": 114,
+    "name": "Siberian Cat",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Siberian_Cat.gif?raw=true"
+  },
+  {
+    "id": 115,
+    "name": "Snowy Owl",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Snowy_Owl.gif?raw=true"
+  },
+  {
+    "id": 116,
+    "name": "Sparrow",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Sparrow.gif?raw=true"
+  },
+  {
+    "id": 117,
+    "name": "Sparrowhawk",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Sparrowhawk.gif?raw=true"
+  },
+  {
+    "id": 118,
+    "name": "Sphynx Cat",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Sphynx_Cat.gif?raw=true"
+  },
+  {
+    "id": 119,
+    "name": "St. Bernard Dog",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/St_Bernard_Dog.gif?raw=true"
+  },
+  {
+    "id": 120,
+    "name": "Stag",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Stag.gif?raw=true"
+  },
+  {
+    "id": 121,
+    "name": "Stoat",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Stoat.gif?raw=true"
+  },
+  {
+    "id": 122,
+    "name": "Swallow",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Swallow.gif?raw=true"
+  },
+  {
+    "id": 123,
+    "name": "Swift",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Swift.gif?raw=true"
+  },
+  {
+    "id": 124,
+    "name": "Thestral",
+    "rarity": "rare",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Thestral.gif?raw=true"
+  },
+  {
+    "id": 125,
+    "name": "Tiger",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Tiger.gif?raw=true"
+  },
+  {
+    "id": 126,
+    "name": "Tigress",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Tigress.gif?raw=true"
+  },
+  {
+    "id": 127,
+    "name": "Tonkinese Cat",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Tonkinese_Cat.gif?raw=true"
+  },
+  {
+    "id": 128,
+    "name": "Tortoiseshell Cat",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Tortoiseshell_Cat.gif?raw=true"
+  },
+  {
+    "id": 129,
+    "name": "Unicorn",
+    "rarity": "rare",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Unicorn.gif?raw=true"
+  },
+  {
+    "id": 130,
+    "name": "Vole",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Vole.gif?raw=true"
+  },
+  {
+    "id": 131,
+    "name": "Vulture",
+    "rarity": "uncommon",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Vulture.gif?raw=true"
+  },
+  {
+    "id": 132,
+    "name": "Weasel",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Weasel.gif?raw=true"
+  },
+  {
+    "id": 133,
+    "name": "West Highland Terrier",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/West_Highland_Terrier.gif?raw=true"
+  },
+  {
+    "id": 134,
+    "name": "White Mare",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/White_Mare.gif?raw=true"
+  },
+  {
+    "id": 135,
+    "name": "White Stallion",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/White_Stallion.gif?raw=true"
+  },
+  {
+    "id": 136,
+    "name": "White Swan",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/White_Swan.gif?raw=true"
+  },
+  {
+    "id": 137,
+    "name": "Wild Boar",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Wild_Boar.gif?raw=true"
+  },
+  {
+    "id": 138,
+    "name": "Wild Cat",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Wild_Cat.gif?raw=true"
+  },
+  {
+    "id": 139,
+    "name": "Wild Rabbit",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Wild_Rabbit.gif?raw=true"
+  },
+  {
+    "id": 140,
+    "name": "Wolf",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Wolf.gif?raw=true"
+  },
+  {
+    "id": 141,
+    "name": "Wood Mouse",
+    "rarity": "common",
+    "gif_url": "https://github.com/Maiq-The-Liar/Hogwarts_Grounds_PatronusGIFs/blob/main/Wood_Mouse.gif?raw=true"
+  }
+]

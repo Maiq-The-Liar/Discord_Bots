@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+
+# Environment files
+.env
+*.env
+Hogwarts_Bot/.env
+
+# Databases
+*.db
+Hogwarts_Bot/*.db
+
+# Generated files
+resources/generated/
+Hogwarts_Bot/resources/generated/
+
+# VS Code / OS files
+.vscode/
+.DS_Store

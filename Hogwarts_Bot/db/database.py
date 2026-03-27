@@ -1,0 +1,112 @@
+import sqlite3
+from pathlib import Path
+
+
+class Database:
+    def __init__(self, db_path: str):
+        self.db_path = db_path
+        Path(db_path).parent.mkdir(parents=True, exist_ok=True)
+
+    def connect(self) -> sqlite3.Connection:
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA foreign_keys = ON;")
+        return conn
+
+    def initialize(self) -> None:
+        schema_path = Path(__file__).with_name("schema.sql")
+        schema_sql = schema_path.read_text(encoding="utf-8")
+
+        with self.connect() as conn:
+            conn.executescript(schema_sql)
+            self._run_migrations(conn)
+            conn.commit()
+
+    def _run_migrations(self, conn: sqlite3.Connection) -> None:
+        user_columns = {
+            row["name"]
+            for row in conn.execute("PRAGMA table_info(users)").fetchall()
+        }
+
+        if "bio" not in user_columns:
+            conn.execute("ALTER TABLE users ADD COLUMN bio TEXT NULL")
+
+        if "birth_day" not in user_columns:
+            conn.execute("ALTER TABLE users ADD COLUMN birth_day INTEGER NULL")
+
+        if "birth_month" not in user_columns:
+            conn.execute("ALTER TABLE users ADD COLUMN birth_month INTEGER NULL")
+
+        existing_tables = {
+            row["name"]
+            for row in conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            ).fetchall()
+        }
+
+        if "user_chocolate_frog_cards" not in existing_tables:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_chocolate_frog_cards (
+                    user_id INTEGER NOT NULL,
+                    card_id INTEGER NOT NULL,
+                    quantity INTEGER NOT NULL DEFAULT 0,
+                    first_discovered_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (user_id, card_id),
+                    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+                )
+                """
+            )
+
+        if "casual_quiz_channels" not in existing_tables:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS casual_quiz_channels (
+                    channel_id INTEGER PRIMARY KEY,
+                    is_active INTEGER NOT NULL DEFAULT 1,
+                    current_question_id INTEGER NULL,
+                    last_asked_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+                """
+            )
+
+        if "quiz_question_history" not in existing_tables:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS quiz_question_history (
+                    channel_id INTEGER NOT NULL,
+                    question_id INTEGER NOT NULL,
+                    asked_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (channel_id, question_id),
+                    FOREIGN KEY (channel_id) REFERENCES casual_quiz_channels(channel_id) ON DELETE CASCADE
+                )
+                """
+            )
+
+        if "birthday_announcements" not in existing_tables:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS birthday_announcements (
+                    message_id INTEGER PRIMARY KEY,
+                    channel_id INTEGER NOT NULL,
+                    birthday_user_id INTEGER NOT NULL,
+                    announcement_date TEXT NOT NULL,
+                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+                """
+            )
+
+        if "birthday_gift_claims" not in existing_tables:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS birthday_gift_claims (
+                    message_id INTEGER NOT NULL,
+                    giver_user_id INTEGER NOT NULL,
+                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (message_id, giver_user_id),
+                    FOREIGN KEY (message_id) REFERENCES birthday_announcements(message_id) ON DELETE CASCADE
+                )
+                """
+            )
