@@ -148,7 +148,7 @@ ALL_FLAVOURS_SET = set(ALL_FLAVOURS)
 TOTAL_DISCOVERABLE_FLAVOURS = len(ALL_FLAVOURS_SET)
 
 MAX_PARTICIPANTS = 5
-EVENT_DURATION_SECONDS = 10 * 60  # 10 minutes
+EVENT_DURATION_SECONDS = 10 * 60
 
 MIN_SPAWN_SECONDS = 5 * 60 * 60
 MAX_SPAWN_SECONDS = 7 * 60 * 60
@@ -183,6 +183,11 @@ DOBBY_RESPONSE_BY_RANK = {
     4: "Hmm. Dobby has seen better socks, but this one will do. Master earns **2 Bertie Bott’s Every Flavoured Beans**.",
     5: "This sock is... a choice. Dobby supposes Master may have **1 Bertie Bott’s Every Flavoured Bean**.",
 }
+
+DOBBY_DISAPPEAR_MESSAGE = (
+    "Dobby disappeared — and you just missed him! "
+    "But surely he’ll be back again soon with more socks to inspect..."
+)
 
 # =========================================================
 # LOGGING
@@ -224,13 +229,10 @@ def save_json(path: Path, data: Any) -> None:
 def ensure_files() -> None:
     if not INVENTORY_FILE.exists():
         save_json(INVENTORY_FILE, {})
-
     if not SETTINGS_FILE.exists():
         save_json(SETTINGS_FILE, {"allowed_channels": []})
-
     if not TASTED_FLAVOURS_FILE.exists():
         save_json(TASTED_FLAVOURS_FILE, {})
-
     if not FLAVORS_FILE.exists():
         save_json(FLAVORS_FILE, ALL_FLAVOURS)
 
@@ -250,9 +252,6 @@ def get_user_inventory(user_id: int) -> dict[str, int]:
         inventory_data[uid] = {"beans": 0}
     return inventory_data[uid]
 
-def reset_allowed_channels() -> None:
-    settings_data["allowed_channels"] = []
-    save_json(SETTINGS_FILE, settings_data)
 
 def get_bean_count(user_id: int) -> int:
     return get_user_inventory(user_id)["beans"]
@@ -323,6 +322,11 @@ def disallow_channel(channel_id: int) -> None:
     channels.discard(channel_id)
     save_allowed_channels(channels)
 
+
+def reset_allowed_channels() -> None:
+    settings_data["allowed_channels"] = []
+    save_json(SETTINGS_FILE, settings_data)
+
 # =========================================================
 # EVENT STATE
 # =========================================================
@@ -361,7 +365,11 @@ class DobbyEvent:
     def has_participated(self, user_id: int) -> bool:
         return user_id in self.participants
 
-    def add_participant(self, member: discord.Member | discord.User, sock_emoji: str) -> tuple[int, int]:
+    def add_participant(
+        self,
+        member: discord.Member | discord.User,
+        sock_emoji: str,
+    ) -> tuple[int, int]:
         rank = self.assignment[sock_emoji]
         reward = REWARD_BY_RANK[rank]
 
@@ -374,7 +382,7 @@ class DobbyEvent:
         add_beans(member.id, reward)
         return rank, reward
 
-    def build_embed(self, ended_reason: str | None = None) -> discord.Embed:
+    def build_embed(self) -> discord.Embed:
         if self.participants:
             names = "\n".join(f"• {info['name']}" for info in self.participants.values())
         else:
@@ -391,10 +399,6 @@ class DobbyEvent:
         )
         embed.set_image(url=self.gif_url)
         embed.set_footer(text="Event ends after 10 minutes or when 5 unique users have interacted.")
-
-        if ended_reason:
-            embed.add_field(name="Event ended", value=ended_reason, inline=False)
-
         return embed
 
     async def send(self) -> None:
@@ -403,15 +407,15 @@ class DobbyEvent:
         self.end_task = asyncio.create_task(self._auto_end())
 
     async def refresh_message(self) -> None:
-        if self.message and self.view:
+        if self.message and self.view and self.active:
             await self.message.edit(embed=self.build_embed(), view=self.view)
 
     async def _auto_end(self) -> None:
         await asyncio.sleep(EVENT_DURATION_SECONDS)
         if self.active:
-            await self.end("Dobby got bored and vanished after 10 minutes.", delete_message=True)
+            await self.end()
 
-    async def end(self, reason: str, delete_message: bool = False) -> None:
+    async def end(self) -> None:
         if not self.active:
             return
 
@@ -436,10 +440,7 @@ class DobbyEvent:
                 log.exception("Failed to delete Dobby event message in #%s", self.channel.name)
 
         try:
-            await self.channel.send(
-                "Dobby disappeared — and you just missed him! "
-                "But surely he’ll be back again soon with more socks to inspect..."
-            )
+            await self.channel.send(DOBBY_DISAPPEAR_MESSAGE)
         except discord.HTTPException:
             log.exception("Failed to send Dobby disappearance message in #%s", self.channel.name)
 
@@ -503,7 +504,7 @@ class DobbyView(discord.ui.View):
         )
 
         if self.event.participant_count() >= MAX_PARTICIPANTS:
-            await self.event.end("5 unique people interacted with Dobby.")
+            await self.event.end()
 
 # =========================================================
 # EVENT HELPERS
@@ -574,11 +575,14 @@ def admin_only() -> app_commands.check:
     return app_commands.check(predicate)
 
 
+ADMIN_COMMAND_PERMS = app_commands.default_permissions(administrator=True)
+GUILD_ONLY = app_commands.guild_only()
 
 # =========================================================
 # PUBLIC COMMANDS
 # =========================================================
 @bot.tree.command(name="eat_bean", description="Eat one Bertie Bott's Every Flavoured Bean.")
+@app_commands.guild_only()
 async def eat_bean(interaction: discord.Interaction) -> None:
     if not remove_bean(interaction.user.id):
         await interaction.response.send_message(
@@ -618,6 +622,7 @@ async def eat_bean(interaction: discord.Interaction) -> None:
 
 
 @bot.tree.command(name="inventory", description="See how many Bertie Bott's Every Flavoured Beans you currently have.")
+@app_commands.guild_only()
 async def inventory(interaction: discord.Interaction) -> None:
     count = get_bean_count(interaction.user.id)
     bean_word = "Bean" if count == 1 else "Beans"
@@ -629,41 +634,48 @@ async def inventory(interaction: discord.Interaction) -> None:
 # =========================================================
 # ADMIN COMMANDS
 # =========================================================
-@bot.tree.command(name="dobby_trigger", description="Force Dobby to appear in this channel.")
+@bot.tree.command(name="dobby_trigger", description="Force Dobby to appear in a selected channel.")
+@ADMIN_COMMAND_PERMS
+@GUILD_ONLY
 @admin_only()
-async def dobby_trigger(interaction: discord.Interaction) -> None:
-    if not isinstance(interaction.channel, discord.TextChannel):
-        await interaction.response.send_message(
-            "This command must be used in a server text channel.",
-            ephemeral=True,
-        )
-        return
-
-    _, message = await start_dobby_event(interaction.channel)
+@app_commands.describe(channel="The channel where Dobby should appear")
+async def dobby_trigger(interaction: discord.Interaction, channel: discord.TextChannel) -> None:
+    _, message = await start_dobby_event(channel)
     await interaction.response.send_message(message, ephemeral=True)
 
 
-@bot.tree.command(name="dobby_allow_here", description="Allow Dobby to randomly appear in this channel.")
+@bot.tree.command(name="dobby_allow", description="Allow Dobby to randomly appear in a selected channel.")
+@ADMIN_COMMAND_PERMS
+@GUILD_ONLY
 @admin_only()
-async def dobby_allow_here(interaction: discord.Interaction) -> None:
-    if not isinstance(interaction.channel, discord.TextChannel):
-        await interaction.response.send_message(
-            "This command must be used in a server text channel.",
-            ephemeral=True,
-        )
-        return
-
-    allow_channel(interaction.channel.id)
+@app_commands.describe(channel="The channel to allow for random Dobby spawns")
+async def dobby_allow(interaction: discord.Interaction, channel: discord.TextChannel) -> None:
+    allow_channel(channel.id)
     await interaction.response.send_message(
-        f"Dobby is now allowed to appear in {interaction.channel.mention}.",
+        f"Dobby is now allowed to appear in {channel.mention}.",
         ephemeral=True,
     )
 
+
+@bot.tree.command(name="dobby_disallow", description="Stop Dobby from randomly appearing in a selected channel.")
+@ADMIN_COMMAND_PERMS
+@GUILD_ONLY
+@admin_only()
+@app_commands.describe(channel="The channel to remove from random Dobby spawns")
+async def dobby_disallow(interaction: discord.Interaction, channel: discord.TextChannel) -> None:
+    disallow_channel(channel.id)
+    await interaction.response.send_message(
+        f"Dobby will no longer randomly appear in {channel.mention}.",
+        ephemeral=True,
+    )
+
+
 @bot.tree.command(name="dobby_reset_channels", description="Remove all channels where Dobby is allowed to spawn.")
+@ADMIN_COMMAND_PERMS
+@GUILD_ONLY
 @admin_only()
 async def dobby_reset_channels(interaction: discord.Interaction) -> None:
     reset_allowed_channels()
-
     await interaction.response.send_message(
         "All allowed Dobby channels have been cleared. "
         "Dobby will no longer spawn anywhere until new channels are added.",
@@ -671,26 +683,14 @@ async def dobby_reset_channels(interaction: discord.Interaction) -> None:
     )
 
 
-@bot.tree.command(name="dobby_disallow_here", description="Stop Dobby from randomly appearing in this channel.")
-@admin_only()
-async def dobby_disallow_here(interaction: discord.Interaction) -> None:
-    if not isinstance(interaction.channel, discord.TextChannel):
-        await interaction.response.send_message(
-            "This command must be used in a server text channel.",
-            ephemeral=True,
-        )
-        return
-
-    disallow_channel(interaction.channel.id)
-    await interaction.response.send_message(
-        f"Dobby will no longer randomly appear in {interaction.channel.mention}.",
-        ephemeral=True,
-    )
-
-
 @bot.tree.command(name="give_beans", description="Give a user Bertie Bott's Every Flavoured Beans.")
+@ADMIN_COMMAND_PERMS
+@GUILD_ONLY
 @admin_only()
-@app_commands.describe(user="The user to receive beans", amount="How many Bertie Bott's Every Flavoured Beans to give")
+@app_commands.describe(
+    user="The user to receive beans",
+    amount="How many Bertie Bott's Every Flavoured Beans to give",
+)
 async def give_beans(
     interaction: discord.Interaction,
     user: discord.Member,
@@ -699,6 +699,7 @@ async def give_beans(
     new_total = add_beans(user.id, amount)
     bean_word = "Bean" if amount == 1 else "Beans"
     total_word = "Bean" if new_total == 1 else "Beans"
+
     await interaction.response.send_message(
         f"Gave **{amount} Bertie Bott’s Every Flavoured {bean_word}** to {user.mention}. "
         f"They now have **{new_total} Bertie Bott’s Every Flavoured {total_word}**."
@@ -706,6 +707,8 @@ async def give_beans(
 
 
 @bot.tree.command(name="dobby_channels", description="Show all channels where Dobby may randomly appear.")
+@ADMIN_COMMAND_PERMS
+@GUILD_ONLY
 @admin_only()
 async def dobby_channels(interaction: discord.Interaction) -> None:
     channels = get_allowed_channels()
