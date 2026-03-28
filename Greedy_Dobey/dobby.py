@@ -28,10 +28,7 @@ EVENT_DESCRIPTION = (
 )
 
 EVENT_GIF_URLS = [
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/snap-hurry-up.gif?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/doby-magic.gif?raw=true",
-    "https://64.media.tumblr.com/6aa699df834f0e13a262ac7d3dcd055d/tumblr_oam1h7dldJ1vtewrko7_500.gif",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Dobby_bed.gif?raw=true",
+    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Dobby_bed.gif?raw=true"
 ]
 
 BEAN_IMAGE_URLS = [
@@ -427,21 +424,21 @@ class DobbyEvent:
 
         active_events.pop(self.channel_id, None)
 
-        if not self.message:
-            return
-
-        if delete_message:
+        if self.message:
             try:
                 await self.message.delete()
             except discord.NotFound:
                 pass
             except discord.HTTPException:
                 log.exception("Failed to delete Dobby event message in #%s", self.channel.name)
-        else:
-            await self.message.edit(
-                embed=self.build_embed(ended_reason=reason),
-                view=self.view,
+
+        try:
+            await self.channel.send(
+                "Dobby disappeared — and you just missed him! "
+                "But surely he’ll be back again soon with more socks to inspect..."
             )
+        except discord.HTTPException:
+            log.exception("Failed to send Dobby disappearance message in #%s", self.channel.name)
 
 # =========================================================
 # BUTTON VIEW
