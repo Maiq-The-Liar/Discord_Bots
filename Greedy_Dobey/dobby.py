@@ -250,6 +250,9 @@ def get_user_inventory(user_id: int) -> dict[str, int]:
         inventory_data[uid] = {"beans": 0}
     return inventory_data[uid]
 
+def reset_allowed_channels() -> None:
+    settings_data["allowed_channels"] = []
+    save_json(SETTINGS_FILE, settings_data)
 
 def get_bean_count(user_id: int) -> int:
     return get_user_inventory(user_id)["beans"]
@@ -570,6 +573,8 @@ def admin_only() -> app_commands.check:
 
     return app_commands.check(predicate)
 
+
+
 # =========================================================
 # PUBLIC COMMANDS
 # =========================================================
@@ -651,6 +656,17 @@ async def dobby_allow_here(interaction: discord.Interaction) -> None:
     allow_channel(interaction.channel.id)
     await interaction.response.send_message(
         f"Dobby is now allowed to appear in {interaction.channel.mention}.",
+        ephemeral=True,
+    )
+
+@bot.tree.command(name="dobby_reset_channels", description="Remove all channels where Dobby is allowed to spawn.")
+@admin_only()
+async def dobby_reset_channels(interaction: discord.Interaction) -> None:
+    reset_allowed_channels()
+
+    await interaction.response.send_message(
+        "All allowed Dobby channels have been cleared. "
+        "Dobby will no longer spawn anywhere until new channels are added.",
         ephemeral=True,
     )
 
