@@ -9,6 +9,7 @@ from domain.constants import (
     HOUSE_PROFILE_BANNERS,
     HOGWARTS_CREST_EMOJI,
     PRONOUN_ROLE_IDS,
+    CONTINENT_ROLE_IDS,
 )
 from domain.role_context import MemberRoleContext
 from repositories.user_repository import UserRepository
@@ -41,6 +42,12 @@ class ProfileService:
         self.chocolate_frog_repo = ChocolateFrogRepository(
             str(base_dir / "resources" / "chocolate_frogs.json")
         )
+
+    def _resolve_continent_text(self, member: discord.Member) -> str:
+        for role in member.roles:
+            if role.id in CONTINENT_ROLE_IDS:
+                return role.name
+        return "n/a"
 
     def _resolve_age_text(self, member: discord.Member) -> str:
         for role in member.roles:
@@ -85,6 +92,7 @@ class ProfileService:
                 patronus_gif_url = patronus.get("gif_url")
 
         pronouns = self._resolve_pronouns_text(member)
+        continent_text = self._resolve_continent_text(member)
         age_text = self._resolve_age_text(member)
         bio_text = user_row["bio"] if user_row["bio"] else "n/a"
 
@@ -116,8 +124,9 @@ class ProfileService:
             f"╭ • **Name:** {member.display_name}",
             f"│ • **Pronouns:** {pronouns}",
             f"│ • **Birthday:** {birthday_text}",
-            f"│ • **Zodiac Sign:** {zodiac_text}",
+            f"│ • **Continent:** {continent_text}",
             f"│ • **Age:** {age_text}",
+            f"│ • **Zodiac Sign:** {zodiac_text}",
             f"╰ • **Bio:** {bio_text}",
         ]
 

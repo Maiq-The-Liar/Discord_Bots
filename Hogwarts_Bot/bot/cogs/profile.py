@@ -3,7 +3,16 @@ from discord import app_commands
 from discord.ext import commands
 
 from db.database import Database
-from domain.constants import HOUSE_ROLE_IDS, ARENA_ROLE_ID
+from domain.constants import (
+    HOUSE_ROLE_IDS,
+    ARENA_ROLE_ID,
+    PRONOUN_ROLE_IDS,
+    AGE_ROLE_IDS,
+    CONTINENT_ROLE_IDS,
+    PRONOUN_ROLE_BY_KEY,
+    AGE_ROLE_BY_KEY,
+    CONTINENT_ROLE_BY_KEY,
+)
 from domain.role_context import MemberRoleContext
 from repositories.user_repository import UserRepository
 from repositories.inventory_repository import InventoryRepository
@@ -205,7 +214,6 @@ class ProfileCog(commands.Cog):
         zodiac_sign = self.birthday_service.get_zodiac_sign(day, month)
         zodiac_role_id = ZODIAC_ROLE_IDS[zodiac_sign]
 
-        # remove all zodiac roles first
         zodiac_role_ids = set(ZODIAC_ROLE_IDS.values())
         roles_to_remove = [role for role in interaction.user.roles if role.id in zodiac_role_ids]
         if roles_to_remove:
@@ -227,5 +235,225 @@ class ProfileCog(commands.Cog):
         await interaction.response.send_message(
             f"Your birthday has been set to **{birthday_text}**.\n"
             f"Your zodiac sign is **{zodiac_text}**.",
+            ephemeral=True,
+        )
+
+    @app_commands.command(
+        name="set_pronouns",
+        description="Set your pronoun role.",
+    )
+    @app_commands.describe(pronouns="Choose your pronouns")
+    @app_commands.choices(
+        pronouns=[
+            app_commands.Choice(name="he / him", value="he_him"),
+            app_commands.Choice(name="she / her", value="she_her"),
+            app_commands.Choice(name="they / them", value="they_them"),
+        ]
+    )
+    async def set_pronouns(
+        self,
+        interaction: discord.Interaction,
+        pronouns: app_commands.Choice[str],
+    ) -> None:
+        if not interaction.guild or not isinstance(interaction.user, discord.Member):
+            await interaction.response.send_message(
+                "This command can only be used inside the server.",
+                ephemeral=True,
+            )
+            return
+
+        role_ctx = resolve_member_roles(interaction.user)
+        is_valid, error = validate_house_context(role_ctx)
+        if not is_valid:
+            await interaction.response.send_message(error, ephemeral=True)
+            return
+
+        new_role_id = PRONOUN_ROLE_BY_KEY[pronouns.value]
+        new_role = interaction.guild.get_role(new_role_id)
+
+        if new_role is None:
+            await interaction.response.send_message(
+                "That pronoun role could not be found.",
+                ephemeral=True,
+            )
+            return
+
+        roles_to_remove = [role for role in interaction.user.roles if role.id in PRONOUN_ROLE_IDS]
+        if roles_to_remove:
+            try:
+                await interaction.user.remove_roles(
+                    *roles_to_remove,
+                    reason="Updating pronoun role",
+                )
+            except discord.HTTPException:
+                await interaction.response.send_message(
+                    "I could not remove your current pronoun role.",
+                    ephemeral=True,
+                )
+                return
+
+        try:
+            await interaction.user.add_roles(
+                new_role,
+                reason="Pronoun role selected by user",
+            )
+        except discord.HTTPException:
+            await interaction.response.send_message(
+                "I could not assign your new pronoun role.",
+                ephemeral=True,
+            )
+            return
+
+        await interaction.response.send_message(
+            f"Your pronouns have been updated to **{new_role.name}**.",
+            ephemeral=True,
+        )
+
+    @app_commands.command(
+        name="set_age",
+        description="Set your age range role.",
+    )
+    @app_commands.describe(age_range="Choose your age range")
+    @app_commands.choices(
+        age_range=[
+            app_commands.Choice(name="18-24", value="18_24"),
+            app_commands.Choice(name="25-29", value="25_29"),
+            app_commands.Choice(name="30-34", value="30_34"),
+            app_commands.Choice(name="35-39", value="35_39"),
+            app_commands.Choice(name="40-44", value="40_44"),
+            app_commands.Choice(name="45+", value="45_plus"),
+            app_commands.Choice(name="n/a", value="na"),
+        ]
+    )
+    async def set_age(
+        self,
+        interaction: discord.Interaction,
+        age_range: app_commands.Choice[str],
+    ) -> None:
+        if not interaction.guild or not isinstance(interaction.user, discord.Member):
+            await interaction.response.send_message(
+                "This command can only be used inside the server.",
+                ephemeral=True,
+            )
+            return
+
+        role_ctx = resolve_member_roles(interaction.user)
+        is_valid, error = validate_house_context(role_ctx)
+        if not is_valid:
+            await interaction.response.send_message(error, ephemeral=True)
+            return
+
+        new_role_id = AGE_ROLE_BY_KEY[age_range.value]
+        new_role = interaction.guild.get_role(new_role_id)
+
+        if new_role is None:
+            await interaction.response.send_message(
+                "That age role could not be found.",
+                ephemeral=True,
+            )
+            return
+
+        roles_to_remove = [role for role in interaction.user.roles if role.id in AGE_ROLE_IDS]
+        if roles_to_remove:
+            try:
+                await interaction.user.remove_roles(
+                    *roles_to_remove,
+                    reason="Updating age role",
+                )
+            except discord.HTTPException:
+                await interaction.response.send_message(
+                    "I could not remove your current age role.",
+                    ephemeral=True,
+                )
+                return
+
+        try:
+            await interaction.user.add_roles(
+                new_role,
+                reason="Age role selected by user",
+            )
+        except discord.HTTPException:
+            await interaction.response.send_message(
+                "I could not assign your new age role.",
+                ephemeral=True,
+            )
+            return
+
+        await interaction.response.send_message(
+            f"Your age range has been updated to **{new_role.name}**.",
+            ephemeral=True,
+        )
+
+    @app_commands.command(
+        name="set_continent",
+        description="Set your continent role.",
+    )
+    @app_commands.describe(continent="Choose your continent")
+    @app_commands.choices(
+        continent=[
+            app_commands.Choice(name="Europe", value="europe"),
+            app_commands.Choice(name="North America", value="north_america"),
+            app_commands.Choice(name="South America", value="south_america"),
+            app_commands.Choice(name="Asia", value="asia"),
+            app_commands.Choice(name="Australia & Oceania", value="australia_oceania"),
+            app_commands.Choice(name="Antarctica", value="antarctica"),
+        ]
+    )
+    async def set_continent(
+        self,
+        interaction: discord.Interaction,
+        continent: app_commands.Choice[str],
+    ) -> None:
+        if not interaction.guild or not isinstance(interaction.user, discord.Member):
+            await interaction.response.send_message(
+                "This command can only be used inside the server.",
+                ephemeral=True,
+            )
+            return
+
+        role_ctx = resolve_member_roles(interaction.user)
+        is_valid, error = validate_house_context(role_ctx)
+        if not is_valid:
+            await interaction.response.send_message(error, ephemeral=True)
+            return
+
+        new_role_id = CONTINENT_ROLE_BY_KEY[continent.value]
+        new_role = interaction.guild.get_role(new_role_id)
+
+        if new_role is None:
+            await interaction.response.send_message(
+                "That continent role could not be found.",
+                ephemeral=True,
+            )
+            return
+
+        roles_to_remove = [role for role in interaction.user.roles if role.id in CONTINENT_ROLE_IDS]
+        if roles_to_remove:
+            try:
+                await interaction.user.remove_roles(
+                    *roles_to_remove,
+                    reason="Updating continent role",
+                )
+            except discord.HTTPException:
+                await interaction.response.send_message(
+                    "I could not remove your current continent role.",
+                    ephemeral=True,
+                )
+                return
+
+        try:
+            await interaction.user.add_roles(
+                new_role,
+                reason="Continent role selected by user",
+            )
+        except discord.HTTPException:
+            await interaction.response.send_message(
+                "I could not assign your new continent role.",
+                ephemeral=True,
+            )
+            return
+
+        await interaction.response.send_message(
+            f"Your continent has been updated to **{new_role.name}**.",
             ephemeral=True,
         )
