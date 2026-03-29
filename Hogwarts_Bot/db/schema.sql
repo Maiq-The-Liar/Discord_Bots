@@ -108,3 +108,32 @@ CREATE TABLE IF NOT EXISTS birthday_gift_claims (
     PRIMARY KEY (message_id, giver_user_id),
     FOREIGN KEY (message_id) REFERENCES birthday_announcements(message_id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS media_channels (
+    channel_id INTEGER PRIMARY KEY,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS media_posts (
+    message_id INTEGER PRIMARY KEY,
+    channel_id INTEGER NOT NULL,
+    author_user_id INTEGER NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    closes_at TEXT NOT NULL,
+    is_closed INTEGER NOT NULL DEFAULT 0,
+    reward_points_per_vote INTEGER NOT NULL DEFAULT 3,
+    rewarded_points INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS media_votes (
+    message_id INTEGER NOT NULL,
+    voter_user_id INTEGER NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (message_id, voter_user_id),
+    FOREIGN KEY (message_id) REFERENCES media_posts(message_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS media_vote_cooldowns (
+    voter_user_id INTEGER PRIMARY KEY,
+    last_vote_at TEXT NOT NULL
+);
