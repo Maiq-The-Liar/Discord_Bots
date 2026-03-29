@@ -100,6 +100,24 @@ class MediaRepository:
         )
         self.conn.commit()
 
+    def force_close_open_post_for_user(self, author_user_id: int) -> int | None:
+        row = self.get_open_post_for_user(author_user_id)
+        if row is None:
+            return None
+
+        message_id = int(row["message_id"])
+        self.conn.execute(
+            """
+            UPDATE media_posts
+            SET is_closed = 1,
+                rewarded_points = 0
+            WHERE message_id = ?
+            """,
+            (message_id,),
+        )
+        self.conn.commit()
+        return message_id
+
     def has_user_voted(self, message_id: int, voter_user_id: int) -> bool:
         row = self.conn.execute(
             """
@@ -154,5 +172,15 @@ class MediaRepository:
                 last_vote_at = excluded.last_vote_at
             """,
             (voter_user_id, last_vote_at),
+        )
+        self.conn.commit()
+
+    def clear_vote_cooldown(self, voter_user_id: int) -> None:
+        self.conn.execute(
+            """
+            DELETE FROM media_vote_cooldowns
+            WHERE voter_user_id = ?
+            """,
+            (voter_user_id,),
         )
         self.conn.commit()

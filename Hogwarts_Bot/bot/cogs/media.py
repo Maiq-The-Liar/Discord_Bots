@@ -20,8 +20,8 @@ class MediaVoteView(discord.ui.View):
         self.cog = cog
 
     @discord.ui.button(
-        label="",
-        emoji="❤️ give Housepoints",
+        label="Give Support",
+        emoji="❤️",
         style=discord.ButtonStyle.primary,
         custom_id="media_vote_button",
     )
@@ -140,6 +140,7 @@ class MediaCog(commands.Cog):
             icon_url=member.display_avatar.url,
         )
         embed.set_image(url=f"attachment://{attachment_filename}")
+        embed.set_footer(text="React with ❤️ below so this user can earn House Points.")
         return embed
 
     @app_commands.command(
@@ -194,6 +195,40 @@ class MediaCog(commands.Cog):
             ephemeral=True,
         )
 
+    @app_commands.command(
+        name="media_reset",
+        description="Admin: reset a user's media cooldown and active media post.",
+    )
+    @app_commands.describe(member="The member whose media state should be reset")
+    async def media_reset(
+        self,
+        interaction: discord.Interaction,
+        member: discord.Member,
+    ) -> None:
+        if not self.is_admin(interaction):
+            await interaction.response.send_message(
+                "You do not have permission to use this command.",
+                ephemeral=True,
+            )
+            return
+
+        with self.database.connect() as conn:
+            media_repo = MediaRepository(conn)
+            media_repo.clear_vote_cooldown(member.id)
+            closed_message_id = media_repo.force_close_open_post_for_user(member.id)
+
+        if closed_message_id is None:
+            await interaction.response.send_message(
+                f"{member.mention}'s media cooldown has been reset. They had no active media post.",
+                ephemeral=True,
+            )
+            return
+
+        await interaction.response.send_message(
+            f"{member.mention}'s media cooldown has been reset and their active media post was closed.",
+            ephemeral=True,
+        )
+
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         if message.author.bot or not message.guild:
@@ -207,6 +242,22 @@ class MediaCog(commands.Cog):
             if not media_repo.is_media_channel(message.channel.id):
                 return
 
+        if not message.attachments:
+            return
+
+        valid_attachment = None
+        for attachment in message.attachments:
+            if self.media_service.is_supported_image(attachment.filename, attachment.content_type):
+                valid_attachment = attachment
+                break
+
+        # Ignore everything that is not png/jpg/jpeg
+        if valid_attachment is None:
+            return
+
+        # Only now block if the user already has an active media post
+        with self.database.connect() as conn:
+            media_repo = MediaRepository(conn)
             existing_open_post = media_repo.get_open_post_for_user(message.author.id)
             if existing_open_post is not None:
                 try:
@@ -224,18 +275,6 @@ class MediaCog(commands.Cog):
                 )
                 await message.channel.send(embed=warning_embed, delete_after=10)
                 return
-
-        if not message.attachments:
-            return
-
-        valid_attachment = None
-        for attachment in message.attachments:
-            if self.media_service.is_supported_image(attachment.filename, attachment.content_type):
-                valid_attachment = attachment
-                break
-
-        if valid_attachment is None:
-            return
 
         role_ctx = resolve_member_roles(message.author)
         is_valid, _ = validate_house_context(role_ctx)
