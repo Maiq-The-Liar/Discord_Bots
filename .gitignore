@@ -11,6 +11,8 @@ venv/
 # Environment files
 .env
 *.env
+.env.dev
+*.env.dev
 Hogwarts_Bot/.env
 
 # Databases
