@@ -20,8 +20,8 @@ class MediaVoteView(discord.ui.View):
         self.cog = cog
 
     @discord.ui.button(
-        label="Give Support",
-        emoji="❤️",
+        label="",
+        emoji="❤️ give Housepoints",
         style=discord.ButtonStyle.primary,
         custom_id="media_vote_button",
     )
@@ -140,7 +140,6 @@ class MediaCog(commands.Cog):
             icon_url=member.display_avatar.url,
         )
         embed.set_image(url=f"attachment://{attachment_filename}")
-        embed.set_footer(text="React with ❤️ below so this user can earn House Points.")
         return embed
 
     @app_commands.command(
@@ -206,6 +205,24 @@ class MediaCog(commands.Cog):
         with self.database.connect() as conn:
             media_repo = MediaRepository(conn)
             if not media_repo.is_media_channel(message.channel.id):
+                return
+
+            existing_open_post = media_repo.get_open_post_for_user(message.author.id)
+            if existing_open_post is not None:
+                try:
+                    await message.delete()
+                except discord.HTTPException:
+                    pass
+
+                warning_embed = discord.Embed(
+                    title="Media Post Already Active",
+                    description=(
+                        f"{message.author.mention}, you already have an active media post.\n"
+                        f"Please wait until it closes before posting another one."
+                    ),
+                    color=0xE67E22,
+                )
+                await message.channel.send(embed=warning_embed, delete_after=10)
                 return
 
         if not message.attachments:

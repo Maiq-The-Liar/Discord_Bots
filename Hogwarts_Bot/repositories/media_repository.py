@@ -71,6 +71,19 @@ class MediaRepository:
             (current_time_iso,),
         ).fetchall()
 
+    def get_open_post_for_user(self, author_user_id: int) -> sqlite3.Row | None:
+        return self.conn.execute(
+            """
+            SELECT *
+            FROM media_posts
+            WHERE author_user_id = ?
+              AND is_closed = 0
+            ORDER BY created_at DESC
+            LIMIT 1
+            """,
+            (author_user_id,),
+        ).fetchone()
+
     def close_media_post(
         self,
         message_id: int,
