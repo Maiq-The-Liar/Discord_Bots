@@ -71,17 +71,22 @@ class MediaRepository:
             (current_time_iso,),
         ).fetchall()
 
-    def get_open_post_for_user(self, author_user_id: int) -> sqlite3.Row | None:
+    def get_open_post_for_user_in_channel(
+        self,
+        author_user_id: int,
+        channel_id: int,
+    ) -> sqlite3.Row | None:
         return self.conn.execute(
             """
             SELECT *
             FROM media_posts
             WHERE author_user_id = ?
+              AND channel_id = ?
               AND is_closed = 0
             ORDER BY created_at DESC
             LIMIT 1
             """,
-            (author_user_id,),
+            (author_user_id, channel_id),
         ).fetchone()
 
     def close_media_post(
@@ -100,23 +105,19 @@ class MediaRepository:
         )
         self.conn.commit()
 
-    def force_close_open_post_for_user(self, author_user_id: int) -> int | None:
-        row = self.get_open_post_for_user(author_user_id)
-        if row is None:
-            return None
-
-        message_id = int(row["message_id"])
-        self.conn.execute(
+    def force_close_all_open_posts_for_user(self, author_user_id: int) -> int:
+        cur = self.conn.execute(
             """
             UPDATE media_posts
             SET is_closed = 1,
                 rewarded_points = 0
-            WHERE message_id = ?
+            WHERE author_user_id = ?
+              AND is_closed = 0
             """,
-            (message_id,),
+            (author_user_id,),
         )
         self.conn.commit()
-        return message_id
+        return cur.rowcount
 
     def has_user_voted(self, message_id: int, voter_user_id: int) -> bool:
         row = self.conn.execute(

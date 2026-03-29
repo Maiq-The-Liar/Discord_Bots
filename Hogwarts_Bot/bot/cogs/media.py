@@ -197,7 +197,7 @@ class MediaCog(commands.Cog):
 
     @app_commands.command(
         name="media_reset",
-        description="Admin: reset a user's media cooldown and active media post.",
+        description="Admin: reset a user's media posting state and vote cooldown.",
     )
     @app_commands.describe(member="The member whose media state should be reset")
     async def media_reset(
@@ -215,17 +215,11 @@ class MediaCog(commands.Cog):
         with self.database.connect() as conn:
             media_repo = MediaRepository(conn)
             media_repo.clear_vote_cooldown(member.id)
-            closed_message_id = media_repo.force_close_open_post_for_user(member.id)
-
-        if closed_message_id is None:
-            await interaction.response.send_message(
-                f"{member.mention}'s media cooldown has been reset. They had no active media post.",
-                ephemeral=True,
-            )
-            return
+            closed_count = media_repo.force_close_all_open_posts_for_user(member.id)
 
         await interaction.response.send_message(
-            f"{member.mention}'s media cooldown has been reset and their active media post was closed.",
+            f"{member.mention}'s media state has been reset.\n"
+            f"Closed active media posts: **{closed_count}**",
             ephemeral=True,
         )
 
@@ -251,14 +245,15 @@ class MediaCog(commands.Cog):
                 valid_attachment = attachment
                 break
 
-        # Ignore everything that is not png/jpg/jpeg
         if valid_attachment is None:
             return
 
-        # Only now block if the user already has an active media post
         with self.database.connect() as conn:
             media_repo = MediaRepository(conn)
-            existing_open_post = media_repo.get_open_post_for_user(message.author.id)
+            existing_open_post = media_repo.get_open_post_for_user_in_channel(
+                message.author.id,
+                message.channel.id,
+            )
             if existing_open_post is not None:
                 try:
                     await message.delete()
@@ -268,8 +263,8 @@ class MediaCog(commands.Cog):
                 warning_embed = discord.Embed(
                     title="Media Post Already Active",
                     description=(
-                        f"{message.author.mention}, you already have an active media post.\n"
-                        f"Please wait until it closes before posting another one."
+                        f"{message.author.mention}, you already have an active media post in this channel.\n"
+                        f"Please wait until it closes before posting another image here."
                     ),
                     color=0xE67E22,
                 )
