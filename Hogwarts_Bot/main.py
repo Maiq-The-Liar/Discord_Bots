@@ -12,6 +12,7 @@ from bot.cogs.house_cup import HouseCupCog
 from bot.cogs.chocolate_frogs import ChocolateFrogCog
 from bot.cogs.casual_quiz import CasualQuizCog
 from bot.cogs.birthday import BirthdayCog
+from bot.cogs.help import HelpCog
 
 logging.basicConfig(level=logging.INFO)
 
@@ -43,6 +44,7 @@ class HogwartsBot(commands.Bot):
         await self.add_cog(ChocolateFrogCog(self, database))
         await self.add_cog(CasualQuizCog(self, database))
         await self.add_cog(BirthdayCog(self, database))
+        await self.add_cog(HelpCog(self))
 
         self.tree.copy_global_to(guild=guild)
         synced = await self.tree.sync(guild=guild)
