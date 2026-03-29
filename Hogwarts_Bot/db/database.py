@@ -37,6 +37,15 @@ class Database:
         if "birth_month" not in user_columns:
             conn.execute("ALTER TABLE users ADD COLUMN birth_month INTEGER NULL")
 
+        if "xp" not in user_columns:
+            conn.execute("ALTER TABLE users ADD COLUMN xp INTEGER NOT NULL DEFAULT 0")
+
+        if "level" not in user_columns:
+            conn.execute("ALTER TABLE users ADD COLUMN level INTEGER NOT NULL DEFAULT 1")
+
+        if "last_xp_at" not in user_columns:
+            conn.execute("ALTER TABLE users ADD COLUMN last_xp_at TEXT NULL")
+
         existing_tables = {
             row["name"]
             for row in conn.execute(

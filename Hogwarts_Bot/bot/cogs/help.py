@@ -62,8 +62,6 @@ class HelpCog(commands.Cog):
             value=(
                 "• Set your birthday once\n"
                 "• Receive gifts from other members 🎁\n"
-                "• Get your Zodiac role ♈\n"
-                "• Special birthday announcements"
             ),
             inline=False,
         )
@@ -95,13 +93,8 @@ class HelpCog(commands.Cog):
                 "`/setup_quiz_channel` – (Admin)\n"
                 "`/skip_question` – Skip current question\n\n"
 
-                "**🏆 House Cup**\n"
-                "`/start_housecup` – Start season\n"
-                "`/end_housecup` – End season\n\n"
-
                 "**🎂 Birthday**\n"
                 "`/set_birthday` – Set your birthday\n"
-                "`/birthday_reset` – (Admin)\n\n"
 
                 "**🛒 Shop**\n"
                 "`/shop` – View shop\n"

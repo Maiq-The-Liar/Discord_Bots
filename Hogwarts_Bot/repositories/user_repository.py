@@ -170,3 +170,38 @@ class UserRepository:
         ).fetchall()
 
         return [int(row["user_id"]) for row in rows]
+
+    def set_xp_and_level(
+        self,
+        user_id: int,
+        xp: int,
+        level: int,
+        last_xp_at: str | None,
+    ) -> None:
+        self.conn.execute(
+            """
+            UPDATE users
+            SET xp = ?,
+                level = ?,
+                last_xp_at = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = ?
+            """,
+            (xp, level, last_xp_at, user_id),
+        )
+        self.conn.commit()
+
+    def get_xp_and_level(self, user_id: int) -> tuple[int, int, str | None]:
+        row = self.conn.execute(
+            """
+            SELECT xp, level, last_xp_at
+            FROM users
+            WHERE user_id = ?
+            """,
+            (user_id,),
+        ).fetchone()
+
+        if row is None:
+            return 0, 1, None
+
+        return int(row["xp"]), int(row["level"]), row["last_xp_at"]

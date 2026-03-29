@@ -17,6 +17,8 @@ HOUSE_ROLE_IDS = {
     "Slytherin": 1079764344717463578,
 }
 
+EXTRA_ROLE_ID = 1487710450790563890
+
 HOUSE_ORDER = ["Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin"]
 
 HOUSE_STYLES = {
@@ -221,11 +223,19 @@ def resolve_house(scores: dict[str, int]) -> str:
 
 
 async def assign_house_role(guild: discord.Guild, member: discord.Member, house_name: str) -> bool:
-    role_id = HOUSE_ROLE_IDS[house_name]
-    role = guild.get_role(role_id)
-    if role is None:
+    house_role = guild.get_role(HOUSE_ROLE_IDS[house_name])
+    extra_role = guild.get_role(EXTRA_ROLE_ID)
+
+    if house_role is None:
         return False
-    await member.add_roles(role, reason="Housing quiz result")
+
+    roles_to_add = [house_role]
+
+    if extra_role is not None:
+        roles_to_add.append(extra_role)
+
+    await member.add_roles(*roles_to_add, reason="Housing quiz result")
+
     return True
 
 

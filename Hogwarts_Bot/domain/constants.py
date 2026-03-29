@@ -10,6 +10,18 @@ HOUSE_ROLE_IDS: dict[int, str] = {
     1079764344717463578: "Slytherin",
 }
 
+YEAR_LEVEL_ROLE_IDS: dict[int, int] = {
+    1: 1487710450790563890,  # 1st year
+    2: 1487710478779154534,  # 2nd year
+    3: 1487710626108276777,  # 3rd year
+    4: 1487710746581405836,  # 4th year
+    5: 1487710846992781463,  # 5th year
+    6: 1487711765566590976,  # 6th year
+    7: 1487711055336443925,  # 7th year
+}
+
+MAX_SCHOOL_LEVEL = 7
+
 ARENA_ROLE_ID = 1485343667089576077
 
 HOUSE_COLORS: dict[str, int] = {

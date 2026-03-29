@@ -121,10 +121,21 @@ class ProfileService:
             f"╰ • **Bio:** {bio_text}",
         ]
 
+        current_level = int(user_row["level"])
+        current_xp = int(user_row["xp"])
+
+        if current_level >= 7:
+            xp_progress_text = "MAX"
+        else:
+            needed_xp = 5 * (current_level ** 2) + 50 * current_level + 100
+            xp_progress_text = f"{current_xp} / {needed_xp}"
+
         stats_lines = [
             f"╭ • **Monthly Housepoints:** {monthly_points}",
             f"│ • **Total collected Housepoints:** {user_row['lifetime_house_points']}",
             f"│ • **Balance:** {user_row['sickles_balance']} Galleons",
+            f"│ • **School Year Level:** {current_level}",
+            f"│ • **XP Progress:** {xp_progress_text}",
             f"╰ • **Collected Chocolate Frogs:** {collected_frogs} / {total_possible_frogs}",
         ]
 
