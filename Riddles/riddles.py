@@ -45,6 +45,10 @@ milestones = load_config()
 def normalize_text(text: str) -> str:
     return text.strip().lower()
 
+
+def admin_only():
+    return app_commands.checks.has_permissions(administrator=True)
+
 # =========================================================
 # READY
 # =========================================================
@@ -72,7 +76,7 @@ async def on_ready() -> None:
     word="The exact word/string users must send",
     role="The role to give when they send the correct word",
 )
-@app_commands.checks.has_permissions(administrator=True)
+@admin_only()
 async def set_milestone(
     interaction: discord.Interaction,
     word: str,
@@ -107,7 +111,7 @@ async def set_milestone(
     name="clearmilestone",
     description="Remove the milestone restriction from this channel.",
 )
-@app_commands.checks.has_permissions(administrator=True)
+@admin_only()
 async def clear_milestone(interaction: discord.Interaction) -> None:
     if interaction.guild is None or interaction.channel is None:
         await interaction.response.send_message(
@@ -179,14 +183,6 @@ async def on_message(message: discord.Message) -> None:
         pass
     except discord.HTTPException:
         pass
-
-    # Wrong answer
-    if normalize_text(message.content) != normalize_text(required_word):
-        try:
-            await message.author.send("No...")
-        except discord.Forbidden:
-            pass
-        return
 
     # Correct answer
     role = message.guild.get_role(role_id)
