@@ -644,6 +644,37 @@ async def dobby_trigger(interaction: discord.Interaction, channel: discord.TextC
     await interaction.response.send_message(message, ephemeral=True)
 
 
+@bot.tree.command(name="dobby_untrigger", description="Forcefully end the current Dobby event in this channel.")
+@ADMIN_COMMAND_PERMS
+@GUILD_ONLY
+@admin_only()
+async def dobby_untrigger(interaction: discord.Interaction) -> None:
+    channel = interaction.channel
+
+    if not isinstance(channel, discord.TextChannel):
+        await interaction.response.send_message(
+            "This command can only be used in a text channel.",
+            ephemeral=True,
+        )
+        return
+
+    event = active_events.get(channel.id)
+
+    if not event or not event.active:
+        await interaction.response.send_message(
+            "There is no active Dobby event in this channel.",
+            ephemeral=True,
+        )
+        return
+
+    await event.end()
+
+    await interaction.response.send_message(
+        "Dobby has been dismissed early.",
+        ephemeral=True,
+    )
+
+
 @bot.tree.command(name="dobby_allow", description="Allow Dobby to randomly appear in a selected channel.")
 @ADMIN_COMMAND_PERMS
 @GUILD_ONLY
