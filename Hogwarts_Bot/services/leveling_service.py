@@ -6,9 +6,13 @@ from repositories.user_repository import UserRepository
 
 
 class LevelingService:
-    XP_COOLDOWN_SECONDS = 60
-    XP_MIN = 15
-    XP_MAX = 25
+    XP_COOLDOWN_SECONDS = 120
+    XP_MIN = 5
+    XP_MAX = 10
+
+
+def xp_required_for_next_level(self, level: int) -> int:
+    return 20 * (level ** 2) + 100 * level + 200
 
     def __init__(self, user_repo: UserRepository):
         self.user_repo = user_repo
