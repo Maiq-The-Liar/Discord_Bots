@@ -184,6 +184,10 @@ async def on_message(message: discord.Message) -> None:
     except discord.HTTPException:
         pass
 
+    # Reject wrong answer
+    if normalize_text(message.content) != normalize_text(required_word):
+        return
+
     # Correct answer
     role = message.guild.get_role(role_id)
     if role is None:
