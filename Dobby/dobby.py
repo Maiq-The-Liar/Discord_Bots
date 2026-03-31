@@ -62,11 +62,10 @@ BEAN_IMAGE_URLS = [
 
 ALL_FLAVOURS = [
     "Burger", "Pizza", "Chocolate", "Vanilla", "Kimchi", "Sushi",
-    "Rotten Egg", "Vomit", "Soap", "Toothpastey", "Strawberry", "Coconut"
+    "Rotten Egg", "Vomit", "Soap", "Toothpaste", "Strawberry", "Coconut"
 ]
 
-ALL_FLAVOURS_SET = set(ALL_FLAVOURS)
-TOTAL_DISCOVERABLE_FLAVOURS = len(ALL_FLAVOURS_SET)
+TOTAL_DISCOVERABLE_FLAVOURS = len(set(ALL_FLAVOURS))
 
 SOCK_EMOJI_POOL = [
     "<:Sock6:1485677804581421128>",
@@ -357,11 +356,6 @@ def disallow_channel(channel_id: int) -> None:
         conn.commit()
 
 
-def reset_allowed_channels() -> None:
-    with get_db_connection() as conn:
-        conn.execute("DELETE FROM allowed_channels")
-        conn.commit()
-
 # =========================================================
 # EVENT STATE
 # =========================================================
@@ -379,12 +373,10 @@ class DobbyEvent:
 
         self.active = True
         self.gif_url = random.choice(EVENT_GIF_URLS)
-
         self.socks = random.sample(SOCK_EMOJI_POOL, SOCKS_PER_EVENT)
         self.assignment = self._create_assignment()
 
         self.participants: dict[int, dict[str, str]] = {}
-
         self.message: discord.Message | None = None
         self.view: "DobbyView | None" = None
         self.end_task: asyncio.Task | None = None
@@ -417,7 +409,7 @@ class DobbyEvent:
         add_beans(member.id, reward)
         log.info(
             "Participant added: user=%s sock=%s rank=%s reward=%s channel=%s",
-            member.id, sock_emoji, rank, reward, self.channel_id
+            member.id, sock_emoji, rank, reward, self.channel_id,
         )
         return rank, reward
 
@@ -447,7 +439,7 @@ class DobbyEvent:
         self.message = await self.channel.send(embed=self.build_embed(), view=self.view)
         log.info(
             "Dobby event sent: guild=%s channel=%s message=%s",
-            self.guild_id, self.channel_id, self.message.id
+            self.guild_id, self.channel_id, self.message.id,
         )
         self.end_task = asyncio.create_task(self._auto_end())
 
@@ -455,31 +447,21 @@ class DobbyEvent:
         if self.message and self.view and self.active:
             try:
                 await self.message.edit(embed=self.build_embed(), view=self.view)
-                log.info("Refreshed Dobby message in channel=%s", self.channel_id)
             except discord.HTTPException:
                 log.exception("Failed to refresh Dobby message in channel=%s", self.channel_id)
 
     async def _auto_end(self) -> None:
-        log.info(
-            "Auto-end timer started for message=%s channel=%s duration=%s",
-            self.message.id if self.message else "unknown",
-            self.channel_id,
-            EVENT_DURATION_SECONDS,
-        )
         try:
             await asyncio.sleep(EVENT_DURATION_SECONDS)
             if self.active:
-                log.info("Auto-ending Dobby event in channel=%s", self.channel_id)
                 await self.end(reason="timer")
         except asyncio.CancelledError:
-            log.info("Auto-end task cancelled for channel=%s", self.channel_id)
             raise
         except Exception:
             log.exception("Unexpected error in _auto_end for channel=%s", self.channel_id)
 
     async def end(self, reason: str = "unknown") -> None:
         if not self.active:
-            log.info("end() called on inactive event channel=%s", self.channel_id)
             return
 
         log.info(
@@ -505,27 +487,14 @@ class DobbyEvent:
         if self.message:
             try:
                 await self.message.delete()
-                log.info("Deleted Dobby event message in channel=%s", self.channel_id)
-            except discord.NotFound:
-                log.warning("Dobby message already deleted in channel=%s", self.channel_id)
-            except discord.Forbidden:
-                log.exception("Missing permission to delete Dobby message in channel=%s", self.channel_id)
-                try:
-                    await self.message.edit(embed=self.build_embed(), view=self.view)
-                    log.info("Fallback edit succeeded after delete permission failure in channel=%s", self.channel_id)
-                except discord.HTTPException:
-                    log.exception("Fallback edit also failed in channel=%s", self.channel_id)
             except discord.HTTPException:
-                log.exception("Failed to delete Dobby event message in channel=%s", self.channel_id)
                 try:
                     await self.message.edit(embed=self.build_embed(), view=self.view)
-                    log.info("Fallback edit succeeded after delete failure in channel=%s", self.channel_id)
                 except discord.HTTPException:
-                    log.exception("Fallback edit also failed in channel=%s", self.channel_id)
+                    log.exception("Failed to update old Dobby message in channel=%s", self.channel_id)
 
         try:
             await self.channel.send(DOBBY_DISAPPEAR_MESSAGE)
-            log.info("Sent disappearance message in channel=%s", self.channel_id)
         except discord.HTTPException:
             log.exception("Failed to send disappearance message in channel=%s", self.channel_id)
 
@@ -666,7 +635,11 @@ GUILD_ONLY = app_commands.guild_only()
 # =========================================================
 # PUBLIC COMMANDS
 # =========================================================
-@bot.tree.command(name="eat_bean", description="Eat one Bertie Bott's Every Flavoured Bean.")
+@bot.tree.command(
+    guild=TEST_GUILD,
+    name="eat_bean",
+    description="Eat one Bertie Bott's Every Flavoured Bean.",
+)
 @app_commands.guild_only()
 async def eat_bean(interaction: discord.Interaction) -> None:
     if not remove_bean(interaction.user.id):
@@ -706,7 +679,11 @@ async def eat_bean(interaction: discord.Interaction) -> None:
     await interaction.response.send_message(embed=embed)
 
 
-@bot.tree.command(name="inventory", description="See how many beans you currently have.")
+@bot.tree.command(
+    guild=TEST_GUILD,
+    name="inventory",
+    description="See how many beans you currently have.",
+)
 @app_commands.guild_only()
 async def inventory(interaction: discord.Interaction) -> None:
     count = get_bean_count(interaction.user.id)
@@ -719,7 +696,11 @@ async def inventory(interaction: discord.Interaction) -> None:
 # =========================================================
 # TEST / ADMIN COMMANDS
 # =========================================================
-@bot.tree.command(name="dobby_test", description="Spawn Dobby in the current channel for testing.")
+@bot.tree.command(
+    guild=TEST_GUILD,
+    name="dobby_test",
+    description="Spawn Dobby in the current channel for testing.",
+)
 @ADMIN_COMMAND_PERMS
 @GUILD_ONLY
 @admin_only()
@@ -733,7 +714,11 @@ async def dobby_test(interaction: discord.Interaction) -> None:
     await interaction.response.send_message(message, ephemeral=True)
 
 
-@bot.tree.command(name="dobby_cleanup", description="Force end the Dobby event in this channel.")
+@bot.tree.command(
+    guild=TEST_GUILD,
+    name="dobby_cleanup",
+    description="Force end the Dobby event in this channel.",
+)
 @ADMIN_COMMAND_PERMS
 @GUILD_ONLY
 @admin_only()
@@ -755,7 +740,11 @@ async def dobby_cleanup(interaction: discord.Interaction) -> None:
     await interaction.response.send_message("Dobby event ended.", ephemeral=True)
 
 
-@bot.tree.command(name="dobby_allow", description="Allow Dobby to randomly appear in a selected channel.")
+@bot.tree.command(
+    guild=TEST_GUILD,
+    name="dobby_allow",
+    description="Allow Dobby to randomly appear in a selected channel.",
+)
 @ADMIN_COMMAND_PERMS
 @GUILD_ONLY
 @admin_only()
@@ -768,7 +757,11 @@ async def dobby_allow(interaction: discord.Interaction, channel: discord.TextCha
     )
 
 
-@bot.tree.command(name="dobby_disallow", description="Stop Dobby from randomly appearing in a selected channel.")
+@bot.tree.command(
+    guild=TEST_GUILD,
+    name="dobby_disallow",
+    description="Stop Dobby from randomly appearing in a selected channel.",
+)
 @ADMIN_COMMAND_PERMS
 @GUILD_ONLY
 @admin_only()
@@ -781,7 +774,11 @@ async def dobby_disallow(interaction: discord.Interaction, channel: discord.Text
     )
 
 
-@bot.tree.command(name="give_beans", description="Give a user beans.")
+@bot.tree.command(
+    guild=TEST_GUILD,
+    name="give_beans",
+    description="Give a user beans.",
+)
 @ADMIN_COMMAND_PERMS
 @GUILD_ONLY
 @admin_only()
@@ -815,6 +812,16 @@ async def on_app_command_error(
             await interaction.response.send_message(str(error), ephemeral=True)
         return
 
+    if isinstance(error, app_commands.CommandNotFound):
+        # Old cached slash commands can still fire briefly from Discord clients.
+        log.warning("Ignored stale command interaction: %s", error)
+        if not interaction.response.is_done():
+            await interaction.response.send_message(
+                "That command is outdated. Please refresh Discord and try again.",
+                ephemeral=True,
+            )
+        return
+
     log.exception("Unhandled app command error", exc_info=error)
 
     if interaction.response.is_done():
@@ -831,19 +838,20 @@ async def on_app_command_error(
 # =========================================================
 # READY
 # =========================================================
-
 @bot.event
 async def on_ready() -> None:
     global spawn_loop_task
 
-    bot.tree.clear_commands(guild=TEST_GUILD)
-    await bot.tree.sync(guild=TEST_GUILD)
+    # One-time cleanup of old global commands.
+    bot.tree.clear_commands(guild=None)
+    await bot.tree.sync()
 
-    bot.tree.copy_global_to(guild=TEST_GUILD)
+    # One-time cleanup of old guild commands, then sync only current guild commands.
+    bot.tree.clear_commands(guild=TEST_GUILD)
     synced = await bot.tree.sync(guild=TEST_GUILD)
 
     log.info("Logged in as %s (%s)", bot.user, bot.user.id if bot.user else "unknown")
-    log.info("Synced %s slash commands to guild %s.", len(synced), GUILD_ID)
+    log.info("Synced %s guild slash commands to guild %s.", len(synced), GUILD_ID)
     log.info("TEST_MODE=%s EVENT_DURATION_SECONDS=%s", TEST_MODE, EVENT_DURATION_SECONDS)
 
     if START_RANDOM_SPAWN_LOOP:
@@ -862,5 +870,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
