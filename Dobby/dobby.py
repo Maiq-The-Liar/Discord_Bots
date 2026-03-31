@@ -35,7 +35,9 @@ DATA_DIR = Path(__file__).parent
 DB_FILE = DATA_DIR / "bot_data.db"
 FLAVORS_FILE = DATA_DIR / "flavors.json"
 
-# ---- TEST SETTINGS ----
+# =========================================================
+# TEST SETTINGS
+# =========================================================
 TEST_MODE = True
 START_RANDOM_SPAWN_LOOP = False
 
@@ -188,8 +190,6 @@ def init_db() -> None:
 
 
 init_db()
-
-# Validate flavors at startup so the bot fails fast if config is bad.
 get_flavors()
 
 # =========================================================
@@ -653,42 +653,21 @@ async def eat_bean(interaction: discord.Interaction) -> None:
     total_flavours = get_total_flavours()
     bean_image_url = random.choice(BEAN_IMAGE_URLS)
 
-    familiarity_text = (
-        "Unfamiliar flavour — a new discovery."
-        if is_new_flavour
-        else f"Familiar flavour — {interaction.user.display_name} has tasted this before."
-    )
+    status = "unfamiliar tasting" if is_new_flavour else "familiar tasting"
+    bean_word = "bean" if remaining == 1 else "beans"
 
     embed = discord.Embed(
         description=(
-            f"{interaction.user.display_name} just ate a Bertie Bott’s Every Flavoured Bean...\n"
-            f"it tastes like...\n\n"
-            f"**__🍬  {flavor.upper()}  🍬__**\n\n"
-            f"*{familiarity_text}*\n"
-            f"`{discovered_count}/{total_flavours} flavours discovered`"
+            f"**{interaction.user.display_name} ate a {status} bean…**\n\n"
+            f"🍬 **{flavor.upper()}** 🍬\n\n"
+            f"`{discovered_count}/{total_flavours} discovered • {remaining} {bean_word} left`"
         ),
         color=discord.Color.green(),
     )
 
     embed.set_thumbnail(url=bean_image_url)
-    embed.set_footer(text=f"{remaining} beans left")
 
     await interaction.response.send_message(embed=embed)
-
-
-@bot.tree.command(
-    guild=TEST_GUILD,
-    name="inventory",
-    description="See how many beans you currently have.",
-)
-@app_commands.guild_only()
-async def inventory(interaction: discord.Interaction) -> None:
-    count = get_bean_count(interaction.user.id)
-    bean_word = "Bean" if count == 1 else "Beans"
-    await interaction.response.send_message(
-        f"You currently have **{count} Bertie Bott’s Every Flavoured {bean_word}**.",
-        ephemeral=True,
-    )
 
 # =========================================================
 # TEST / ADMIN COMMANDS
