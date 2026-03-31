@@ -2,7 +2,8 @@ import os
 from dataclasses import dataclass
 from dotenv import load_dotenv
 
-load_dotenv()
+env_file = os.getenv("ENV_FILE", ".env")
+load_dotenv(env_file, override=True)
 
 
 @dataclass(frozen=True)
