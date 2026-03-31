@@ -3,23 +3,48 @@ import json
 import logging
 import os
 import random
+import sqlite3
 from pathlib import Path
 from typing import Any
 
 import discord
 from discord import app_commands
 from discord.ext import commands
+from dotenv import load_dotenv
 
 # =========================================================
-# CONFIG
+# ENV / CONFIG
 # =========================================================
+load_dotenv()
+
 BOT_TOKEN = os.getenv("DISCORD_TOKEN")
+GUILD_ID_RAW = os.getenv("GUILD_ID")
+
+if not BOT_TOKEN:
+    raise RuntimeError("DISCORD_TOKEN is not set in the .env file.")
+
+if not GUILD_ID_RAW:
+    raise RuntimeError("GUILD_ID is not set in the .env file.")
+
+try:
+    GUILD_ID = int(GUILD_ID_RAW)
+except ValueError as exc:
+    raise RuntimeError("GUILD_ID in .env must be a valid integer.") from exc
 
 DATA_DIR = Path(__file__).parent
-INVENTORY_FILE = DATA_DIR / "inventory.json"
+DB_FILE = DATA_DIR / "bot_data.db"
 FLAVORS_FILE = DATA_DIR / "flavors.json"
 SETTINGS_FILE = DATA_DIR / "settings.json"
-TASTED_FLAVOURS_FILE = DATA_DIR / "tasted_flavours.json"
+
+# ---- TEST SETTINGS ----
+TEST_MODE = True
+START_RANDOM_SPAWN_LOOP = False
+
+MAX_PARTICIPANTS = 5
+EVENT_DURATION_SECONDS = 60 if TEST_MODE else 10 * 60
+
+MIN_SPAWN_SECONDS = 30
+MAX_SPAWN_SECONDS = 60
 
 EVENT_TITLE = "\"Would Master kindly give Dobby another sock?\""
 EVENT_DESCRIPTION = (
@@ -34,136 +59,19 @@ EVENT_GIF_URLS = [
 BEAN_IMAGE_URLS = [
     "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean1_cleanup.png?raw=true",
     "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean2_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean3_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean4_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean5_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean6_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean7_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean8_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean9_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean10_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean11_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean12_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean13_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean14_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean15_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean16_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean17_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Birthday_Cake_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Caramel_Corn_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Chocolate_Pudding_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Coconut_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Licorice_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Plum_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Strawberry_Jam_cleanup.png?raw=true",
 ]
 
 ALL_FLAVOURS = [
-    "Burger","Cheeseburger","Double Bacon Burger","Burnt Burger","Frozen Burger","Spicy Burger","Radioactive Burger","Cursed Burger","Quantum Burger","Glowing Burger",
-    "Pizza","Pepperoni Pizza","Pineapple Pizza","Cold Pizza","Greasy Pizza","Frozen Pizza","Exploding Pizza","Cosmic Pizza","Void Pizza","Haunted Pizza",
-    "Caramel","Salted Caramel","Burnt Caramel","Liquid Caramel","Caramel Explosion","Sticky Caramel","Molten Caramel","Ancient Caramel","Cursed Caramel",
-    "Chocolate","Dark Chocolate","White Chocolate","Melted Chocolate","Burnt Chocolate","Frozen Chocolate","Cosmic Chocolate","Haunted Chocolate","Radioactive Chocolate",
-    "Strawberry","Rotten Strawberry","Chocolate Covered Strawberry","Frozen Strawberry","Mutant Strawberry","Exploding Strawberry","Cursed Strawberry",
-    "Vanilla","French Vanilla","Artificial Vanilla","Burnt Vanilla","Frozen Vanilla","Ancient Vanilla","Void Vanilla",
-    "Kimchi","Fermented Kimchi Explosion","Spicy Kimchi","Ultra Spicy Kimchi","Rotten Kimchi","Cosmic Kimchi","Glowing Kimchi",
-    "Sushi","Old Sushi","Gas Station Sushi","Frozen Sushi","Radioactive Sushi","Cursed Sushi","Alien Sushi",
-    "Fries","Soggy Fries","Overcooked Fries","Radioactive Fries","Frozen Fries","Exploding Fries","Cosmic Fries",
-    "Cheesecake","Strawberry Cheesecake","Moldy Cheesecake","Quantum Cheesecake","Frozen Cheesecake","Exploding Cheesecake",
-    "Pancakes","Burnt Pancakes","Syrupy Pancakes","Mystery Pancakes","Frozen Pancakes","Exploding Pancakes",
-    "Hotdog","Street Hotdog","Cold Hotdog","Exploding Hotdog","Radioactive Hotdog","Alien Hotdog",
-    "Taco","Spicy Taco","Falling Apart Taco","Ancient Taco","Exploding Taco","Cursed Taco",
-    "Spaghetti","Overcooked Spaghetti","Dry Spaghetti","Glowing Spaghetti","Radioactive Spaghetti","Alien Spaghetti",
-    "Lasagna","Grandma's Lasagna","Frozen Lasagna","Suspicious Lasagna","Burnt Lasagna","Cosmic Lasagna",
-    "Ice Cream","Melted Ice Cream","Freezer Burn Ice Cream","Haunted Ice Cream","Alien Ice Cream","Exploding Ice Cream",
-    "Donut","Glazed Donut","Stale Donut","Alien Donut","Cosmic Donut","Exploding Donut",
-    "Popcorn","Burnt Popcorn","Butter Explosion Popcorn","Cosmic Popcorn","Exploding Popcorn","Radioactive Popcorn",
-    "Garlic Bread","Extra Garlic Bread","Charred Garlic Bread","Eternal Garlic Bread","Cursed Garlic Bread","Glowing Garlic Bread",
-    "Ramen","Instant Ramen","Overcooked Ramen","Time Traveling Ramen","Exploding Ramen","Cursed Ramen",
-    "Fried Chicken","Crispy Fried Chicken","Greasy Fried Chicken","Galaxy Fried Chicken","Radioactive Chicken","Exploding Chicken",
-    "Steak","Rare Steak","Burnt Steak","Void Steak","Cosmic Steak","Exploding Steak",
-    "Apple Pie","Grandma Apple Pie","Soggy Apple Pie","Parallel Apple Pie","Exploding Apple Pie","Cursed Apple Pie",
-    "Freshly Mown Grass","Wet Grass","Dry Grass","Morning Dew Grass","Glowing Grass","Cursed Grass",
-    "Rainwater","Dirty Rainwater","Acid Rainwater","Radioactive Rainwater","Frozen Rainwater",
-    "Forest Moss","Damp Moss","Ancient Moss","Glowing Moss","Alien Moss",
-    "Ocean Breeze","Salty Ocean Water","Fishy Ocean Breeze","Radioactive Ocean Breeze",
-    "Wet Dirt","Mud","Swamp Mud","Cursed Mud","Glowing Mud",
-    "Tree Bark","Chewed Tree Bark","Old Tree Bark","Ancient Bark",
-    "Flower Petal","Rotten Flower Petal","Perfumed Flower Petal","Glowing Petal",
-    "Autumn Leaves","Crunchy Leaves","Rotten Leaves","Cursed Leaves",
-    "Mountain Air","Thin Mountain Air","Cold Mountain Air","Frozen Air",
-    "Pine Needle","Sharp Pine Needle","Sap Covered Pine Needle","Radioactive Needle",
-    "Rotten Egg","Exploded Rotten Egg","Burnt Rotten Egg","Nuclear Rotten Egg",
-    "Vomit","Chunky Vomit","Warm Vomit","Radioactive Vomit","Exploding Vomit",
-    "Poop","Dry Poop","Suspicious Poop","Quantum Poop","Radioactive Poop",
-    "Explosive Diarrhea","Nuclear Diarrhea","Unstoppable Diarrhea","Cosmic Diarrhea",
-    "Sour Milk","Chunky Milk","Expired Milk","Exploding Milk",
-    "Moldy Bread","Green Mold Bread","Fuzzy Bread","Radioactive Bread",
-    "Expired Yogurt","Lumpy Yogurt","Sour Yogurt","Dimension Tear Yogurt",
-    "Old Cheese","Super Stinky Cheese","Melted Old Cheese","Exploding Cheese",
-    "Garbage Juice","Dumpster Liquid","Mystery Garbage Soup","Blessed Garbage Juice",
-    "Fermented Fish Disaster","Rotten Fish","Fish Juice","Exploding Fish Juice",
-    "Toothpaste","Mint Toothpaste","Extra Strong Toothpaste","Exploding Toothpaste",
-    "Soap","Lavender Soap","Bitter Soap","Time Loop Soap",
-    "Shampoo","Cheap Shampoo","Hotel Shampoo","Alien Shampoo",
-    "Plastic","Burnt Plastic","Melted Plastic","Void Plastic",
-    "Rubber","Burnt Rubber","Tire Rubber","Cosmic Rubber",
-    "Burnt Hair","Hair Clump","Singed Hair","Exploding Hair",
-    "Candle Wax","Hot Wax","Scented Wax","Melting Wax",
-    "Ink","Printer Ink","Spilled Ink","Reality Bending Ink",
-    "Old Book","Library Book","Wet Book","Ancient Book",
-    "Printer Toner","Exploded Toner","Toner Cloud","Toner Storm",
-    "Cheese","Bread","Milk","Butter","Egg","Rice","Chicken","Beef","Pork","Fish",
-    "Salt","Sugar","Honey","Jam","Coffee","Tea","Juice","Water","Soda","Soup",
-    "Salad","Sandwich","Toast","Bagel","Muffin","Cake","Pie","Cookie","Brownie","Waffle",
-    "Yogurt","Cereal","Oatmeal","Granola","Pasta","Noodles","Dumpling","Meatball","Sausage","Bacon",
-    "Shrimp","Crab","Lobster","Tofu","Beans","Lentils","Chickpea","Corn","Potato","Tomato",
-    "Onion","Garlic","Pepper","Carrot","Broccoli","Cabbage","Spinach","Mushroom","Cucumber","Zucchini",
-    "Apple","Banana","Orange","Lemon","Lime","Grape","Blueberry","Raspberry","Mango","Pineapple",
-    "Peach","Pear","Plum","Cherry","Watermelon","Melon","Avocado","Coconut","Almond","Peanut",
-    "Walnut","Hazelnut","Cashew","Pistachio","Ice","Steam","Oil","Vinegar","Sauce",
-    "Mustard","Ketchup","Mayonnaise","Relish","Pickle","Chili","Salsa","Guacamole","Hummus","Pesto",
-    "Parmesan","Mozzarella","Cheddar","Gouda","Brie","Feta","Ricotta","Cream","Custard","Pudding",
-    "Maple Syrup","Molasses","Toffee","Butterscotch","Marshmallow","Gelatin","Carrot Cake","Cupcake","Frosting","Icing",
-    "Espresso","Latte","Cappuccino","Mocha","Matcha","Milkshake","Smoothie","Protein Shake","Broth","Gravy",
-    "Quinoa","Barley","Wheat","Rye","Sourdough","Tortilla","Wrap","Burrito","Quesadilla","Nachos",
-    "Clam","Oyster","Scallop","Anchovy","Sardine","Tuna","Salmon","Cod","Trout","Seaweed",
-    "Wasabi","Horseradish","Ginger","Turmeric","Cinnamon","Nutmeg","Clove","Cardamom","Paprika","Cumin",
-    "Vanilla Bean","Cocoa","Chocolate Chip","Caramel Sauce","Fruit","Berry","Citrus","Melon","Stonefruit","Nut",
-    "Paella","Gazpacho","Tortilla Española","Ratatouille","Coq au Vin","Bouillabaisse","Cassoulet","Wiener Schnitzel","Bratwurst","Sauerbraten",
-    "Goulash","Pierogi","Borscht","Beef Stroganoff","Pelmeni","Chicken Kiev","Haggis","Fish and Chips","Shepherd's Pie","Full English Breakfast",
-    "Irish Stew","Smørrebrød","Gravlax","Meatballs","Lutefisk","Reindeer Stew","Fondue","Raclette","Rösti","Moussaka",
-    "Souvlaki","Tzatziki","Dolma","Kebab","Shawarma","Falafel","Hummus Plate","Tabbouleh","Fattoush","Kabsa",
-    "Mandi","Biryani","Butter Chicken","Tandoori Chicken","Dal","Chole Bhature","Masala Dosa","Idli","Sambar","Paneer Tikka",
-    "Nasi Goreng","Satay","Rendang","Laksa","Pho","Banh Mi","Pad Thai","Tom Yum","Green Curry","Massaman Curry",
-    "Sushi Roll","Tempura","Okonomiyaki","Takoyaki","Bibimbap","Bulgogi","Kimchi Stew","Hot Pot","Peking Duck","Xiaolongbao",
-    "Mapo Tofu","Chow Mein","Fried Rice","Dim Sum","Char Siu","Adobo","Lechon","Halo Halo","Sisig","Jollof Rice",
-    "Fufu","Egusi Soup","Bobotie","Bunny Chow","Piri Piri Chicken","Couscous","Tagine","Harira","Shakshuka","Ful Medames",
-    "Koshari","Injera","Doro Wat","Sambusa","Pilaf","Plov","Lagman","Manty","Arepas","Empanadas",
-    "Asado","Churrasco","Feijoada","Moqueca","Ceviche","Lomo Saltado","Aji de Gallina","Pupusas","Tamales","Tacos al Pastor",
-    "Enchiladas","Guacamole","Pozole","Chiles Rellenos","Clam Chowder","Burger Classic","Buffalo Wings","Mac and Cheese","Cornbread","Jambalaya",
-    "Gumbo","Poutine","Tourtiere","Butter Tart","Meat Pie","Lamington","Meat Pie Australian","Vegemite Toast","Pavlova","Hangi"
+    "Burger", "Pizza", "Chocolate", "Vanilla", "Kimchi", "Sushi",
+    "Rotten Egg", "Vomit", "Soap", "Toothpaste", "Strawberry", "Coconut"
 ]
 
 ALL_FLAVOURS_SET = set(ALL_FLAVOURS)
 TOTAL_DISCOVERABLE_FLAVOURS = len(ALL_FLAVOURS_SET)
 
-MAX_PARTICIPANTS = 5
-EVENT_DURATION_SECONDS = 10 * 60
-
-MIN_SPAWN_SECONDS = 5 * 60 * 60
-MAX_SPAWN_SECONDS = 7 * 60 * 60
-
 SOCK_EMOJI_POOL = [
-    "<:Sock1:1485675915584344124>",
-    "<:Sock2:1485675913499771061>",
-    "<:Sock3:1485675911935168522>",
-    "<:Sock4:1485675910467424408>",
-    "<:Sock5:1485675909582295171>",
-    "<:Sock6:1485677804581421128>",
-    "<:Sock7:1485675907434811625>",
-    "<:Sock8:1485675897389449287>",
-    "<:Sock9:1485675896458444800>",
-    "<:Sock10:1485676309253459988>",
+    "🧦", "🧦", "🧦", "🧦", "🧦",
+    "👕", "👒", "👞", "🩲", "🧤",
 ]
 
 SOCKS_PER_EVENT = 5
@@ -206,6 +114,7 @@ intents.guilds = True
 intents.members = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
+TEST_GUILD = discord.Object(id=GUILD_ID)
 
 # =========================================================
 # JSON HELPERS
@@ -226,52 +135,128 @@ def save_json(path: Path, data: Any) -> None:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 
-def ensure_files() -> None:
-    if not INVENTORY_FILE.exists():
-        save_json(INVENTORY_FILE, {})
+def ensure_json_files() -> None:
     if not SETTINGS_FILE.exists():
         save_json(SETTINGS_FILE, {"allowed_channels": []})
-    if not TASTED_FLAVOURS_FILE.exists():
-        save_json(TASTED_FLAVOURS_FILE, {})
     if not FLAVORS_FILE.exists():
         save_json(FLAVORS_FILE, ALL_FLAVOURS)
 
 
-ensure_files()
-
-inventory_data: dict[str, dict[str, int]] = load_json(INVENTORY_FILE, {})
+ensure_json_files()
 settings_data: dict[str, list[int]] = load_json(SETTINGS_FILE, {"allowed_channels": []})
-tasted_flavours_data: dict[str, list[str]] = load_json(TASTED_FLAVOURS_FILE, {})
 
 # =========================================================
-# DATA HELPERS
+# SQLITE HELPERS
 # =========================================================
-def get_user_inventory(user_id: int) -> dict[str, int]:
+def get_db_connection() -> sqlite3.Connection:
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def init_db() -> None:
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS inventory (
+                user_id TEXT PRIMARY KEY,
+                beans INTEGER NOT NULL DEFAULT 0
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS tasted_flavours (
+                user_id TEXT NOT NULL,
+                flavour TEXT NOT NULL,
+                PRIMARY KEY (user_id, flavour)
+            )
+            """
+        )
+        conn.commit()
+
+
+init_db()
+
+# =========================================================
+# DATA HELPERS (SQLITE FOR INVENTORY + TASTED FLAVOURS)
+# =========================================================
+def ensure_user_inventory(user_id: int) -> None:
     uid = str(user_id)
-    if uid not in inventory_data:
-        inventory_data[uid] = {"beans": 0}
-    return inventory_data[uid]
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO inventory (user_id, beans)
+            VALUES (?, 0)
+            ON CONFLICT(user_id) DO NOTHING
+            """,
+            (uid,),
+        )
+        conn.commit()
 
 
 def get_bean_count(user_id: int) -> int:
-    return get_user_inventory(user_id)["beans"]
+    uid = str(user_id)
+    ensure_user_inventory(user_id)
+
+    with get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT beans FROM inventory WHERE user_id = ?",
+            (uid,),
+        ).fetchone()
+
+    return int(row["beans"]) if row else 0
 
 
 def add_beans(user_id: int, amount: int) -> int:
     if amount < 0:
         raise ValueError("amount must be >= 0")
-    inv = get_user_inventory(user_id)
-    inv["beans"] += amount
-    save_json(INVENTORY_FILE, inventory_data)
-    return inv["beans"]
+
+    uid = str(user_id)
+    ensure_user_inventory(user_id)
+
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            UPDATE inventory
+            SET beans = beans + ?
+            WHERE user_id = ?
+            """,
+            (amount, uid),
+        )
+        row = conn.execute(
+            "SELECT beans FROM inventory WHERE user_id = ?",
+            (uid,),
+        ).fetchone()
+        conn.commit()
+
+    return int(row["beans"]) if row else 0
 
 
 def remove_bean(user_id: int) -> bool:
-    inv = get_user_inventory(user_id)
-    if inv["beans"] <= 0:
-        return False
-    inv["beans"] -= 1
-    save_json(INVENTORY_FILE, inventory_data)
+    uid = str(user_id)
+    ensure_user_inventory(user_id)
+
+    with get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT beans FROM inventory WHERE user_id = ?",
+            (uid,),
+        ).fetchone()
+
+        current = int(row["beans"]) if row else 0
+        if current <= 0:
+            return False
+
+        conn.execute(
+            """
+            UPDATE inventory
+            SET beans = beans - 1
+            WHERE user_id = ?
+            """,
+            (uid,),
+        )
+        conn.commit()
+
     return True
 
 
@@ -284,21 +269,45 @@ def get_flavors() -> list[str]:
 
 def get_user_tasted_flavours(user_id: int) -> set[str]:
     uid = str(user_id)
-    raw = tasted_flavours_data.get(uid, [])
-    return {str(x) for x in raw}
+
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT flavour
+            FROM tasted_flavours
+            WHERE user_id = ?
+            """,
+            (uid,),
+        ).fetchall()
+
+    return {str(row["flavour"]) for row in rows}
 
 
 def add_tasted_flavour(user_id: int, flavour: str) -> tuple[bool, int]:
     uid = str(user_id)
-    tasted = get_user_tasted_flavours(user_id)
-    is_new = flavour not in tasted
 
-    if is_new:
-        tasted.add(flavour)
-        tasted_flavours_data[uid] = sorted(tasted)
-        save_json(TASTED_FLAVOURS_FILE, tasted_flavours_data)
+    with get_db_connection() as conn:
+        cursor = conn.execute(
+            """
+            INSERT OR IGNORE INTO tasted_flavours (user_id, flavour)
+            VALUES (?, ?)
+            """,
+            (uid, flavour),
+        )
+        is_new = cursor.rowcount > 0
 
-    return is_new, len(tasted)
+        row = conn.execute(
+            """
+            SELECT COUNT(*) AS count
+            FROM tasted_flavours
+            WHERE user_id = ?
+            """,
+            (uid,),
+        ).fetchone()
+        conn.commit()
+
+    discovered_count = int(row["count"]) if row else 0
+    return is_new, discovered_count
 
 
 def get_allowed_channels() -> set[int]:
@@ -380,6 +389,10 @@ class DobbyEvent:
         }
 
         add_beans(member.id, reward)
+        log.info(
+            "Participant added: user=%s sock=%s rank=%s reward=%s channel=%s",
+            member.id, sock_emoji, rank, reward, self.channel_id
+        )
         return rank, reward
 
     def build_embed(self) -> discord.Embed:
@@ -398,26 +411,58 @@ class DobbyEvent:
             color=discord.Color.green(),
         )
         embed.set_image(url=self.gif_url)
-        embed.set_footer(text="Event ends after 10 minutes or when 5 unique users have interacted.")
+        embed.set_footer(
+            text=f"Event ends after {EVENT_DURATION_SECONDS} seconds or when {MAX_PARTICIPANTS} unique users have interacted."
+        )
         return embed
 
     async def send(self) -> None:
         self.view = DobbyView(self)
         self.message = await self.channel.send(embed=self.build_embed(), view=self.view)
+        log.info(
+            "Dobby event sent: guild=%s channel=%s message=%s",
+            self.guild_id, self.channel_id, self.message.id
+        )
         self.end_task = asyncio.create_task(self._auto_end())
 
     async def refresh_message(self) -> None:
         if self.message and self.view and self.active:
-            await self.message.edit(embed=self.build_embed(), view=self.view)
+            try:
+                await self.message.edit(embed=self.build_embed(), view=self.view)
+                log.info("Refreshed Dobby message in channel=%s", self.channel_id)
+            except discord.HTTPException:
+                log.exception("Failed to refresh Dobby message in channel=%s", self.channel_id)
 
     async def _auto_end(self) -> None:
-        await asyncio.sleep(EVENT_DURATION_SECONDS)
-        if self.active:
-            await self.end()
+        log.info(
+            "Auto-end timer started for message=%s channel=%s duration=%s",
+            self.message.id if self.message else "unknown",
+            self.channel_id,
+            EVENT_DURATION_SECONDS,
+        )
+        try:
+            await asyncio.sleep(EVENT_DURATION_SECONDS)
+            if self.active:
+                log.info("Auto-ending Dobby event in channel=%s", self.channel_id)
+                await self.end(reason="timer")
+        except asyncio.CancelledError:
+            log.info("Auto-end task cancelled for channel=%s", self.channel_id)
+            raise
+        except Exception:
+            log.exception("Unexpected error in _auto_end for channel=%s", self.channel_id)
 
-    async def end(self) -> None:
+    async def end(self, reason: str = "unknown") -> None:
         if not self.active:
+            log.info("end() called on inactive event channel=%s", self.channel_id)
             return
+
+        log.info(
+            "Ending Dobby event: channel=%s message=%s reason=%s participants=%s",
+            self.channel_id,
+            self.message.id if self.message else "unknown",
+            reason,
+            self.participant_count(),
+        )
 
         self.active = False
 
@@ -434,15 +479,29 @@ class DobbyEvent:
         if self.message:
             try:
                 await self.message.delete()
+                log.info("Deleted Dobby event message in channel=%s", self.channel_id)
             except discord.NotFound:
-                pass
+                log.warning("Dobby message already deleted in channel=%s", self.channel_id)
+            except discord.Forbidden:
+                log.exception("Missing permission to delete Dobby message in channel=%s", self.channel_id)
+                try:
+                    await self.message.edit(embed=self.build_embed(), view=self.view)
+                    log.info("Fallback edit succeeded after delete permission failure in channel=%s", self.channel_id)
+                except discord.HTTPException:
+                    log.exception("Fallback edit also failed in channel=%s", self.channel_id)
             except discord.HTTPException:
-                log.exception("Failed to delete Dobby event message in #%s", self.channel.name)
+                log.exception("Failed to delete Dobby event message in channel=%s", self.channel_id)
+                try:
+                    await self.message.edit(embed=self.build_embed(), view=self.view)
+                    log.info("Fallback edit succeeded after delete failure in channel=%s", self.channel_id)
+                except discord.HTTPException:
+                    log.exception("Fallback edit also failed in channel=%s", self.channel_id)
 
         try:
             await self.channel.send(DOBBY_DISAPPEAR_MESSAGE)
+            log.info("Sent disappearance message in channel=%s", self.channel_id)
         except discord.HTTPException:
-            log.exception("Failed to send Dobby disappearance message in #%s", self.channel.name)
+            log.exception("Failed to send disappearance message in channel=%s", self.channel_id)
 
 # =========================================================
 # BUTTON VIEW
@@ -504,7 +563,7 @@ class DobbyView(discord.ui.View):
         )
 
         if self.event.participant_count() >= MAX_PARTICIPANTS:
-            await self.event.end()
+            await self.event.end(reason="max_participants")
 
 # =========================================================
 # EVENT HELPERS
@@ -621,7 +680,7 @@ async def eat_bean(interaction: discord.Interaction) -> None:
     await interaction.response.send_message(embed=embed)
 
 
-@bot.tree.command(name="inventory", description="See how many Bertie Bott's Every Flavoured Beans you currently have.")
+@bot.tree.command(name="inventory", description="See how many beans you currently have.")
 @app_commands.guild_only()
 async def inventory(interaction: discord.Interaction) -> None:
     count = get_bean_count(interaction.user.id)
@@ -632,34 +691,33 @@ async def inventory(interaction: discord.Interaction) -> None:
     )
 
 # =========================================================
-# ADMIN COMMANDS
+# TEST / ADMIN COMMANDS
 # =========================================================
-@bot.tree.command(name="dobby_trigger", description="Force Dobby to appear in a selected channel.")
+@bot.tree.command(name="dobby_test", description="Spawn Dobby in the current channel for testing.")
 @ADMIN_COMMAND_PERMS
 @GUILD_ONLY
 @admin_only()
-@app_commands.describe(channel="The channel where Dobby should appear")
-async def dobby_trigger(interaction: discord.Interaction, channel: discord.TextChannel) -> None:
+async def dobby_test(interaction: discord.Interaction) -> None:
+    channel = interaction.channel
+    if not isinstance(channel, discord.TextChannel):
+        await interaction.response.send_message("Use this in a text channel.", ephemeral=True)
+        return
+
     _, message = await start_dobby_event(channel)
     await interaction.response.send_message(message, ephemeral=True)
 
 
-@bot.tree.command(name="dobby_untrigger", description="Forcefully end the current Dobby event in this channel.")
+@bot.tree.command(name="dobby_cleanup", description="Force end the Dobby event in this channel.")
 @ADMIN_COMMAND_PERMS
 @GUILD_ONLY
 @admin_only()
-async def dobby_untrigger(interaction: discord.Interaction) -> None:
+async def dobby_cleanup(interaction: discord.Interaction) -> None:
     channel = interaction.channel
-
     if not isinstance(channel, discord.TextChannel):
-        await interaction.response.send_message(
-            "This command can only be used in a text channel.",
-            ephemeral=True,
-        )
+        await interaction.response.send_message("Use this in a text channel.", ephemeral=True)
         return
 
     event = active_events.get(channel.id)
-
     if not event or not event.active:
         await interaction.response.send_message(
             "There is no active Dobby event in this channel.",
@@ -667,12 +725,8 @@ async def dobby_untrigger(interaction: discord.Interaction) -> None:
         )
         return
 
-    await event.end()
-
-    await interaction.response.send_message(
-        "Dobby has been dismissed early.",
-        ephemeral=True,
-    )
+    await event.end(reason="manual_cleanup")
+    await interaction.response.send_message("Dobby event ended.", ephemeral=True)
 
 
 @bot.tree.command(name="dobby_allow", description="Allow Dobby to randomly appear in a selected channel.")
@@ -701,27 +755,11 @@ async def dobby_disallow(interaction: discord.Interaction, channel: discord.Text
     )
 
 
-@bot.tree.command(name="dobby_reset_channels", description="Remove all channels where Dobby is allowed to spawn.")
+@bot.tree.command(name="give_beans", description="Give a user beans.")
 @ADMIN_COMMAND_PERMS
 @GUILD_ONLY
 @admin_only()
-async def dobby_reset_channels(interaction: discord.Interaction) -> None:
-    reset_allowed_channels()
-    await interaction.response.send_message(
-        "All allowed Dobby channels have been cleared. "
-        "Dobby will no longer spawn anywhere until new channels are added.",
-        ephemeral=True,
-    )
-
-
-@bot.tree.command(name="give_beans", description="Give a user Bertie Bott's Every Flavoured Beans.")
-@ADMIN_COMMAND_PERMS
-@GUILD_ONLY
-@admin_only()
-@app_commands.describe(
-    user="The user to receive beans",
-    amount="How many Bertie Bott's Every Flavoured Beans to give",
-)
+@app_commands.describe(user="The user to receive beans", amount="How many beans to give")
 async def give_beans(
     interaction: discord.Interaction,
     user: discord.Member,
@@ -734,33 +772,6 @@ async def give_beans(
     await interaction.response.send_message(
         f"Gave **{amount} Bertie Bott’s Every Flavoured {bean_word}** to {user.mention}. "
         f"They now have **{new_total} Bertie Bott’s Every Flavoured {total_word}**."
-    )
-
-
-@bot.tree.command(name="dobby_channels", description="Show all channels where Dobby may randomly appear.")
-@ADMIN_COMMAND_PERMS
-@GUILD_ONLY
-@admin_only()
-async def dobby_channels(interaction: discord.Interaction) -> None:
-    channels = get_allowed_channels()
-    if not channels:
-        await interaction.response.send_message(
-            "No channels are currently allowed for random Dobby spawns.",
-            ephemeral=True,
-        )
-        return
-
-    mentions = []
-    for channel_id in sorted(channels):
-        channel = bot.get_channel(channel_id)
-        if isinstance(channel, discord.TextChannel):
-            mentions.append(channel.mention)
-        else:
-            mentions.append(f"`{channel_id}` (not found)")
-
-    await interaction.response.send_message(
-        "Allowed Dobby channels:\n" + "\n".join(f"• {m}" for m in mentions),
-        ephemeral=True,
     )
 
 # =========================================================
@@ -798,23 +809,24 @@ async def on_app_command_error(
 async def on_ready() -> None:
     global spawn_loop_task
 
-    synced = await bot.tree.sync()
-    log.info("Logged in as %s (%s)", bot.user, bot.user.id if bot.user else "unknown")
-    log.info("Synced %s slash commands.", len(synced))
+    bot.tree.copy_global_to(guild=TEST_GUILD)
+    synced = await bot.tree.sync(guild=TEST_GUILD)
 
-    if spawn_loop_task is None or spawn_loop_task.done():
-        spawn_loop_task = asyncio.create_task(random_spawn_loop())
-        log.info("Random Dobby spawn loop started.")
+    log.info("Logged in as %s (%s)", bot.user, bot.user.id if bot.user else "unknown")
+    log.info("Synced %s slash commands to guild %s.", len(synced), GUILD_ID)
+    log.info("TEST_MODE=%s EVENT_DURATION_SECONDS=%s", TEST_MODE, EVENT_DURATION_SECONDS)
+
+    if START_RANDOM_SPAWN_LOOP:
+        if spawn_loop_task is None or spawn_loop_task.done():
+            spawn_loop_task = asyncio.create_task(random_spawn_loop())
+            log.info("Random Dobby spawn loop started.")
+    else:
+        log.info("Random Dobby spawn loop disabled for testing.")
 
 # =========================================================
 # MAIN
 # =========================================================
 def main() -> None:
-    if not BOT_TOKEN:
-        raise RuntimeError(
-            'DISCORD_TOKEN is not set. Run:\nexport DISCORD_TOKEN="your_token_here"'
-        )
-
     bot.run(BOT_TOKEN)
 
 
