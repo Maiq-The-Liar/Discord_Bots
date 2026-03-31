@@ -823,9 +823,13 @@ async def on_app_command_error(
 # =========================================================
 # READY
 # =========================================================
+
 @bot.event
 async def on_ready() -> None:
     global spawn_loop_task
+
+    bot.tree.clear_commands(guild=TEST_GUILD)
+    await bot.tree.sync(guild=TEST_GUILD)
 
     bot.tree.copy_global_to(guild=TEST_GUILD)
     synced = await bot.tree.sync(guild=TEST_GUILD)
@@ -840,6 +844,7 @@ async def on_ready() -> None:
             log.info("Random Dobby spawn loop started.")
     else:
         log.info("Random Dobby spawn loop disabled for testing.")
+    
 
 # =========================================================
 # MAIN
@@ -850,3 +855,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
