@@ -34,7 +34,6 @@ except ValueError as exc:
 DATA_DIR = Path(__file__).parent
 DB_FILE = DATA_DIR / "bot_data.db"
 FLAVORS_FILE = DATA_DIR / "flavors.json"
-SETTINGS_FILE = DATA_DIR / "settings.json"
 
 # ---- TEST SETTINGS ----
 TEST_MODE = True
@@ -136,14 +135,11 @@ def save_json(path: Path, data: Any) -> None:
 
 
 def ensure_json_files() -> None:
-    if not SETTINGS_FILE.exists():
-        save_json(SETTINGS_FILE, {"allowed_channels": []})
     if not FLAVORS_FILE.exists():
         save_json(FLAVORS_FILE, ALL_FLAVOURS)
 
 
 ensure_json_files()
-settings_data: dict[str, list[int]] = load_json(SETTINGS_FILE, {"allowed_channels": []})
 
 # =========================================================
 # SQLITE HELPERS
@@ -173,13 +169,20 @@ def init_db() -> None:
             )
             """
         )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS allowed_channels (
+                channel_id TEXT PRIMARY KEY
+            )
+            """
+        )
         conn.commit()
 
 
 init_db()
 
 # =========================================================
-# DATA HELPERS (SQLITE FOR INVENTORY + TASTED FLAVOURS)
+# DATA HELPERS
 # =========================================================
 def ensure_user_inventory(user_id: int) -> None:
     uid = str(user_id)
@@ -311,30 +314,45 @@ def add_tasted_flavour(user_id: int, flavour: str) -> tuple[bool, int]:
 
 
 def get_allowed_channels() -> set[int]:
-    raw = settings_data.get("allowed_channels", [])
-    return {int(x) for x in raw}
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT channel_id
+            FROM allowed_channels
+            """
+        ).fetchall()
 
-
-def save_allowed_channels(channels: set[int]) -> None:
-    settings_data["allowed_channels"] = sorted(channels)
-    save_json(SETTINGS_FILE, settings_data)
+    return {int(row["channel_id"]) for row in rows}
 
 
 def allow_channel(channel_id: int) -> None:
-    channels = get_allowed_channels()
-    channels.add(channel_id)
-    save_allowed_channels(channels)
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO allowed_channels (channel_id)
+            VALUES (?)
+            """,
+            (str(channel_id),),
+        )
+        conn.commit()
 
 
 def disallow_channel(channel_id: int) -> None:
-    channels = get_allowed_channels()
-    channels.discard(channel_id)
-    save_allowed_channels(channels)
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            DELETE FROM allowed_channels
+            WHERE channel_id = ?
+            """,
+            (str(channel_id),),
+        )
+        conn.commit()
 
 
 def reset_allowed_channels() -> None:
-    settings_data["allowed_channels"] = []
-    save_json(SETTINGS_FILE, settings_data)
+    with get_db_connection() as conn:
+        conn.execute("DELETE FROM allowed_channels")
+        conn.commit()
 
 # =========================================================
 # EVENT STATE
