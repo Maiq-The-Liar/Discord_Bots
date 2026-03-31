@@ -60,13 +60,6 @@ BEAN_IMAGE_URLS = [
     "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean2_cleanup.png?raw=true",
 ]
 
-ALL_FLAVOURS = [
-    "Burger", "Pizza", "Chocolate", "Vanilla", "Kimchi", "Sushi",
-    "Rotten Egg", "Vomit", "Soap", "Toothpaste", "Strawberry", "Coconut"
-]
-
-TOTAL_DISCOVERABLE_FLAVOURS = len(set(ALL_FLAVOURS))
-
 SOCK_EMOJI_POOL = [
     "<:Sock6:1485677804581421128>",
     "<:Sock10:1485676309253459988>",
@@ -125,28 +118,36 @@ TEST_GUILD = discord.Object(id=GUILD_ID)
 # =========================================================
 # JSON HELPERS
 # =========================================================
-def load_json(path: Path, default: Any) -> Any:
+def read_json_file(path: Path) -> Any:
     if not path.exists():
-        return default
+        raise RuntimeError(f"Required file is missing: {path.name}")
+
     try:
         with path.open("r", encoding="utf-8") as f:
             return json.load(f)
-    except (json.JSONDecodeError, OSError):
-        log.warning("Could not read %s, using default.", path.name)
-        return default
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"{path.name} contains invalid JSON.") from exc
+    except OSError as exc:
+        raise RuntimeError(f"Could not read {path.name}.") from exc
 
 
-def save_json(path: Path, data: Any) -> None:
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+def get_flavors() -> list[str]:
+    raw = read_json_file(FLAVORS_FILE)
+
+    if not isinstance(raw, list):
+        raise RuntimeError("flavors.json must contain a JSON list of flavour names.")
+
+    flavors = [str(x).strip() for x in raw if str(x).strip()]
+    unique_flavors = list(dict.fromkeys(flavors))
+
+    if not unique_flavors:
+        raise RuntimeError("flavors.json must contain at least one flavour.")
+
+    return unique_flavors
 
 
-def ensure_json_files() -> None:
-    if not FLAVORS_FILE.exists():
-        save_json(FLAVORS_FILE, ALL_FLAVOURS)
-
-
-ensure_json_files()
+def get_total_flavours() -> int:
+    return len(get_flavors())
 
 # =========================================================
 # SQLITE HELPERS
@@ -187,6 +188,9 @@ def init_db() -> None:
 
 
 init_db()
+
+# Validate flavors at startup so the bot fails fast if config is bad.
+get_flavors()
 
 # =========================================================
 # DATA HELPERS
@@ -270,13 +274,6 @@ def remove_bean(user_id: int) -> bool:
     return True
 
 
-def get_flavors() -> list[str]:
-    flavors = load_json(FLAVORS_FILE, ALL_FLAVOURS)
-    if not isinstance(flavors, list):
-        return ALL_FLAVOURS
-    return [str(x) for x in flavors]
-
-
 def get_user_tasted_flavours(user_id: int) -> set[str]:
     uid = str(user_id)
 
@@ -354,7 +351,6 @@ def disallow_channel(channel_id: int) -> None:
             (str(channel_id),),
         )
         conn.commit()
-
 
 # =========================================================
 # EVENT STATE
@@ -650,10 +646,11 @@ async def eat_bean(interaction: discord.Interaction) -> None:
         return
 
     flavors = get_flavors()
-    flavor = random.choice(flavors) if flavors else "Mystery flavour"
+    flavor = random.choice(flavors)
     remaining = get_bean_count(interaction.user.id)
 
     is_new_flavour, discovered_count = add_tasted_flavour(interaction.user.id, flavor)
+    total_flavours = get_total_flavours()
     bean_image_url = random.choice(BEAN_IMAGE_URLS)
 
     familiarity_text = (
@@ -668,7 +665,7 @@ async def eat_bean(interaction: discord.Interaction) -> None:
             f"it tastes like...\n\n"
             f"**__🍬  {flavor.upper()}  🍬__**\n\n"
             f"*{familiarity_text}*\n"
-            f"`{discovered_count}/{TOTAL_DISCOVERABLE_FLAVOURS} flavours discovered`"
+            f"`{discovered_count}/{total_flavours} flavours discovered`"
         ),
         color=discord.Color.green(),
     )
@@ -813,7 +810,6 @@ async def on_app_command_error(
         return
 
     if isinstance(error, app_commands.CommandNotFound):
-        # Old cached slash commands can still fire briefly from Discord clients.
         log.warning("Ignored stale command interaction: %s", error)
         if not interaction.response.is_done():
             await interaction.response.send_message(
@@ -842,10 +838,6 @@ async def on_app_command_error(
 async def on_ready() -> None:
     global spawn_loop_task
 
-    # Remove old global commands from previous versions
-    await bot.tree.sync()
-
-    # Sync the guild-only commands defined in this file
     synced = await bot.tree.sync(guild=TEST_GUILD)
 
     log.info("Logged in as %s (%s)", bot.user, bot.user.id if bot.user else "unknown")
@@ -868,5 +860,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
