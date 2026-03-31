@@ -842,12 +842,10 @@ async def on_app_command_error(
 async def on_ready() -> None:
     global spawn_loop_task
 
-    # One-time cleanup of old global commands.
-    bot.tree.clear_commands(guild=None)
+    # Remove old global commands from previous versions
     await bot.tree.sync()
 
-    # One-time cleanup of old guild commands, then sync only current guild commands.
-    bot.tree.clear_commands(guild=TEST_GUILD)
+    # Sync the guild-only commands defined in this file
     synced = await bot.tree.sync(guild=TEST_GUILD)
 
     log.info("Logged in as %s (%s)", bot.user, bot.user.id if bot.user else "unknown")
@@ -870,3 +868,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
