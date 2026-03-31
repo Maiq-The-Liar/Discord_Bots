@@ -69,8 +69,16 @@ ALL_FLAVOURS_SET = set(ALL_FLAVOURS)
 TOTAL_DISCOVERABLE_FLAVOURS = len(ALL_FLAVOURS_SET)
 
 SOCK_EMOJI_POOL = [
-    "🧦", "🧦", "🧦", "🧦", "🧦",
-    "👕", "👒", "👞", "🩲", "🧤",
+    "<:Sock6:1485677804581421128>",
+    "<:Sock10:1485676309253459988>",
+    "<:Sock1:1485675915584344124>",
+    "<:Sock2:1485675913499771061>",
+    "<:Sock3:148567591935168522>",
+    "<:Sock4:148567591046424408>",
+    "<:Sock5:1485675909582295171>",
+    "<:Sock7:1485675907434811625>",
+    "<:Sock8:148567580738449287>",
+    "<:Sock9:1485675896458444800>",
 ]
 
 SOCKS_PER_EVENT = 5
@@ -528,7 +536,7 @@ class SockButton(discord.ui.Button["DobbyView"]):
     def __init__(self, sock_emoji: str, index: int):
         super().__init__(
             style=discord.ButtonStyle.secondary,
-            emoji=sock_emoji,
+            emoji=discord.PartialEmoji.from_str(sock_emoji),
             custom_id=f"dobby_button_sock_{index}",
         )
         self.sock_emoji = sock_emoji
