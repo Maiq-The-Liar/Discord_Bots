@@ -10,97 +10,10 @@ from repositories.bot_state_repository import BotStateRepository
 from services.media_service import MediaService
 from services.house_points_service import HousePointsService
 from services.house_cup_board_service import HouseCupBoardService
-from domain.constants import HOUSE_COLORS
 from bot.cogs.profile import resolve_member_roles, validate_house_context
 
 
-class MediaVoteView(discord.ui.View):
-    def __init__(self, cog: "MediaCog"):
-        super().__init__(timeout=None)
-        self.cog = cog
-
-    @discord.ui.button(
-        label="Give Support",
-        emoji="❤️",
-        style=discord.ButtonStyle.primary,
-        custom_id="media_vote_button",
-    )
-    async def vote_button(
-        self,
-        interaction: discord.Interaction,
-        button: discord.ui.Button,
-    ) -> None:
-        if not interaction.guild or not isinstance(interaction.user, discord.Member):
-            await interaction.response.send_message(
-                "This button can only be used inside the server.",
-                ephemeral=True,
-            )
-            return
-
-        if interaction.message is None:
-            await interaction.response.send_message(
-                "This media post is invalid.",
-                ephemeral=True,
-            )
-            return
-
-        with self.cog.database.connect() as conn:
-            media_repo = MediaRepository(conn)
-            media_service = MediaService()
-            media_post = media_repo.get_media_post(interaction.message.id)
-
-            if media_post is None:
-                await interaction.response.send_message(
-                    "This media post is not active.",
-                    ephemeral=True,
-                )
-                return
-
-            if media_service.is_post_closed(
-                media_post["closes_at"],
-                bool(media_post["is_closed"]),
-            ):
-                await interaction.response.send_message(
-                    "This support window has already closed.",
-                    ephemeral=True,
-                )
-                return
-
-            author_user_id = int(media_post["author_user_id"])
-
-            if interaction.user.id == author_user_id:
-                await interaction.response.send_message(
-                    "You cannot support your own media post.",
-                    ephemeral=True,
-                )
-                return
-
-            if media_repo.has_user_voted(interaction.message.id, interaction.user.id):
-                await interaction.response.send_message(
-                    "You already supported this media post.",
-                    ephemeral=True,
-                )
-                return
-
-            last_vote_at = media_repo.get_last_vote_time(interaction.user.id)
-            can_vote, remaining_minutes = media_service.can_vote_again(last_vote_at)
-            if not can_vote:
-                await interaction.response.send_message(
-                    f"You must wait about **{remaining_minutes} minute(s)** before supporting another post.",
-                    ephemeral=True,
-                )
-                return
-
-            now_iso = media_service.now_iso()
-            media_repo.add_vote(interaction.message.id, interaction.user.id, now_iso)
-            media_repo.set_vote_cooldown(interaction.user.id, now_iso)
-
-            votes = media_repo.get_vote_count(interaction.message.id)
-
-        await interaction.response.send_message(
-            f"You supported this post. Current supports: **{votes}** ❤️",
-            ephemeral=True,
-        )
+HEART_EMOJI = "❤️"
 
 
 class MediaCog(commands.Cog):
@@ -110,7 +23,6 @@ class MediaCog(commands.Cog):
         self.media_service = MediaService()
 
     async def cog_load(self) -> None:
-        self.bot.add_view(MediaVoteView(self))
         if not self.media_close_loop.is_running():
             self.media_close_loop.start()
 
@@ -123,25 +35,6 @@ class MediaCog(commands.Cog):
             isinstance(interaction.user, discord.Member)
             and interaction.user.guild_permissions.administrator
         )
-
-    def build_media_embed(
-        self,
-        member: discord.Member,
-        attachment_filename: str,
-        color: int,
-        caption: str | None = None,
-    ) -> discord.Embed:
-        embed = discord.Embed(
-            description=caption or "",
-            color=color,
-        )
-        embed.set_author(
-            name=member.display_name,
-            icon_url=member.display_avatar.url,
-        )
-        embed.set_image(url=f"attachment://{attachment_filename}")
-        embed.set_footer(text="React with ❤️ below so this user can earn House Points.")
-        return embed
 
     @app_commands.command(
         name="setup_media_channel",
@@ -223,6 +116,26 @@ class MediaCog(commands.Cog):
             ephemeral=True,
         )
 
+    async def remove_user_reaction_if_possible(
+        self,
+        channel: discord.TextChannel,
+        message_id: int,
+        user_id: int,
+    ) -> None:
+        try:
+            message = await channel.fetch_message(message_id)
+        except discord.HTTPException:
+            return
+
+        member = channel.guild.get_member(user_id)
+        if member is None:
+            return
+
+        try:
+            await message.remove_reaction(HEART_EMOJI, member)
+        except discord.HTTPException:
+            pass
+
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         if message.author.bot or not message.guild:
@@ -276,38 +189,90 @@ class MediaCog(commands.Cog):
         if not is_valid:
             return
 
-        try:
-            file = await valid_attachment.to_file()
-        except discord.HTTPException:
-            return
-
-        color = HOUSE_COLORS.get(role_ctx.current_house or "", 0x2F3136)
-        embed = self.build_media_embed(
-            member=message.author,
-            attachment_filename=file.filename,
-            color=color,
-            caption=message.content.strip() or None,
-        )
-
-        sent_message = await message.channel.send(
-            embed=embed,
-            file=file,
-            view=MediaVoteView(self),
-        )
-
         with self.database.connect() as conn:
             media_repo = MediaRepository(conn)
             media_repo.create_media_post(
-                message_id=sent_message.id,
+                message_id=message.id,
                 channel_id=message.channel.id,
                 author_user_id=message.author.id,
                 closes_at=self.media_service.calculate_closes_at_iso(),
             )
 
         try:
-            await message.delete()
+            await message.add_reaction(HEART_EMOJI)
         except discord.HTTPException:
             pass
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent) -> None:
+        if payload.guild_id is None:
+            return
+
+        if str(payload.emoji) != HEART_EMOJI:
+            return
+
+        if payload.user_id == self.bot.user.id:
+            return
+
+        guild = self.bot.get_guild(payload.guild_id)
+        if guild is None:
+            return
+
+        channel = guild.get_channel(payload.channel_id)
+        if not isinstance(channel, discord.TextChannel):
+            return
+
+        member = guild.get_member(payload.user_id)
+        if member is None or member.bot:
+            return
+
+        with self.database.connect() as conn:
+            media_repo = MediaRepository(conn)
+            media_post = media_repo.get_media_post(payload.message_id)
+
+            if media_post is None:
+                return
+
+            media_service = MediaService()
+            if media_service.is_post_closed(
+                media_post["closes_at"],
+                bool(media_post["is_closed"]),
+            ):
+                await self.remove_user_reaction_if_possible(channel, payload.message_id, payload.user_id)
+                return
+
+            author_user_id = int(media_post["author_user_id"])
+
+            if payload.user_id == author_user_id:
+                await self.remove_user_reaction_if_possible(channel, payload.message_id, payload.user_id)
+                try:
+                    await channel.send(
+                        f"<@{payload.user_id}> you cannot support your own media post.",
+                        delete_after=8,
+                    )
+                except discord.HTTPException:
+                    pass
+                return
+
+            if media_repo.has_user_voted(payload.message_id, payload.user_id):
+                return
+
+            last_vote_at = media_repo.get_last_vote_time(payload.user_id)
+            can_vote, remaining_minutes = media_service.can_vote_again(last_vote_at)
+            if not can_vote:
+                await self.remove_user_reaction_if_possible(channel, payload.message_id, payload.user_id)
+                try:
+                    await channel.send(
+                        f"<@{payload.user_id}> you must wait about **{remaining_minutes} minute(s)** before supporting another post.",
+                        delete_after=8,
+                    )
+                except discord.HTTPException:
+                    pass
+                return
+
+            now_iso = media_service.now_iso()
+            media_repo.add_vote(payload.message_id, payload.user_id, now_iso)
+            media_repo.set_vote_cooldown(payload.user_id, now_iso)
 
     @tasks.loop(minutes=1)
     async def media_close_loop(self) -> None:
