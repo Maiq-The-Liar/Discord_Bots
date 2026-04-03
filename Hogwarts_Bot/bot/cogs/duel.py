@@ -32,7 +32,7 @@ MIN_PLAYERS = 2
 MAX_PLAYERS = 7
 LOBBY_DURATION_SECONDS = 30
 COUNTDOWN_DURATION_SECONDS = 11
-QUESTION_DURATION_SECONDS = 10
+QUESTION_DURATION_SECONDS = 15
 CORRECT_ANSWER_DELAY_SECONDS = 1
 RESULTS_DURATION_SECONDS = 5
 QUESTIONS_PER_DUEL = 10
@@ -119,21 +119,20 @@ class DuelCog(commands.Cog):
         embed = discord.Embed(
             title="⚔️ Dueling Club",
             description=(
-                "Press **Start Duel** to open a new lobby.\n\n"
-                f"• The player who starts the duel **automatically joins** the lobby\n"
-                f"• Up to **{MAX_PLAYERS}** players can join\n"
-                f"• At least **{MIN_PLAYERS}** players are needed\n"
-                f"• The lobby stays open for **{LOBBY_DURATION_SECONDS} seconds** unless it fills early\n"
-                f"• The duel then starts after a **{COUNTDOWN_DURATION_SECONDS}-second countdown**\n"
-                f"• The game asks **{QUESTIONS_PER_DUEL} questions** from the quiz pool\n"
-                f"• The **first correct answer** wins each round and earns **2 house points**\n"
-                "• Final podium rewards scale with the number of participants\n"
-                "• Chocolate Frog rewards stay the same"
+                "Face off against other witches and wizards in a fast-paced quiz duel.\n\n"
+                f"• Up to **{MAX_PLAYERS}** duelists can enter\n"
+                f"• A duel begins once enough players have gathered\n"
+                f"• After the lobby closes, a short countdown begins\n"
+                f"• The duel consists of **{QUESTIONS_PER_DUEL} questions**\n"
+                f"• Each question must be answered within **{QUESTION_DURATION_SECONDS} seconds**\n"
+                f"• The **first correct answer** wins the round and earns **2 house points**\n"
+                "• Top finishers earn extra house points and Chocolate Frogs\n"
+                "• Bigger lobbies lead to bigger final rewards"
             ),
             color=0xB22222,
         )
         embed.set_image(url=START_IMAGE_URL)
-        embed.set_footer(text="Ready your wand.")
+        embed.set_footer(text="Sharpen your mind. Ready your quills.")
         return embed
 
     def build_lobby_embed(self, channel: discord.TextChannel, session: DuelSession) -> discord.Embed:
@@ -161,7 +160,7 @@ class DuelCog(commands.Cog):
         embed.add_field(name="👥 Joined Players", value=players_text, inline=False)
         embed.add_field(name="📌 Lobby Size", value=f"**{len(session.participants)}/{MAX_PLAYERS}**", inline=True)
         embed.add_field(name="✅ Minimum Needed", value=f"**{MIN_PLAYERS}**", inline=True)
-        embed.add_field(name="⏳ Time Remaining", value=f"**{LOBBY_DURATION_SECONDS}s max**", inline=True)
+        embed.add_field(name="⏳ Wait Time", value=f"**{LOBBY_DURATION_SECONDS}s max**", inline=True)
         embed.set_image(url=LOBBY_IMAGE_URL)
         embed.set_footer(text="The duel starts early if the lobby reaches 7/7.")
         return embed
@@ -185,7 +184,6 @@ class DuelCog(commands.Cog):
             inline=False,
         )
         embed.add_field(name="👥 Lobby Size", value=f"**{len(session.participants)}/{MAX_PLAYERS}**", inline=True)
-        embed.add_field(name="⏳ Countdown", value=f"**{COUNTDOWN_DURATION_SECONDS}s**", inline=True)
         embed.set_image(url=COUNTDOWN_IMAGE_URL)
         embed.set_footer(text="No more joining or leaving.")
         return embed
