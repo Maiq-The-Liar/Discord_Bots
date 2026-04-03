@@ -328,7 +328,7 @@ class CasualQuizCog(commands.Cog):
                 await board_service.create_or_update_board(message.guild)
 
             reward_embed = discord.Embed(
-                title=f'"{message.author.display_name}" got it! 2 Points for {role_ctx.current_house}!',
+                title=f'{message.author.display_name} got it! 2 Points for {role_ctx.current_house}!',
                 color=HOUSE_COLORS.get(role_ctx.current_house or "", 0x57F287),
             )
             reward_embed.set_footer(text="And also 5 Galleons.")
