@@ -117,72 +117,95 @@ class DuelCog(commands.Cog):
 
     def get_start_embed(self) -> discord.Embed:
         embed = discord.Embed(
-            title="Dueling Club",
-            description="Press **Start Duel** to open a new duel lobby.",
+            title="⚔️ Dueling Club",
+            description=(
+                "Press **Start Duel** to open a new lobby.\n\n"
+                f"• The player who starts the duel **automatically joins** the lobby\n"
+                f"• Up to **{MAX_PLAYERS}** players can join\n"
+                f"• At least **{MIN_PLAYERS}** players are needed\n"
+                f"• The lobby stays open for **{LOBBY_DURATION_SECONDS} seconds** unless it fills early\n"
+                f"• The duel then starts after a **{COUNTDOWN_DURATION_SECONDS}-second countdown**\n"
+                f"• The game asks **{QUESTIONS_PER_DUEL} questions** from the quiz pool\n"
+                f"• The **first correct answer** wins each round and earns **2 house points**\n"
+                "• Final podium rewards scale with the number of participants\n"
+                "• Chocolate Frog rewards stay the same"
+            ),
             color=0xB22222,
         )
         embed.set_image(url=START_IMAGE_URL)
+        embed.set_footer(text="Ready your wand.")
         return embed
 
     def build_lobby_embed(self, channel: discord.TextChannel, session: DuelSession) -> discord.Embed:
-        lines: list[str] = []
+        player_lines: list[str] = []
         for index, user_id in enumerate(session.participants, start=1):
             member = channel.guild.get_member(user_id)
-            display = member.display_name if member else f"User {user_id}"
-            lines.append(f"{index}. {display}")
+            display_name = member.display_name if member else f"User {user_id}"
+            player_lines.append(f"**{index}.** {display_name}")
 
-        joined_text = "\n".join(lines) if lines else "No one joined yet."
+        players_text = "\n".join(player_lines) if player_lines else "*No one joined yet.*"
+
+        ping_role = channel.guild.get_role(DUEL_PING_ROLE_ID)
+        ping_text = ping_role.mention if ping_role else "A new duel lobby has opened!"
 
         embed = discord.Embed(
-            title="A new duel is forming!",
+            title="🪄 A new duel is forming!",
             description=(
-                f"{channel.guild.get_role(DUEL_PING_ROLE_ID).mention if channel.guild.get_role(DUEL_PING_ROLE_ID) else 'Duel Ping'} a new game is starting soon.\n"
-                f"Press **Join Game** if you want to enter."
+                f"{ping_text}\n\n"
+                "Press **Join Game** to enter the lobby.\n"
+                "Pressed **Start Duel**? You are already in.\n"
+                "Changed your mind? Use **Leave** before the countdown begins."
             ),
             color=0x5865F2,
         )
-        embed.add_field(name="Players", value=joined_text, inline=False)
-        embed.add_field(name="Joined", value=f"{len(session.participants)}/{MAX_PLAYERS}", inline=True)
-        embed.add_field(name="Minimum Needed", value=str(MIN_PLAYERS), inline=True)
-        embed.add_field(name="Lobby", value=f"{LOBBY_DURATION_SECONDS}s", inline=True)
+        embed.add_field(name="👥 Joined Players", value=players_text, inline=False)
+        embed.add_field(name="📌 Lobby Size", value=f"**{len(session.participants)}/{MAX_PLAYERS}**", inline=True)
+        embed.add_field(name="✅ Minimum Needed", value=f"**{MIN_PLAYERS}**", inline=True)
+        embed.add_field(name="⏳ Time Remaining", value=f"**{LOBBY_DURATION_SECONDS}s max**", inline=True)
         embed.set_image(url=LOBBY_IMAGE_URL)
+        embed.set_footer(text="The duel starts early if the lobby reaches 7/7.")
         return embed
 
     def build_countdown_embed(self, channel: discord.TextChannel, session: DuelSession) -> discord.Embed:
-        lines: list[str] = []
+        player_lines: list[str] = []
         for index, user_id in enumerate(session.participants, start=1):
             member = channel.guild.get_member(user_id)
-            display = member.display_name if member else f"User {user_id}"
-            house = session.participant_houses.get(user_id, "Unknown")
-            lines.append(f"{index}. {display} — {house}")
+            display_name = member.display_name if member else f"User {user_id}"
+            house_name = session.participant_houses.get(user_id, "Unknown")
+            player_lines.append(f"**{index}.** {display_name} — {house_name}")
 
         embed = discord.Embed(
-            title="Duel starting soon!",
-            description="The lobby is locked. Get ready!",
+            title="⏱️ Duel starting soon!",
+            description="The lobby is now locked. Get ready to answer fast.",
             color=0xF1C40F,
         )
-        embed.add_field(name="Players", value="\n".join(lines) if lines else "No players.", inline=False)
-        embed.add_field(name="Joined", value=f"{len(session.participants)}/{MAX_PLAYERS}", inline=True)
-        embed.add_field(name="Countdown", value=f"{COUNTDOWN_DURATION_SECONDS}s", inline=True)
+        embed.add_field(
+            name="⚔️ Duelists",
+            value="\n".join(player_lines) if player_lines else "*No players.*",
+            inline=False,
+        )
+        embed.add_field(name="👥 Lobby Size", value=f"**{len(session.participants)}/{MAX_PLAYERS}**", inline=True)
+        embed.add_field(name="⏳ Countdown", value=f"**{COUNTDOWN_DURATION_SECONDS}s**", inline=True)
         embed.set_image(url=COUNTDOWN_IMAGE_URL)
+        embed.set_footer(text="No more joining or leaving.")
         return embed
 
     def build_question_embed(self, question: dict, question_number: int) -> discord.Embed:
         embed = discord.Embed(
-            title=f"Duel Question {question_number}/{QUESTIONS_PER_DUEL}",
+            title=f"🧠 Duel Question {question_number}/{QUESTIONS_PER_DUEL}",
             description=question["question"],
             color=0x5865F2,
         )
         image_url = question.get("image_url")
         if image_url:
             embed.set_image(url=image_url)
-        embed.set_footer(text=f"Question #{question['id']} • {QUESTION_DURATION_SECONDS}s")
+        embed.set_footer(text=f"Question #{question['id']} • {QUESTION_DURATION_SECONDS}s to answer")
         return embed
 
     def build_round_win_embed(self, member: discord.Member, house_name: str) -> discord.Embed:
         embed = discord.Embed(
-            title=f"{member.display_name} got it!",
-            description=f"2 points for {house_name}!",
+            title=f"✅ {member.display_name} got it first!",
+            description=f"**+2 house points** for **{house_name}**.",
             color=HOUSE_COLORS.get(house_name, 0x57F287),
         )
         return embed
@@ -195,20 +218,21 @@ class DuelCog(commands.Cog):
         single_house_lobby: bool,
     ) -> discord.Embed:
         embed = discord.Embed(
-            title="Duel Results",
-            description="Final standings and prizes.",
+            title="🏆 Duel Results",
+            description="The duel is over. Here are the final standings and rewards.",
             color=0x9B59B6,
         )
 
-        ranking_lines: list[str] = []
         sorted_players = sorted(
             session.participants,
             key=lambda user_id: (-session.scores.get(user_id, 0), user_id),
         )
 
+        lines: list[str] = []
         previous_score: int | None = None
         display_rank = 0
         counted = 0
+
         for user_id in sorted_players:
             counted += 1
             score = session.scores.get(user_id, 0)
@@ -220,25 +244,32 @@ class DuelCog(commands.Cog):
             display_name = member.display_name if member else f"User {user_id}"
             house_name = session.participant_houses.get(user_id, "Unknown")
             reward = rewards.get(user_id)
+
+            medal = {
+                1: "🥇",
+                2: "🥈",
+                3: "🥉",
+            }.get(display_rank, "▫️")
+
             if reward:
-                ranking_lines.append(
-                    f"**{display_rank}.** {display_name} — {score} correct — {house_name} — +{reward['house_points']} points, +{reward['frogs']} Chocolate Frogs"
+                frog_word = "Chocolate Frog" if reward["frogs"] == 1 else "Chocolate Frogs"
+                lines.append(
+                    f"{medal} **{display_rank}.** {display_name} — **{score}** correct — {house_name}\n"
+                    f"└ +{reward['house_points']} house points • +{reward['frogs']} {frog_word}"
                 )
             else:
-                ranking_lines.append(
-                    f"**{display_rank}.** {display_name} — {score} correct — {house_name}"
+                lines.append(
+                    f"{medal} **{display_rank}.** {display_name} — **{score}** correct — {house_name}"
                 )
 
-        if not ranking_lines:
-            ranking_lines.append("No duel results available.")
+        if not lines:
+            lines.append("*No duel results available.*")
 
-        embed.add_field(name="Standings", value="\n".join(ranking_lines), inline=False)
+        embed.add_field(name="Standings", value="\n".join(lines), inline=False)
         embed.set_footer(
-            text=(
-                "Single-house rewards applied."
-                if single_house_lobby
-                else "Multi-house rewards applied."
-            )
+            text="Single-house reward table used."
+            if single_house_lobby
+            else "Scaled multi-house reward table used."
         )
         return embed
 
@@ -331,11 +362,27 @@ class DuelCog(commands.Cog):
         count = min(QUESTIONS_PER_DUEL, len(questions))
         return random.sample(questions, count)
 
+    def get_scaled_multi_house_points(self, player_count: int) -> dict[int, int]:
+        scaled_points_by_player_count = {
+            2: {1: 20, 2: 10, 3: 5},
+            3: {1: 20, 2: 10, 3: 5},
+            4: {1: 40, 2: 20, 3: 10},
+            5: {1: 60, 2: 30, 3: 15},
+            6: {1: 80, 2: 40, 3: 20},
+            7: {1: 100, 2: 50, 3: 25},
+        }
+        return scaled_points_by_player_count.get(player_count, {1: 20, 2: 10, 3: 5})
+
     def calculate_rewards(self, session: DuelSession) -> tuple[dict[int, dict[str, int]], bool]:
         active_houses = {house for house in session.participant_houses.values() if house}
         single_house_lobby = len(active_houses) == 1
 
-        points_by_rank = {1: 30, 2: 20, 3: 10} if single_house_lobby else {1: 60, 2: 40, 3: 20}
+        player_count = len(session.participants)
+        if single_house_lobby:
+            points_by_rank = {1: 30, 2: 20, 3: 10}
+        else:
+            points_by_rank = self.get_scaled_multi_house_points(player_count)
+
         frogs_by_rank = {1: 3, 2: 2, 3: 1}
 
         score_groups: dict[int, list[int]] = {}
@@ -345,6 +392,7 @@ class DuelCog(commands.Cog):
 
         rewards: dict[int, dict[str, int]] = {}
         rank = 1
+
         for score in sorted(score_groups.keys(), reverse=True):
             group = sorted(score_groups[score])
             if score <= 0:
@@ -433,8 +481,10 @@ class DuelCog(commands.Cog):
         session.phase = "results"
         await channel.send(embed=self.build_results_embed(channel.guild, session, rewards, single_house_lobby))
         await asyncio.sleep(RESULTS_DURATION_SECONDS)
+
         if not self.is_session_current(session):
             return
+
         await self.full_reset_channel(channel, list(session.participants))
 
     async def run_lobby(self, channel: discord.TextChannel, session: DuelSession) -> None:
@@ -493,16 +543,36 @@ class DuelCog(commands.Cog):
             )
             return
 
+        if not isinstance(interaction.user, discord.Member):
+            await interaction.response.send_message(
+                "Only server members can start a duel.",
+                ephemeral=True,
+            )
+            return
+
+        role_ctx = resolve_member_roles(interaction.user)
+        is_valid, error = validate_house_context(role_ctx)
+        if not is_valid or not role_ctx.current_house:
+            await interaction.response.send_message(
+                error or "You need one valid house role to start a duel.",
+                ephemeral=True,
+            )
+            return
+
         await interaction.response.edit_message(
             embed=self.get_start_embed(),
             view=StartDuelView(self, disabled=True),
         )
 
         session = DuelSession(channel_id=channel.id)
+        session.participants.append(interaction.user.id)
+        session.participant_houses[interaction.user.id] = role_ctx.current_house
+        session.scores[interaction.user.id] = 0
         self.sessions[channel.id] = session
 
         duel_role = interaction.guild.get_role(DUEL_PING_ROLE_ID)
         mention_text = duel_role.mention if duel_role else "A new duel lobby has opened!"
+
         lobby_message = await channel.send(
             content=mention_text if duel_role else None,
             embed=self.build_lobby_embed(channel, session),
@@ -545,7 +615,10 @@ class DuelCog(commands.Cog):
         role_ctx = resolve_member_roles(interaction.user)
         is_valid, error = validate_house_context(role_ctx)
         if not is_valid or not role_ctx.current_house:
-            await interaction.response.send_message(error or "You need one valid house role.", ephemeral=True)
+            await interaction.response.send_message(
+                error or "You need one valid house role.",
+                ephemeral=True,
+            )
             return
 
         session.participants.append(interaction.user.id)
@@ -592,7 +665,9 @@ class DuelCog(commands.Cog):
         session.participants.remove(interaction.user.id)
         session.participant_houses.pop(interaction.user.id, None)
         session.scores.pop(interaction.user.id, None)
-        session.lobby_full_event.clear()
+
+        if len(session.participants) < MAX_PLAYERS:
+            session.lobby_full_event.clear()
 
         if session.lobby_message is not None:
             await interaction.response.edit_message(
