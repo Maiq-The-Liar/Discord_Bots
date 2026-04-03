@@ -61,24 +61,6 @@ class CasualQuizCog(commands.Cog):
         embed = self.build_question_embed(question, 0x5865F2)
         await channel.send(embed=embed)
 
-    async def clear_recent_messages(self, channel: discord.TextChannel, keep: int = 0) -> None:
-        messages = []
-        async for msg in channel.history(limit=100):
-            messages.append(msg)
-
-        to_delete = messages[keep:]
-        if not to_delete:
-            return
-
-        try:
-            await channel.delete_messages(to_delete)
-        except discord.HTTPException:
-            for msg in to_delete:
-                try:
-                    await msg.delete()
-                except discord.HTTPException:
-                    pass
-
     @app_commands.command(
         name="setup_casual_quiz_channel",
         description="Admin: set the channel used for casual quiz mode.",
@@ -154,7 +136,6 @@ class CasualQuizCog(commands.Cog):
             casual_quiz_repo.upsert_channel(channel.id)
             casual_quiz_repo.set_active(channel.id, True)
 
-        await self.clear_recent_messages(channel)
         await self.post_next_question(channel)
 
         await interaction.followup.send(
@@ -273,7 +254,6 @@ class CasualQuizCog(commands.Cog):
             )
 
         await asyncio.sleep(2)
-        await self.clear_recent_messages(channel)
         await self.post_next_question(channel)
 
         await interaction.followup.send("Question skipped.", ephemeral=True)
@@ -312,13 +292,18 @@ class CasualQuizCog(commands.Cog):
 
         if not is_correct:
             try:
-                await message.delete()
+                await message.add_reaction("❌")
             except discord.HTTPException:
                 pass
             return
 
         self.processing_channels.add(message.channel.id)
         try:
+            try:
+                await message.add_reaction("✅")
+            except discord.HTTPException:
+                pass
+
             role_ctx = resolve_member_roles(message.author)
             is_valid, _ = validate_house_context(role_ctx)
             if not is_valid or not role_ctx.current_house:
@@ -342,11 +327,6 @@ class CasualQuizCog(commands.Cog):
                 board_service = HouseCupBoardService(bot_state_repo, contribution_repo)
                 await board_service.create_or_update_board(message.guild)
 
-            try:
-                await message.delete()
-            except discord.HTTPException:
-                pass
-
             reward_embed = discord.Embed(
                 title="Correct Answer!",
                 description=(
@@ -360,7 +340,6 @@ class CasualQuizCog(commands.Cog):
             await message.channel.send(embed=reward_embed)
 
             await asyncio.sleep(2)
-            await self.clear_recent_messages(message.channel)
             await self.post_next_question(message.channel)
 
         finally:
