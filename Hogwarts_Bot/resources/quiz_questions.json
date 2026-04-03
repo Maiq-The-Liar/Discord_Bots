@@ -2925,5 +2925,1579 @@
         "cauldron"
       ]
     ]
-  }
-]
+  },
+  {
+    "id": 201,
+    "question": "What is the name of Hagrid's three-headed dog?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "fluffy"
+      ]
+    ]
+  },
+  {
+    "id": 202,
+    "question": "What is the first name of Professor Dumbledore?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "albus"
+      ],
+      [
+        "albus",
+        "dumbledore"
+      ]
+    ]
+  },
+  {
+    "id": 203,
+    "question": "What is Draco Malfoy's mother's first name?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "narcissa"
+      ],
+      [
+        "narcissa",
+        "malfoy"
+      ]
+    ]
+  },
+  {
+    "id": 204,
+    "question": "What is Draco Malfoy's father's first name?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "lucius"
+      ],
+      [
+        "lucius",
+        "malfoy"
+      ]
+    ]
+  },
+  {
+    "id": 205,
+    "question": "Who kills Professor Dumbledore on the Astronomy Tower?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "snape"
+      ],
+      [
+        "severus",
+        "snape"
+      ]
+    ]
+  },
+  {
+    "id": 206,
+    "question": "What is the spell used to kill with the Killing Curse?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "avada",
+        "kedavra"
+      ]
+    ]
+  },
+  {
+    "id": 207,
+    "question": "What is the name of Harry Potter's owl?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "hedwig"
+      ]
+    ]
+  },
+  {
+    "id": 208,
+    "question": "What kind of dragon does Harry face in the first Triwizard task?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "hungarian",
+        "horntail"
+      ]
+    ]
+  },
+  {
+    "id": 209,
+    "question": "Who gave Harry the gillyweed used in the second Triwizard task in the film version?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "neville"
+      ],
+      [
+        "neville",
+        "longbottom"
+      ]
+    ]
+  },
+  {
+    "id": 210,
+    "question": "Who gave Harry the gillyweed used in the second Triwizard task in the book?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "dobby"
+      ]
+    ]
+  },
+  {
+    "id": 211,
+    "question": "What spell does Hermione use to erase her parents' memories in the films?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "obliviate"
+      ]
+    ]
+  },
+  {
+    "id": 212,
+    "question": "What is the first name of Mrs. Weasley?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "molly"
+      ],
+      [
+        "molly",
+        "weasley"
+      ]
+    ]
+  },
+  {
+    "id": 213,
+    "question": "What is the first name of Mr. Weasley?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "arthur"
+      ],
+      [
+        "arthur",
+        "weasley"
+      ]
+    ]
+  },
+  {
+    "id": 214,
+    "question": "What is the first name of Professor Snape?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "severus"
+      ],
+      [
+        "severus",
+        "snape"
+      ]
+    ]
+  },
+  {
+    "id": 215,
+    "question": "What is the first name of Hagrid?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "rubeus"
+      ],
+      [
+        "rubeus",
+        "hagrid"
+      ]
+    ]
+  },
+  {
+    "id": 216,
+    "question": "Who gave Harry the Marauder's Map?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "fred",
+        "and",
+        "george"
+      ],
+      [
+        "george",
+        "and",
+        "fred"
+      ],
+      [
+        "fred",
+        "weasley",
+        "and",
+        "george",
+        "weasley"
+      ],
+      [
+        "george",
+        "weasley",
+        "and",
+        "fred",
+        "weasley"
+      ],
+      [
+        "fred"
+      ],
+      [
+        "george"
+      ]
+    ]
+  },
+  {
+    "id": 217,
+    "question": "What is the name of the train that takes students to Hogwarts?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "hogwarts",
+        "express"
+      ],
+      [
+        "the",
+        "hogwarts",
+        "express"
+      ]
+    ]
+  },
+  {
+    "id": 218,
+    "question": "What stone is hidden inside the first book's main mystery?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "philosophers",
+        "stone"
+      ],
+      [
+        "sorcerers",
+        "stone"
+      ]
+    ]
+  },
+  {
+    "id": 219,
+    "question": "What is the first name of Professor Lupin?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "remus"
+      ],
+      [
+        "remus",
+        "lupin"
+      ]
+    ]
+  },
+  {
+    "id": 220,
+    "question": "What is the first name of Sirius Black?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "sirius"
+      ],
+      [
+        "sirius",
+        "black"
+      ]
+    ]
+  },
+  {
+    "id": 221,
+    "question": "What object does Harry catch in his very first flying lesson instead of letting Draco keep it?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "remembrall"
+      ],
+      [
+        "the",
+        "remembrall"
+      ]
+    ]
+  },
+  {
+    "id": 222,
+    "question": "What is the name of the village where the Dursleys live?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "little",
+        "whinging"
+      ]
+    ]
+  },
+  {
+    "id": 223,
+    "question": "What is the number of the Dursleys' house on Privet Drive?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "4"
+      ],
+      [
+        "number",
+        "4"
+      ],
+      [
+        "four"
+      ]
+    ]
+  },
+  {
+    "id": 224,
+    "question": "What is the name of the street where the Dursleys live?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "privet",
+        "drive"
+      ]
+    ]
+  },
+  {
+    "id": 225,
+    "question": "Who is Harry's Muggle guardian aunt?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "petunia"
+      ],
+      [
+        "petunia",
+        "dursley"
+      ]
+    ]
+  },
+  {
+    "id": 226,
+    "question": "Who is Harry's Muggle guardian uncle?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "vernon"
+      ],
+      [
+        "vernon",
+        "dursley"
+      ]
+    ]
+  },
+  {
+    "id": 227,
+    "question": "What is Dudley's last name?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "dursley"
+      ],
+      [
+        "dudley",
+        "dursley"
+      ]
+    ]
+  },
+  {
+    "id": 228,
+    "question": "What is the first name of Draco's father?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "lucius"
+      ],
+      [
+        "lucius",
+        "malfoy"
+      ]
+    ]
+  },
+  {
+    "id": 229,
+    "question": "What is the first name of Draco's mother?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "narcissa"
+      ],
+      [
+        "narcissa",
+        "malfoy"
+      ]
+    ]
+  },
+  {
+    "id": 230,
+    "question": "What is the first name of Luna Lovegood's father?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "xenophilius"
+      ],
+      [
+        "xenophilius",
+        "lovegood"
+      ]
+    ]
+  },
+  {
+    "id": 231,
+    "question": "What is the first name of Ginny Weasley?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "ginny"
+      ],
+      [
+        "ginevra"
+      ],
+      [
+        "ginny",
+        "weasley"
+      ],
+      [
+        "ginevra",
+        "weasley"
+      ]
+    ]
+  },
+  {
+    "id": 232,
+    "question": "What is the first name of Neville Longbottom?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "neville"
+      ],
+      [
+        "neville",
+        "longbottom"
+      ]
+    ]
+  },
+  {
+    "id": 233,
+    "question": "What is the first name of Hermione Granger?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "hermione"
+      ],
+      [
+        "hermione",
+        "granger"
+      ]
+    ]
+  },
+  {
+    "id": 234,
+    "question": "What is the first name of Cho Chang?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "cho"
+      ],
+      [
+        "cho",
+        "chang"
+      ]
+    ]
+  },
+  {
+    "id": 235,
+    "question": "What is the first name of Cedric Diggory?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "cedric"
+      ],
+      [
+        "cedric",
+        "diggory"
+      ]
+    ]
+  },
+  {
+    "id": 236,
+    "question": "What is the first name of Fleur Delacour?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "fleur"
+      ],
+      [
+        "fleur",
+        "delacour"
+      ]
+    ]
+  },
+  {
+    "id": 237,
+    "question": "What is the first name of Viktor Krum?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "viktor"
+      ],
+      [
+        "victor"
+      ],
+      [
+        "viktor",
+        "krum"
+      ],
+      [
+        "victor",
+        "krum"
+      ]
+    ]
+  },
+  {
+    "id": 238,
+    "question": "What is the first name of Professor McGonagall?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "minerva"
+      ],
+      [
+        "minerva",
+        "mcgonagall"
+      ]
+    ]
+  },
+  {
+    "id": 239,
+    "question": "What is the first name of Professor Flitwick?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "filius"
+      ],
+      [
+        "filius",
+        "flitwick"
+      ]
+    ]
+  },
+  {
+    "id": 240,
+    "question": "What is the first name of Professor Trelawney?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "sybill"
+      ],
+      [
+        "sybil"
+      ],
+      [
+        "sybill",
+        "trelawney"
+      ],
+      [
+        "sybil",
+        "trelawney"
+      ]
+    ]
+  },
+  {
+    "id": 241,
+    "question": "What is the first name of Professor Sprout?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "pomona"
+      ],
+      [
+        "pomona",
+        "sprout"
+      ]
+    ]
+  },
+  {
+    "id": 242,
+    "question": "What is the first name of Mad-Eye Moody?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "alastor"
+      ],
+      [
+        "alastor",
+        "moody"
+      ]
+    ]
+  },
+  {
+    "id": 243,
+    "question": "What is the first name of Mrs. Norris's owner, Filch?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "argus"
+      ],
+      [
+        "argus",
+        "filch"
+      ]
+    ]
+  },
+  {
+    "id": 244,
+    "question": "What is the first name of Ollivander?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "garrick"
+      ],
+      [
+        "garrick",
+        "ollivander"
+      ]
+    ]
+  },
+  {
+    "id": 245,
+    "question": "What is the first name of the Lovegood daughter in Harry's year?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "luna"
+      ],
+      [
+        "luna",
+        "lovegood"
+      ]
+    ]
+  },
+  {
+    "id": 246,
+    "question": "What is the first name of Dobby's former master, Mr. Malfoy?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "lucius"
+      ],
+      [
+        "lucius",
+        "malfoy"
+      ]
+    ]
+  },
+  {
+    "id": 247,
+    "question": "Which Hogwarts founder's locket became a Horcrux?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "salazar",
+        "slytherin"
+      ],
+      [
+        "slytherin"
+      ]
+    ]
+  },
+  {
+    "id": 248,
+    "question": "Which Hogwarts founder's cup became a Horcrux?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "helga",
+        "hufflepuff"
+      ],
+      [
+        "hufflepuff"
+      ]
+    ]
+  },
+  {
+    "id": 249,
+    "question": "Which Hogwarts founder's diadem became a Horcrux?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "rowena",
+        "ravenclaw"
+      ],
+      [
+        "ravenclaw"
+      ]
+    ]
+  },
+  {
+    "id": 250,
+    "question": "What is the name of the giant spider raised by Hagrid?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "aragog"
+      ]
+    ]
+  },
+  {
+    "id": 251,
+    "question": "What spell does Hermione use to set Snape's robes on fire during Harry's first Quidditch match in the book?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "bluebell",
+        "flames"
+      ]
+    ]
+  },
+  {
+    "id": 252,
+    "question": "What position does Harry play on his Quidditch team?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "seeker"
+      ]
+    ]
+  },
+  {
+    "id": 253,
+    "question": "What position does Ron Weasley play on the Gryffindor Quidditch team?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "keeper"
+      ]
+    ]
+  },
+  {
+    "id": 254,
+    "question": "What position do Fred and George Weasley play on the Gryffindor Quidditch team?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "beater"
+      ],
+      [
+        "beaters"
+      ]
+    ]
+  },
+  {
+    "id": 255,
+    "question": "What ball is worth 10 points in Quidditch when thrown through a hoop?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "quaffle"
+      ]
+    ]
+  },
+  {
+    "id": 256,
+    "question": "What ball tries to knock players off their brooms in Quidditch?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "bludger"
+      ],
+      [
+        "bludgers"
+      ]
+    ]
+  },
+  {
+    "id": 257,
+    "question": "What tiny golden ball do Seekers chase in Quidditch?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "golden",
+        "snitch"
+      ],
+      [
+        "snitch"
+      ]
+    ]
+  },
+  {
+    "id": 258,
+    "question": "What shop on Diagon Alley sells wands?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "ollivanders"
+      ],
+      [
+        "ollivander"
+      ]
+    ]
+  },
+  {
+    "id": 259,
+    "question": "What bank do witches and wizards use in Diagon Alley?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "gringotts"
+      ],
+      [
+        "gringotts",
+        "wizarding",
+        "bank"
+      ]
+    ]
+  },
+  {
+    "id": 260,
+    "question": "What pub stands at the entrance to Diagon Alley from the Muggle side?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "leaky",
+        "cauldron"
+      ],
+      [
+        "the",
+        "leaky",
+        "cauldron"
+      ]
+    ]
+  },
+  {
+    "id": 261,
+    "question": "What is the hidden shopping street for dark magic items called?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "knockturn",
+        "alley"
+      ]
+    ]
+  },
+  {
+    "id": 262,
+    "question": "What shop do Fred and George open in Diagon Alley?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "weasleys",
+        "wizard",
+        "wheezes"
+      ],
+      [
+        "wizard",
+        "wheezes"
+      ]
+    ]
+  },
+  {
+    "id": 263,
+    "question": "What is the name of the prison guard creatures of Azkaban?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "dementors"
+      ],
+      [
+        "dementor"
+      ]
+    ]
+  },
+  {
+    "id": 264,
+    "question": "What creature hatches from the egg Hagrid wins from a stranger in the pub?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "dragon"
+      ],
+      [
+        "norbert"
+      ],
+      [
+        "norberta"
+      ]
+    ]
+  },
+  {
+    "id": 265,
+    "question": "What is the common name of the dragon Hagrid hatches in the first book?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "norbert"
+      ],
+      [
+        "norberta"
+      ]
+    ]
+  },
+  {
+    "id": 266,
+    "question": "What chess piece does Ron sacrifice in the giant wizard chess match?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "knight"
+      ]
+    ]
+  },
+  {
+    "id": 267,
+    "question": "What professor protects the Stone with a giant plant trapdoor challenge?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "sprout"
+      ],
+      [
+        "pomona",
+        "sprout"
+      ]
+    ]
+  },
+  {
+    "id": 268,
+    "question": "What plant traps Harry, Ron, and Hermione beneath the trapdoor in the first book?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "devils",
+        "snare"
+      ],
+      [
+        "devil",
+        "snare"
+      ]
+    ]
+  },
+  {
+    "id": 269,
+    "question": "What broom does Harry receive after his Nimbus 2000 is destroyed?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "firebolt"
+      ]
+    ]
+  },
+  {
+    "id": 270,
+    "question": "Who was sorted into Gryffindor just before Harry in the first book?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "hermione"
+      ],
+      [
+        "hermione",
+        "granger"
+      ]
+    ]
+  },
+  {
+    "id": 271,
+    "question": "Who was sorted immediately after Hermione in Harry's year?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "millicent",
+        "bulstrode"
+      ]
+    ]
+  },
+  {
+    "id": 272,
+    "question": "What is the first name of Crabbe?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "vincent"
+      ],
+      [
+        "vincent",
+        "crabbe"
+      ]
+    ]
+  },
+  {
+    "id": 273,
+    "question": "What is the first name of Goyle?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "gregory"
+      ],
+      [
+        "gregory",
+        "goyle"
+      ]
+    ]
+  },
+  {
+    "id": 274,
+    "question": "What is the first name of Dean Thomas's best dormmate friend?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "seamus"
+      ],
+      [
+        "seamus",
+        "finnigan"
+      ]
+    ]
+  },
+  {
+    "id": 275,
+    "question": "What is the first name of Longbottom?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "neville"
+      ],
+      [
+        "neville",
+        "longbottom"
+      ]
+    ]
+  },
+  {
+    "id": 276,
+    "question": "What is the first name of Pettigrew?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "peter"
+      ],
+      [
+        "peter",
+        "pettigrew"
+      ]
+    ]
+  },
+  {
+    "id": 277,
+    "question": "What is the first name of Weasley twin George's twin brother?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "fred"
+      ],
+      [
+        "fred",
+        "weasley"
+      ]
+    ]
+  },
+  {
+    "id": 278,
+    "question": "What is the first name of Ron's older brother who works with dragons?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "charlie"
+      ],
+      [
+        "charlie",
+        "weasley"
+      ]
+    ]
+  },
+  {
+    "id": 279,
+    "question": "What is the first name of Ron's older brother who works at Gringotts in Egypt?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "bill"
+      ],
+      [
+        "bill",
+        "weasley"
+      ],
+      [
+        "william"
+      ],
+      [
+        "william",
+        "weasley"
+      ]
+    ]
+  },
+  {
+    "id": 280,
+    "question": "What is the first name of Ron's older brother who works at the Ministry before the joke shop rises?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "percy"
+      ],
+      [
+        "percy",
+        "weasley"
+      ]
+    ]
+  },
+  {
+    "id": 281,
+    "question": "What magical creature is Buckbeak?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "hippogriff"
+      ],
+      [
+        "a",
+        "hippogriff"
+      ]
+    ]
+  },
+  {
+    "id": 282,
+    "question": "What alias does Buckbeak later live under after escaping execution?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "witherwings"
+      ]
+    ]
+  },
+  {
+    "id": 283,
+    "question": "What animal form is Sirius Black's Animagus?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "dog"
+      ],
+      [
+        "black",
+        "dog"
+      ]
+    ]
+  },
+  {
+    "id": 284,
+    "question": "What animal form is Peter Pettigrew's Animagus?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "rat"
+      ]
+    ]
+  },
+  {
+    "id": 285,
+    "question": "What animal form is James Potter's Animagus?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "stag"
+      ]
+    ]
+  },
+  {
+    "id": 286,
+    "question": "What animal form is Rita Skeeter's Animagus?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "beetle"
+      ]
+    ]
+  },
+  {
+    "id": 287,
+    "question": "What shape is the scar on Harry's forehead?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "lightning",
+        "bolt"
+      ],
+      [
+        "lightning"
+      ]
+    ]
+  },
+  {
+    "id": 288,
+    "question": "What is the first name of Tom Riddle's mother?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "merope"
+      ],
+      [
+        "merope",
+        "gaunt"
+      ]
+    ]
+  },
+  {
+    "id": 289,
+    "question": "What is the surname of Tom Riddle's Muggle father?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "riddle"
+      ],
+      [
+        "tom",
+        "riddle",
+        "senior"
+      ]
+    ]
+  },
+  {
+    "id": 290,
+    "question": "What is the first name of Tom Riddle's Muggle father?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "tom"
+      ],
+      [
+        "tom",
+        "riddle"
+      ],
+      [
+        "tom",
+        "riddle",
+        "senior"
+      ]
+    ]
+  },
+  {
+    "id": 291,
+    "question": "What is the surname of the family that owned the cup Horcrux before Voldemort stole it?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "smith"
+      ],
+      [
+        "hepzibah",
+        "smith"
+      ]
+    ]
+  },
+  {
+    "id": 292,
+    "question": "What is the first name of the witch who owned Hufflepuff's cup before Voldemort stole it?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "hepzibah"
+      ],
+      [
+        "hepzibah",
+        "smith"
+      ]
+    ]
+  },
+  {
+    "id": 293,
+    "question": "What is the name of the house where the Gaunt family lived?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "gaunt",
+        "shack"
+      ],
+      [
+        "the",
+        "gaunt",
+        "shack"
+      ]
+    ]
+  },
+  {
+    "id": 294,
+    "question": "What is the first name of Voldemort's maternal uncle Gaunt?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "morfin"
+      ],
+      [
+        "morfin",
+        "gaunt"
+      ]
+    ]
+  },
+  {
+    "id": 295,
+    "question": "What is the first name of Voldemort's maternal grandfather Gaunt?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "marvolo"
+      ],
+      [
+        "marvolo",
+        "gaunt"
+      ]
+    ]
+  },
+  {
+    "id": 296,
+    "question": "What ghost haunts Gryffindor Tower?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "nearly",
+        "headless",
+        "nick"
+      ],
+      [
+        "sir",
+        "nicholas",
+        "de",
+        "mimsy",
+        "porpington"
+      ]
+    ]
+  },
+  {
+    "id": 297,
+    "question": "What is the proper full name of Nearly Headless Nick?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "sir",
+        "nicholas",
+        "de",
+        "mimsy",
+        "porpington"
+      ]
+    ]
+  },
+  {
+    "id": 298,
+    "question": "What competition do fourth-year Hogwarts students traditionally learn to dance for in Goblet of Fire?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "yule",
+        "ball"
+      ]
+    ]
+  },
+  {
+    "id": 299,
+    "question": "What is the first name of Karkaroff, the headmaster of Durmstrang?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "igor"
+      ],
+      [
+        "igor",
+        "karkaroff"
+      ]
+    ]
+  },
+  {
+  "id": 300,
+  "question": "What is the first name of Madame Maxime?",
+  "image_url": null,
+  "answer_groups": [
+    [
+      "olympe"
+    ],
+    [
+      "olympe",
+      "maxime"
+    ]
+  ]
+},
+{
+  "id": 301,
+  "question": "What potion is shown in this image?",
+  "answer_groups": [["felix", "felicis"],
+                    ["liquid", "luck"]
+                    ],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Felix_Felicis.png?raw=true"
+},
+{
+  "id": 302,
+  "question": "What potion is shown in this image?",
+  "answer_groups": [["living", "death"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/draught_of_living_death.png?raw=true"
+},
+{
+  "id": 303,
+  "question": "What potion is shown in this image?",
+  "answer_groups": [["amortentia"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Amortencia.png?raw=true"
+},
+{
+  "id": 304,
+  "question": "What potion is shown in this image?",
+  "answer_groups": [["veritaserum"], ["verita", "serum"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/veritaserum.png?raw=true"
+},
+{
+  "id": 305,
+  "question": "What potion is shown in this image?",
+  "answer_groups": [["wolfsbane"], ["wolfsbane", "potion"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/wolfsbane.png?raw=true"
+},
+{
+  "id": 306,
+  "question": "Which magical creature is shown in this image?",
+  "answer_groups": [["hippogriff"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/hippogriff.png?raw=true"
+},
+{
+  "id": 307,
+  "question": "Which magical creature is shown in this image?",
+  "answer_groups": [["thestral"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Thestral.png?raw=true"
+},
+{
+  "id": 308,
+  "question": "Which magical creature is shown in this image?",
+  "answer_groups": [["niffler"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/niffler.png?raw=true"
+},
+{
+  "id": 309,
+  "question": "Which magical creature is shown in this image?",
+  "answer_groups": [["bowtruckle"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/bowtruckle.png?raw=true"
+},
+{
+  "id": 310,
+  "question": "Which magical creature is shown in this image?",
+  "answer_groups": [["demiguise"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/demiguise.png?raw=trueE"
+},
+{
+  "id": 311,
+  "question": "Which magical creature is shown in this image?",
+  "answer_groups": [["acromantula"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Acromantula.png?raw=true"
+},
+{
+  "id": 312,
+  "question": "Which magical creature is shown in this image?",
+  "answer_groups": [["basilisk"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/basilisk.png?raw=true"
+},
+{
+  "id": 313,
+  "question": "Which magical creature is shown in this image?",
+  "answer_groups": [["phoenix"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/phoenix.png?raw=true"
+},
+{
+  "id": 314,
+  "question": "Which magical creature is shown in this image?",
+  "answer_groups": [["dragon"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/dragon.png?raw=true"
+},
+{
+  "id": 315,
+  "question": "Which magical creature is shown in this image?",
+  "answer_groups": [["dementor"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/dementor.png?raw=true"
+},
+{
+  "id": 316,
+  "question": "Which magical object is shown in this image?",
+  "answer_groups": [["pensieve"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/pensive.png?raw=true"
+},
+{
+  "id": 317,
+  "question": "Which magical object is shown in this image?",
+  "answer_groups": [["time", "turner"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/time_turner.png?raw=true"
+},
+{
+  "id": 318,
+  "question": "Which magical object is shown in this image?",
+  "answer_groups": [["remembrall"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Remembrall.png?raw=true"
+},
+{
+  "id": 319,
+  "question": "Which magical object is shown in this image?",
+  "answer_groups": [["howler"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/howler.png?raw=true"
+},
+{
+  "id": 320,
+  "question": "Which magical object is shown in this image?",
+  "answer_groups": [["deluminator"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/deluminator.png?raw=true"
+},
+{
+  "id": 321,
+  "question": "Which magical object is shown in this image?",
+  "answer_groups": [["marauders", "map"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/marauders.png?raw=true"
+},
+{
+  "id": 322,
+  "question": "Which magical object is shown in this image?",
+  "answer_groups": [["goblet", "fire"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Goblet_of_Fire.png?raw=true"
+},
+{
+  "id": 323,
+  "question": "Which magical object is shown in this image?",
+  "answer_groups": [["sorting", "hat"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/sorting_hat.png?raw=true"
+},
+{
+  "id": 324,
+  "question": "Which magical object is shown in this image?",
+  "answer_groups": [["mirror", "erised"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/morror_of_erised.png?raw=true"
+},
+{
+  "id": 325,
+  "question": "Which magical object is shown in this image?",
+  "answer_groups": [["invisibility", "cloak"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Invisibility_Cloak.png?raw=true"
+},
+{
+  "id": 326,
+  "question": "Which house common room is shown in this image?",
+  "answer_groups": [["gryffindor"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/gryffindor_cr.png?raw=true"
+},
+{
+  "id": 327,
+  "question": "Which house common room is shown in this image?",
+  "answer_groups": [["slytherin"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/slytherin_cr.jpg?raw=true"
+},
+{
+  "id": 328,
+  "question": "Which house common room is shown in this image?",
+  "answer_groups": [["ravenclaw"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/ravenclaw_cr.jpg?raw=true"
+},
+{
+  "id": 329,
+  "question": "Which house common room is shown in this image?",
+  "answer_groups": [["hufflepuff"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/hufflepuff_cr.jpg?raw=true"
+},
+{
+  "id": 330,
+  "question": "Which wand is shown in this image as belonging to Harry Potter?",
+  "answer_groups": [["harry", "potter"], ["harry"]],
+  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/wand_harry_potter.png?raw=true"
+}
