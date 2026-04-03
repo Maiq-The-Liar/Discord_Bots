@@ -4312,186 +4312,187 @@
       "maxime"
     ]
   ]
-},
-{
-  "id": 301,
-  "question": "What potion is shown in this image?",
-  "answer_groups": [["felix", "felicis"],
-                    ["liquid", "luck"]
-                    ],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Felix_Felicis.png?raw=true"
-},
-{
-  "id": 302,
-  "question": "What potion is shown in this image?",
-  "answer_groups": [["living", "death"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/draught_of_living_death.png?raw=true"
-},
-{
-  "id": 303,
-  "question": "What potion is shown in this image?",
-  "answer_groups": [["amortentia"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Amortencia.png?raw=true"
-},
-{
-  "id": 304,
-  "question": "What potion is shown in this image?",
-  "answer_groups": [["veritaserum"], ["verita", "serum"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/veritaserum.png?raw=true"
-},
-{
-  "id": 305,
-  "question": "What potion is shown in this image?",
-  "answer_groups": [["wolfsbane"], ["wolfsbane", "potion"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/wolfsbane.png?raw=true"
-},
-{
-  "id": 306,
-  "question": "Which magical creature is shown in this image?",
-  "answer_groups": [["hippogriff"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/hippogriff.png?raw=true"
-},
-{
-  "id": 307,
-  "question": "Which magical creature is shown in this image?",
-  "answer_groups": [["thestral"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Thestral.png?raw=true"
-},
-{
-  "id": 308,
-  "question": "Which magical creature is shown in this image?",
-  "answer_groups": [["niffler"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/niffler.png?raw=true"
-},
-{
-  "id": 309,
-  "question": "Which magical creature is shown in this image?",
-  "answer_groups": [["bowtruckle"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/bowtruckle.png?raw=true"
-},
-{
-  "id": 310,
-  "question": "Which magical creature is shown in this image?",
-  "answer_groups": [["demiguise"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/demiguise.png?raw=trueE"
-},
-{
-  "id": 311,
-  "question": "Which magical creature is shown in this image?",
-  "answer_groups": [["acromantula"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Acromantula.png?raw=true"
-},
-{
-  "id": 312,
-  "question": "Which magical creature is shown in this image?",
-  "answer_groups": [["basilisk"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/basilisk.png?raw=true"
-},
-{
-  "id": 313,
-  "question": "Which magical creature is shown in this image?",
-  "answer_groups": [["phoenix"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/phoenix.png?raw=true"
-},
-{
-  "id": 314,
-  "question": "Which magical creature is shown in this image?",
-  "answer_groups": [["dragon"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/dragon.png?raw=true"
-},
-{
-  "id": 315,
-  "question": "Which magical creature is shown in this image?",
-  "answer_groups": [["dementor"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/dementor.png?raw=true"
-},
-{
-  "id": 316,
-  "question": "Which magical object is shown in this image?",
-  "answer_groups": [["pensieve"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/pensive.png?raw=true"
-},
-{
-  "id": 317,
-  "question": "Which magical object is shown in this image?",
-  "answer_groups": [["time", "turner"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/time_turner.png?raw=true"
-},
-{
-  "id": 318,
-  "question": "Which magical object is shown in this image?",
-  "answer_groups": [["remembrall"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Remembrall.png?raw=true"
-},
-{
-  "id": 319,
-  "question": "Which magical object is shown in this image?",
-  "answer_groups": [["howler"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/howler.png?raw=true"
-},
-{
-  "id": 320,
-  "question": "Which magical object is shown in this image?",
-  "answer_groups": [["deluminator"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/deluminator.png?raw=true"
-},
-{
-  "id": 321,
-  "question": "Which magical object is shown in this image?",
-  "answer_groups": [["marauders", "map"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/marauders.png?raw=true"
-},
-{
-  "id": 322,
-  "question": "Which magical object is shown in this image?",
-  "answer_groups": [["goblet", "fire"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Goblet_of_Fire.png?raw=true"
-},
-{
-  "id": 323,
-  "question": "Which magical object is shown in this image?",
-  "answer_groups": [["sorting", "hat"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/sorting_hat.png?raw=true"
-},
-{
-  "id": 324,
-  "question": "Which magical object is shown in this image?",
-  "answer_groups": [["mirror", "erised"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/morror_of_erised.png?raw=true"
-},
-{
-  "id": 325,
-  "question": "Which magical object is shown in this image?",
-  "answer_groups": [["invisibility", "cloak"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Invisibility_Cloak.png?raw=true"
-},
-{
-  "id": 326,
-  "question": "Which house common room is shown in this image?",
-  "answer_groups": [["gryffindor"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/gryffindor_cr.png?raw=true"
-},
-{
-  "id": 327,
-  "question": "Which house common room is shown in this image?",
-  "answer_groups": [["slytherin"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/slytherin_cr.jpg?raw=true"
-},
-{
-  "id": 328,
-  "question": "Which house common room is shown in this image?",
-  "answer_groups": [["ravenclaw"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/ravenclaw_cr.jpg?raw=true"
-},
-{
-  "id": 329,
-  "question": "Which house common room is shown in this image?",
-  "answer_groups": [["hufflepuff"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/hufflepuff_cr.jpg?raw=true"
-},
-{
-  "id": 330,
-  "question": "Which wand is shown in this image as belonging to Harry Potter?",
-  "answer_groups": [["harry", "potter"], ["harry"]],
-  "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/wand_harry_potter.png?raw=true"
-}
+  },
+  {
+    "id": 301,
+    "question": "What potion is shown in this image?",
+    "answer_groups": [["felix", "felicis"],
+                      ["liquid", "luck"]
+                      ],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Felix_Felicis.png?raw=true"
+  },
+  {
+    "id": 302,
+    "question": "What potion is shown in this image?",
+    "answer_groups": [["living", "death"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/draught_of_living_death.png?raw=true"
+  },
+  {
+    "id": 303,
+    "question": "What potion is shown in this image?",
+    "answer_groups": [["amortentia"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Amortencia.png?raw=true"
+  },
+  {
+    "id": 304,
+    "question": "What potion is shown in this image?",
+    "answer_groups": [["veritaserum"], ["verita", "serum"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/veritaserum.png?raw=true"
+  },
+  {
+    "id": 305,
+    "question": "What potion is shown in this image?",
+    "answer_groups": [["wolfsbane"], ["wolfsbane", "potion"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/wolfsbane.png?raw=true"
+  },
+  {
+    "id": 306,
+    "question": "Which magical creature is shown in this image?",
+    "answer_groups": [["hippogriff"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/hippogriff.png?raw=true"
+  },
+  {
+    "id": 307,
+    "question": "Which magical creature is shown in this image?",
+    "answer_groups": [["thestral"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Thestral.png?raw=true"
+  },
+  {
+    "id": 308,
+    "question": "Which magical creature is shown in this image?",
+    "answer_groups": [["niffler"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/niffler.png?raw=true"
+  },
+  {
+    "id": 309,
+    "question": "Which magical creature is shown in this image?",
+    "answer_groups": [["bowtruckle"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/bowtruckle.png?raw=true"
+  },
+  {
+    "id": 310,
+    "question": "Which magical creature is shown in this image?",
+    "answer_groups": [["demiguise"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/demiguise.png?raw=trueE"
+  },
+  {
+    "id": 311,
+    "question": "Which magical creature is shown in this image?",
+    "answer_groups": [["acromantula"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Acromantula.png?raw=true"
+  },
+  {
+    "id": 312,
+    "question": "Which magical creature is shown in this image?",
+    "answer_groups": [["basilisk"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/basilisk.png?raw=true"
+  },
+  {
+    "id": 313,
+    "question": "Which magical creature is shown in this image?",
+    "answer_groups": [["phoenix"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/phoenix.png?raw=true"
+  },
+  {
+    "id": 314,
+    "question": "Which magical creature is shown in this image?",
+    "answer_groups": [["dragon"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/dragon.png?raw=true"
+  },
+  {
+    "id": 315,
+    "question": "Which magical creature is shown in this image?",
+    "answer_groups": [["dementor"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/dementor.png?raw=true"
+  },
+  {
+    "id": 316,
+    "question": "Which magical object is shown in this image?",
+    "answer_groups": [["pensieve"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/pensive.png?raw=true"
+  },
+  {
+    "id": 317,
+    "question": "Which magical object is shown in this image?",
+    "answer_groups": [["time", "turner"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/time_turner.png?raw=true"
+  },
+  {
+    "id": 318,
+    "question": "Which magical object is shown in this image?",
+    "answer_groups": [["remembrall"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Remembrall.png?raw=true"
+  },
+  {
+    "id": 319,
+    "question": "Which magical object is shown in this image?",
+    "answer_groups": [["howler"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/howler.png?raw=true"
+  },
+  {
+    "id": 320,
+    "question": "Which magical object is shown in this image?",
+    "answer_groups": [["deluminator"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/deluminator.png?raw=true"
+  },
+  {
+    "id": 321,
+    "question": "Which magical object is shown in this image?",
+    "answer_groups": [["marauders", "map"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/marauders.png?raw=true"
+  },
+  {
+    "id": 322,
+    "question": "Which magical object is shown in this image?",
+    "answer_groups": [["goblet", "fire"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Goblet_of_Fire.png?raw=true"
+  },
+  {
+    "id": 323,
+    "question": "Which magical object is shown in this image?",
+    "answer_groups": [["sorting", "hat"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/sorting_hat.png?raw=true"
+  },
+  {
+    "id": 324,
+    "question": "Which magical object is shown in this image?",
+    "answer_groups": [["mirror", "erised"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/morror_of_erised.png?raw=true"
+  },
+  {
+    "id": 325,
+    "question": "Which magical object is shown in this image?",
+    "answer_groups": [["invisibility", "cloak"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Invisibility_Cloak.png?raw=true"
+  },
+  {
+    "id": 326,
+    "question": "Which house common room is shown in this image?",
+    "answer_groups": [["gryffindor"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/gryffindor_cr.png?raw=true"
+  },
+  {
+    "id": 327,
+    "question": "Which house common room is shown in this image?",
+    "answer_groups": [["slytherin"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/slytherin_cr.jpg?raw=true"
+  },
+  {
+    "id": 328,
+    "question": "Which house common room is shown in this image?",
+    "answer_groups": [["ravenclaw"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/ravenclaw_cr.jpg?raw=true"
+  },
+  {
+    "id": 329,
+    "question": "Which house common room is shown in this image?",
+    "answer_groups": [["hufflepuff"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/hufflepuff_cr.jpg?raw=true"
+  },
+  {
+    "id": 330,
+    "question": "Which wand is shown in this image as belonging to Harry Potter?",
+    "answer_groups": [["harry", "potter"], ["harry"]],
+    "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/wand_harry_potter.png?raw=true"
+  }
+]
