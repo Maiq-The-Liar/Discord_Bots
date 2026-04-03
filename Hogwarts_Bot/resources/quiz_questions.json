@@ -2452,10 +2452,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "how",
-        "to",
         "make",
-        "a",
         "horcrux"
       ],
       [
@@ -2464,14 +2461,11 @@
       ],
       [
         "information",
-        "about",
         "horcruxes"
       ],
       [
-        "how",
         "horcruxes",
-        "are",
-        "made"
+        "creating"
       ]
     ]
   },
