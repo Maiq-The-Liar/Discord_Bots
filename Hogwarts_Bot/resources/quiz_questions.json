@@ -4495,7 +4495,7 @@
   },
   {
     "id": 330,
-    "question": "Which wand is shown in this image as belonging to Harry Potter?",
+    "question": "Which wand is shown in this image?",
     "answer_groups": [["harry", "potter"], ["harry"]],
     "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/wand_harry_potter.png?raw=true"
   }
