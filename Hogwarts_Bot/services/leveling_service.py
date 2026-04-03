@@ -10,10 +10,6 @@ class LevelingService:
     XP_MIN = 5
     XP_MAX = 10
 
-
-def xp_required_for_next_level(self, level: int) -> int:
-    return 20 * (level ** 2) + 100 * level + 200
-
     def __init__(self, user_repo: UserRepository):
         self.user_repo = user_repo
 
@@ -73,5 +69,7 @@ def xp_required_for_next_level(self, level: int) -> int:
             "level": level,
             "xp": xp,
             "xp_gained": xp_gain,
-            "xp_needed_next": None if level >= MAX_SCHOOL_LEVEL else self.xp_required_for_next_level(level),
+            "xp_needed_next": None
+            if level >= MAX_SCHOOL_LEVEL
+            else self.xp_required_for_next_level(level),
         }
