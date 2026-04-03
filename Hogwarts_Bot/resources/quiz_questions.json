@@ -1,1221 +1,2929 @@
 [
-{
-"id": 1,
-"question": "What magical mark detects underage spellcasting outside school?",
-"answers": ["trace"],
-"image_url": null
-},
-{
-"id": 2,
-"question": "Which branch of magic is Professor McGonagall most closely associated with teaching?",
-"answers": ["transfiguration"],
-"image_url": null
-},
-{
-"id": 3,
-"question": "What creature can be seen only by someone who has witnessed death?",
-"answers": ["thestral"],
-"image_url": null
-},
-{
-"id": 4,
-"question": "Name one of the three wand cores that Ollivander describes as his usual choices.",
-"answers": ["phoenix feather", "dragon heartstring", "unicorn hair"],
-"image_url": null
-},
-{
-"id": 5,
-"question": "What powder is used to travel through connected fireplaces?",
-"answers": ["floo powder"],
-"image_url": null
-},
-{
-"id": 6,
-"question": "Who is revealed to be the Half-Blood Prince?",
-"answers": ["snape", "severus snape", "severus"],
-"image_url": null
-},
-{
-"id": 7,
-"question": "What magical object stores thoughts for later viewing?",
-"answers": ["pensieve"],
-"image_url": null
-},
-{
-"id": 8,
-"question": "What spell is used to summon an object to the caster?",
-"answers": ["accio"],
-"image_url": null
-},
-{
-"id": 9,
-"question": "Name a Triwizard Tournament champion.",
-"answers": ["harry", "cedric", "fleur", "krum", "victor krum", "fleur delacour", "cedric diggory", "harry potter"],
-"image_url": null
-},
-{
-"id": 10,
-"question": "What spell forces a boggart into a comical form?",
-"answers": ["riddikulus"],
-"image_url": null
-},
-{
-"id": 11,
-"question": "Who destroys the diary horcrux in the Chamber of Secrets?",
-"answers": ["harry", "harry potter"],
-"image_url": null
-},
-{
-"id": 12,
-"question": "What plant's cry can be fatal when it is fully mature?",
-"answers": ["mandrake", "mandrakes"],
-"image_url": null
-},
-{
-"id": 13,
-"question": "Who is unmasked as the fake Moody at the end of the Triwizard Tournament?",
-"answers": ["barty crouch jr", "barty crouch junior"],
-"image_url": null
-},
-{
-"id": 14,
-"question": "Name one of the three D's that are essential for Apparition?",
-"answers": ["destination", "determination", "deliberation"],
-"image_url": null
-},
-{
-"id": 15,
-"question": "Who kills Bellatrix Lestrange during the Battle of Hogwarts?",
-"answers": ["molly", "molly weasley"],
-"image_url": null
-},
-{
-"id": 16,
-"question": "What map shows named people moving around Hogwarts in real time?",
-"answers": ["marauders map"],
-"image_url": null
-},
-{
-"id": 17,
-"question": "Who throws the knife that kills Dobby?",
-"answers": ["bellatrix", "bellatrix lestrange"],
-"image_url": null
-},
-{
-"id": 18,
-"question": "What is one of the three objects that together make up the Deathly Hallows?",
-"answers": ["elder wand", "resurrection stone", "invisibility cloak"],
-"image_url": null
-},
-{
-"id": 19,
-"question": "Which brother does Ron lose during the Battle of Hogwarts?",
-"answers": ["fred", "fred weasley"],
-"image_url": null
-},
-{
-"id": 20,
-"question": "What law does Hermione cite to explain why good food cannot simply be created from nothing?",
-"answers": ["gamps law", "gamp"],
-"image_url": null
-},
-{
-"id": 21,
-"question": "What magical barrier prevents underage wizards from entering the Triwizard Tournament?",
-"answers": ["age line", "the age line"],
-"image_url": null
-},
-{
-"id": 22,
-"question": "What spell is used to unlock doors without a key?",
-"answers": ["alohomora"],
-"image_url": null
-},
-{
-"id": 23,
-"question": "Name one Unforgivable Curse.",
-"answers": ["imperius", "cruciatus", "avada kedavra"],
-"image_url": null
-},
-{
-"id": 24,
-"question": "What object must a witch or wizard have a clear image of before Apparating?",
-"answers": ["destination"],
-"image_url": null
-},
-{
-"id": 25,
-"question": "What creature guards the entrance to the Gryffindor common room?",
-"answers": ["portrait", "fat lady", "the fat lady"],
-"image_url": null
-},
-{
-"id": 26,
-"question": "Who becomes the master of the Elder Wand after defeating Draco Malfoy?",
-"answers": ["harry", "harry potter"],
-"image_url": null
-},
-{
-"id": 27,
-"question": "What form does Hermione's Patronus take?",
-"answers": ["otter"],
-"image_url": null
-},
-{
-"id": 28,
-"question": "Name one ingredient commonly used in Polyjuice Potion.",
-"answers": ["lacewing flies", "leeches", "knotgrass", "fluxweed"],
-"image_url": null
-},
-{
-"id": 29,
-"question": "What magical object reveals a person's deepest desire?",
-"answers": ["mirror of erised"],
-"image_url": null
-},
-{
-"id": 30,
-"question": "Who gives Harry the Invisibility Cloak at Hogwarts?",
-"answers": ["dumbledore", "albus dumbledore"],
-"image_url": null
-},
-{
-"id": 31,
-"question": "What spell produces a shield to block attacks?",
-"answers": ["protego"],
-"image_url": null
-},
-{
-"id": 32,
-"question": "What is the name of the wizard prison guarded by dementors?",
-"answers": ["azkaban"],
-"image_url": null
-},
-{
-"id": 33,
-"question": "Name one house-elf known to have served at Hogwarts.",
-"answers": ["dobby", "winky", "kreacher"],
-"image_url": null
-},
-{
-"id": 34,
-"question": "What magical device allows time travel in short increments?",
-"answers": ["time turner", "time-turner"],
-"image_url": null
-},
-{
-"id": 35,
-"question": "Who kills Nagini during the Battle of Hogwarts?",
-"answers": ["neville", "neville longbottom"],
-"image_url": null
-},
-{
-"id": 36,
-"question": "What form does Harry's Patronus take?",
-"answers": ["stag"],
-"image_url": null
-},
-{
-"id": 37,
-"question": "What creature delivers mail in the wizarding world?",
-"answers": ["owl", "owls"],
-"image_url": null
-},
-{
-"id": 38,
-"question": "Name one of Voldemort's horcruxes.",
-"answers": ["diary", "ring", "locket", "cup", "diadem", "nagini", "his snake", "tom riddles diary", "marvolo gaunts ring", "ring of marvolo gaunt", "slytherins locket", "helga hufflepuffs cup", "hufflepuff cup", "rowena ravenclaws diadem", "lost diadem", "ravenclaw diadem", "harry", "harry potter"],
-"image_url": null
-},
-{
-"id": 39,
-"question": "What spell is used to disarm an opponent?",
-"answers": ["expelliarmus"],
-"image_url": null
-},
-{
-"id": 40,
-"question": "What spell is used to repair broken objects?",
-"answers": ["reparo"],
-"image_url": null
-},
-{
-"id": 41,
-"question": "What magical effect can prevent someone from revealing a specific secret?",
-"answers": ["fidelius charm", "fidelius"],
-"image_url": null
-},
-{
-"id": 42,
-"question": "Who was the secret keeper for the Potters when they went into hiding?",
-"answers": ["peter", "peter pettigrew", "pettigrew", "wormtail", "scabbers"],
-"image_url": null
-},
-{
-"id": 43,
-"question": "What type of magical object can think and act independently despite not being alive?",
-"answers": ["portrait", "portraits"],
-"image_url": null
-},
-{
-"id": 44,
-"question": "Name one method used to destroy a Horcrux.",
-"answers": ["basilisk venom", "fiendfyre", "sword of gryffindor"],
-"image_url": null
-},
-{
-"id": 45,
-"question": "What spell creates a jet of water from the caster's wand?",
-"answers": ["aguamenti"],
-"image_url": null
-},
-{
-"id": 46,
-"question": "What object is used to communicate between members of the Order of the Phoenix in secret?",
-"answers": ["coins", "galleons", "fake galleons"],
-"image_url": null
-},
-{
-"id": 47,
-"question": "What magical transport pulls the Hogwarts carriages for most students?",
-"answers": ["thestrals", "thestral"],
-"image_url": null
-},
-{
-"id": 48,
-"question": "who teaches harry how to conjure a patronus?",
-"answers": ["lupin", "remus lupin"],
-"image_url": null
-},
-{
-"id": 49,
-"question": "what spell is specifically used to repel dementors?",
-"answers": ["expecto patronum"],
-"image_url": null
-},
-{
-"id": 50,
-"question": "name one known animagus form.",
-"answers": ["dog", "rat", "cat", "beetle", "stag"],
-"image_url": null
-},
-{
-"id": 51,
-"question": "what magical condition causes a wizard to transform involuntarily during a full moon?",
-"answers": ["lycanthropy"],
-"image_url": null
-},
-{
-"id": 52,
-"question": "who breaks the taboo by saying voldemort's name while on the run?",
-"answers": ["harry", "harry potter"],
-"image_url": null
-},
-{
-"id": 53,
-"question": "what spell binds a person with invisible ropes?",
-"answers": ["incarcerous"],
-"image_url": null
-},
-{
-"id": 54,
-"question": "what magical object is used to store memories outside the mind?",
-"answers": ["pensieve"],
-"image_url": null
-},
-{
-"id": 55,
-"question": "name one of the founders of hogwarts.",
-"answers": ["godric gryffindor", "helga hufflepuff", "rowena ravenclaw", "salazar slytherin"],
-"image_url": null
-},
-{
-"id": 56,
-"question": "what enchantment causes a person to become obsessed with an object or person?",
-"answers": ["love potion", "amortentia"],
-"image_url": null
-},
-{
-"id": 57,
-"question": "what spell causes objects or people to levitate?",
-"answers": ["wingardium leviosa", "levicorpus"],
-"image_url": null
-},
-{
-"id": 58,
-"question": "who destroys the locket horcrux?",
-"answers": ["ron", "ron weasley"],
-"image_url": null
-},
-{
-"id": 59,
-"question": "what magical map reveals hidden passages and people inside hogwarts?",
-"answers": ["marauders map"],
-"image_url": null
-},
-{
-"id": 60,
-"question": "what potion grants temporary luck to the drinker?",
-"answers": ["felix felicis"],
-"image_url": null
-},
-{
-"id": 61,
-"question": "what spell is used to create light at the tip of a wand?",
-"answers": ["lumos"],
-"image_url": null
-},
-{
-"id": 62,
-"question": "what creature can paralyze or kill its victims simply by making eye contact?",
-"answers": ["basilisk"],
-"image_url": null
-},
-{
-"id": 63,
-"question": "name one position in a quidditch team.",
-"answers": ["seeker", "chaser", "beater", "keeper"],
-"image_url": null
-},
-{
-"id": 64,
-"question": "who becomes headmaster of hogwarts after dumbledore's death?",
-"answers": ["snape", "severus snape"],
-"image_url": null
-},
-{
-"id": 65,
-"question": "what enchantment is placed on voldemort's name to track those who say it?",
-"answers": ["taboo", "taboo jinx"],
-"image_url": null
-},
-{
-"id": 66,
-"question": "what object must be destroyed to truly defeat voldemort?",
-"answers": ["horcrux", "horcruxes"],
-"image_url": null
-},
-{
-"id": 67,
-"question": "name one method of magical transportation besides apparition.",
-"answers": ["floo powder", "portkey", "broom", "knight bus", "thestrals", "dragons", "floo network"],
-"image_url": null
-},
-{
-"id": 68,
-"question": "what spell is used to erase or modify memories?",
-"answers": ["obliviate"],
-"image_url": null
-},
-{
-"id": 69,
-"question": "what magical object protects the wearer from dementors' full effects?",
-"answers": ["patronus"],
-"image_url": null
-},
-{
-"id": 70,
-"question": "who kills severus snape?",
-"answers": ["voldemort"],
-"image_url": null
-},
-{
-"id": 71,
-"question": "what type of creature is aragog?",
-"answers": ["acromantula"],
-"image_url": null
-},
-{
-"id": 72,
-"question": "what spell reveals invisible ink or hidden writing?",
-"answers": ["revelio"],
-"image_url": null
-},
-{
-"id": 73,
-"question": "name one hogwarts subject taught in harry's first year.",
-"answers": ["potions", "charms", "transfiguration", "herbology", "defense against the dark arts", "astronomy"],
-"image_url": null
-},
-{
-"id": 74,
-"question": "what magical object binds participants to the triwizard tournament once they enter?",
-"answers": ["goblet of fire"],
-"image_url": null
-},
-{
-"id": 75,
-"question": "what creature drains happiness and feeds on positive emotions?",
-"answers": ["dementor", "dementors"],
-"image_url": null
-},
-{
-"id": 76,
-"question": "who gives ron his first wand?",
-"answers": ["charlie", "charlie weasley", "his parents", "parents", "hand me down", "hand me down from his parents", "hand me down from his brothers", "hand me down from his brother"],
-"image_url": null
-},
-{
-"id": 77,
-"question": "what spell creates birds from the caster's wand?",
-"answers": ["avis"],
-"image_url": null
-},
-{
-"id": 78,
-"question": "name one object used as a horcrux by voldemort that belonged to a hogwarts founder.",
-"answers": ["cup", "locket", "diadem", "hufflepuff cup", "slytherin locket", "ravenclaw diadem"],
-"image_url": null
-},
-{
-"id": 79,
-"question": "what spell causes a loud explosive bang like a gunshot?",
-"answers": ["bombarda"],
-"image_url": null
-},
-{
-"id": 80,
-"question": "What magical effect occurs when a wand is forced to fight its twin core?",
-"answers": ["priori incantatem"],
-"image_url": null
-},
-{
-"id": 81,
-"question": "What creature is known for burrowing and stealing shiny objects?",
-"answers": ["niffler"],
-"image_url": null
-},
-{
-"id": 82,
-"question": "What spell is used to silence a person or object?",
-"answers": ["silencio"],
-"image_url": null
-},
-{
-"id": 83,
-"question": "Name one creature that appears in a Triwizard Tournament task.",
-"answers": ["dragon", "mermaids", "grindylows", "sphinx", "acromantula", "blast ended skrewt"],
-"image_url": null
-},
-{
-"id": 84,
-"question": "What magical ability allows a witch or wizard to speak with snakes?",
-"answers": ["parseltongue"],
-"image_url": null
-},
-{
-"id": 85,
-"question": "What object is used to summon the Knight Bus?",
-"answers": ["wand"],
-"image_url": null
-},
-{
-"id": 86,
-"question": "Who was the owner of the Elder Wand before it passed to Dumbledore?",
-"answers": ["grindelwald", "gellert grindelwald"],
-"image_url": null
-},
-{
-"id": 87,
-"question": "What spell causes a person to dangle upside down by the ankle?",
-"answers": ["levicorpus"],
-"image_url": null
-},
-{
-"id": 88,
-"question": "What magical object allows long-distance visual communication using fireplaces?",
-"answers": ["floo network"],
-"image_url": null
-},
-{
-  "id": 89,
-  "question": "What creature is used to guard high-security vaults in Gringotts?",
-  "answers": ["dragon", "dragons"],
-  "image_url": null
-},
-{
-  "id": 90,
-  "question": "What happens to a wand when its master is defeated?",
-  "answers": [
-    "it changes allegiance",
-    "it switches allegiance",
-    "it changes owner",
-    "it switches owner",
-    "changes allegiance",
-    "switches allegiance",
-    "changes owner",
-    "switches owner",
-    "it changes loyalty",
-    "it switches loyalty",
-    "changes loyalty",
-    "switches loyalty",
-    "it belongs to the winner",
-    "belongs to the winner",
-    "it obeys the winner",
-    "obeys the winner",
-    "it changes master",
-    "changes master"
-  ],
-  "image_url": null
-},
-{
-"id": 91,
-"question": "What spell is used to cut objects cleanly?",
-"answers": ["diffindo"],
-"image_url": null
-},
-{
-"id": 92,
-"question": "Who kills Sirius Black?",
-"answers": ["bellatrix", "bellatrix lestrange"],
-"image_url": null
-},
-{
-"id": 93,
-"question": "What magical creature can regenerate by burning and being reborn from its ashes?",
-"answers": ["phoenix"],
-"image_url": null
-},
-{
-"id": 94,
-"question": "Name one magical object that was used as a Portkey.",
-"answers": ["cup", "boot", "trophy", "suitcase"],
-"image_url": null
-},
-{
-"id": 95,
-"question": "What spell is used to unlock and open containers violently?",
-"answers": ["bombarda"],
-"image_url": null
-},
-{
-"id": 96,
-"question": "What magical plant allows a person to breathe underwater during the second Triwizard task?",
-"answers": ["gillyweed"],
-"image_url": null
-},
-{
-"id": 97,
-"question": "Who is revealed to be the heir of Salazar Slytherin?",
-"answers": ["voldemort", "tom riddle"],
-"image_url": null
-},
-{
-"id": 98,
-"question": "What spell conjures a Patronus?",
-"answers": ["expecto patronum"],
-"image_url": null
-},
-{
-  "id": 99,
-  "question": "What creature is invisible by default and can only be seen after being stunned or killed?",
-  "answers": ["demiguise"],
-  "image_url": null
-},
-{
-"id": 100,
-"question": "What is the job title of a wizard who modifies memories for the Ministry?",
-"answers": ["oblivator", "obliviator"],
-"image_url": null
-},
-{
-"id": 101,
-"question": "What is the name of Dumbledore's phoenix?",
-"answers": ["fawkes"],
-"image_url": null
-},
-{
-"id": 102,
-"question": "What school does Fleur Delacour attend?",
-"answers": ["beauxbatons"],
-"image_url": null
-},
-{
-"id": 103,
-"question": "What school does Viktor Krum attend?",
-"answers": ["durmstrang"],
-"image_url": null
-},
-{
-"id": 104,
-"question": "What is the term for a failed Apparition that leaves part of the body behind?",
-"answers": ["splinching"],
-"image_url": null
-},
-{
-"id": 105,
-"question": "What spell was invented by Snape that causes deep slashing wounds?",
-"answers": ["sectumsempra"],
-"image_url": null
-},
-{
-"id": 106,
-"question": "What is the name of the Weasley family home?",
-"answers": ["the burrow", "burrow"],
-"image_url": null
-},
-{
-"id": 107,
-"question": "What spell fills nearby ears with an unidentifiable buzzing sound?",
-"answers": ["muffliato"],
-"image_url": null
-},
-{
-"id": 108,
-"question": "What creature's tears have healing properties?",
-"answers": ["phoenix"],
-"image_url": null
-},
-{
-"id": 109,
-"question": "What is the name of the room at Hogwarts that transforms to provide whatever the user needs?",
-"answers": ["room of requirement"],
-"image_url": null
-},
-{
-"id": 110,
-"question": "Who teaches Divination at Hogwarts?",
-"answers": ["trelawney", "sybill trelawney", "professor trelawney"],
-"image_url": null
-},
-{
-"id": 111,
-"question": "Who created the Philosopher's Stone?",
-"answers": ["nicolas flamel", "flamel"],
-"image_url": null
-},
-{
-"id": 112,
-"question": "What is the name of Ron's owl?",
-"answers": ["pigwidgeon", "pig"],
-"image_url": null
-},
-{
-"id": 113,
-"question": "What is the name of Dumbledore's brother?",
-"answers": ["aberforth", "aberforth dumbledore"],
-"image_url": null
-},
-{
-"id": 114,
-"question": "What spell amplifies the caster's voice?",
-"answers": ["sonorus"],
-"image_url": null
-},
-{
-"id": 115,
-"question": "What is the name of the wizarding world's main newspaper?",
-"answers": ["daily prophet"],
-"image_url": null
-},
-{
-"id": 116,
-"question": "What is the incantation used to conjure the Dark Mark in the sky?",
-"answers": ["morsmordre"],
-"image_url": null
-},
-{
-"id": 117,
-"question": "What is the consequence of breaking an Unbreakable Vow?",
-"answers": ["death", "you die", "the person dies"],
-"image_url": null
-},
-{
-"id": 118,
-"question": "What discipline of magic allows the practitioner to enter and read another person's mind?",
-"answers": ["legilimency"],
-"image_url": null
-},
-{
-"id": 119,
-"question": "What mental discipline protects the mind from Legilimency?",
-"answers": ["occlumency"],
-"image_url": null
-},
-{
-"id": 120,
-"question": "What does the Cruciatus Curse inflict on its victim?",
-"answers": ["pain", "torture", "intense pain", "unbearable pain"],
-"image_url": null
-},
-{
-"id": 121,
-"question": "What potion allows a werewolf to retain their human mind during a full moon transformation?",
-"answers": ["wolfsbane", "wolfsbane potion"],
-"image_url": null
-},
-{
-"id": 122,
-"question": "What form does Ron's Patronus take?",
-"answers": ["jack russell terrier", "terrier", "dog"],
-"image_url": null
-},
-{
-"id": 123,
-"question": "What form does Luna Lovegood's Patronus take?",
-"answers": ["hare", "rabbit"],
-"image_url": null
-},
-{
-"id": 124,
-"question": "What publication does Xenophilius Lovegood edit?",
-"answers": ["the quibbler", "quibbler"],
-"image_url": null
-},
-{
-"id": 125,
-"question": "What is the term for a non-magical person born to at least one magical parent?",
-"answers": ["squib"],
-"image_url": null
-},
-{
-"id": 126,
-"question": "What derogatory term do pure-blood extremists use for Muggle-born witches and wizards?",
-"answers": ["mudblood"],
-"image_url": null
-},
-{
-"id": 127,
-"question": "What device, invented by Dumbledore, can absorb and store light from the surroundings?",
-"answers": ["deluminator", "put-outer"],
-"image_url": null
-},
-{
-"id": 128,
-"question": "What word does 'Erised' spell when reversed?",
-"answers": ["desire"],
-"image_url": null
-},
-{
-"id": 129,
-"question": "What is Voldemort's real name?",
-"answers": ["tom riddle", "tom marvolo riddle", "tom"],
-"image_url": null
-},
-{
-"id": 130,
-"question": "Who is the ghost associated with Slytherin house?",
-"answers": ["bloody baron", "the bloody baron"],
-"image_url": null
-},
-{
-"id": 131,
-"question": "Who is the ghost associated with Ravenclaw house?",
-"answers": ["grey lady", "the grey lady", "helena ravenclaw"],
-"image_url": null
-},
-{
-"id": 132,
-"question": "Who is the ghost associated with Hufflepuff house?",
-"answers": ["fat friar", "the fat friar"],
-"image_url": null
-},
-{
-"id": 133,
-"question": "What physical effect did wearing the ring horcrux have on Dumbledore's hand?",
-"answers": ["it turned black", "it blackened", "it withered", "it was cursed", "it died"],
-"image_url": null
-},
-{
-"id": 134,
-"question": "What spell transforms any object into a Portkey?",
-"answers": ["portus"],
-"image_url": null
-},
-{
-"id": 135,
-"question": "What charm creates a breathable air bubble around the caster's head for use underwater?",
-"answers": ["bubble-head charm", "bubble head charm"],
-"image_url": null
-},
-{
-"id": 136,
-"question": "What is the name of the goblin who assists the trio in breaking into Gringotts?",
-"answers": ["griphook"],
-"image_url": null
-},
-{
-"id": 137,
-"question": "What word was jinxed to appear on Marietta Edgecombe's face for betraying the DA?",
-"answers": ["sneak"],
-"image_url": null
-},
-{
-"id": 138,
-"question": "What is the incantation for the Cruciatus Curse?",
-"answers": ["crucio"],
-"image_url": null
-},
-{
-"id": 139,
-"question": "What healing spell is used to fix minor injuries such as a broken nose?",
-"answers": ["episkey"],
-"image_url": null
-},
-{
-"id": 140,
-"question": "What spell cancels ongoing enchantments or active spells?",
-"answers": ["finite incantatem", "finite"],
-"image_url": null
-},
-{
-"id": 141,
-"question": "What Quidditch position did James Potter play on the Gryffindor team?",
-"answers": ["chaser"],
-"image_url": null
-},
-{
-"id": 142,
-"question": "What is the name of the joke shop Fred and George open on Diagon Alley?",
-"answers": ["weasleys wizard wheezes", "wizard wheezes"],
-"image_url": null
-},
-{
-"id": 143,
-"question": "What form does Dumbledore's Patronus take?",
-"answers": ["phoenix"],
-"image_url": null
-},
-{
-"id": 144,
-"question": "What does it indicate when a Remembrall turns red?",
-"answers": ["the owner has forgotten something", "you forgot something", "something was forgotten", "forgetting something"],
-"image_url": null
-},
-{
-"id": 145,
-"question": "What creature is known for guarding trees that produce wand-quality wood?",
-"answers": ["bowtruckle"],
-"image_url": null
-},
-{
-"id": 146,
-"question": "What effect do Veela have on male spectators when they perform?",
-"answers": ["they become entranced", "they become obsessed", "obsession", "entrancement", "they lose their minds"],
-"image_url": null
-},
-{
-"id": 147,
-"question": "What vault number at Gringotts held the Philosopher's Stone?",
-"answers": ["713", "vault 713"],
-"image_url": null
-},
-{
-"id": 148,
-"question": "What is the term for a witch or wizard with the rare natural ability to predict the future?",
-"answers": ["seer"],
-"image_url": null
-},
-{
-"id": 149,
-"question": "What form of magic is Durmstrang particularly known for teaching?",
-"answers": ["dark arts", "the dark arts"],
-"image_url": null
-},
-{
-"id": 150,
-"question": "What magical protection did Lily Potter's self-sacrifice create for Harry?",
-"answers": ["love", "ancient magic", "sacrificial protection", "the charm of love"],
-"image_url": null
-},
-{
-"id": 151,
-"question": "What is the name of the mysterious archway in the Department of Mysteries that leads to death?",
-"answers": ["the veil", "veil"],
-"image_url": null
-},
-{
-"id": 152,
-"question": "What is the name of the Hogwarts caretaker?",
-"answers": ["filch", "argus filch"],
-"image_url": null
-},
-{
-"id": 153,
-"question": "What does the Impervius charm make a surface resistant to?",
-"answers": ["water", "rain", "moisture", "liquid"],
-"image_url": null
-},
-{
-"id": 154,
-"question": "What enchantment causes objects to duplicate when touched?",
-"answers": ["geminio"],
-"image_url": null
-},
-{
-"id": 155,
-"question": "What spell makes an object grow significantly larger?",
-"answers": ["engorgio"],
-"image_url": null
-},
-{
-"id": 156,
-"question": "What is the incantation for the Imperius Curse?",
-"answers": ["imperio"],
-"image_url": null
-},
-{
-"id": 157,
-"question": "What is unique about the Elder Wand compared to all other wands?",
-"answers": ["it is the most powerful wand", "it is unbeatable", "it never lost a duel", "most powerful wand ever made"],
-"image_url": null
-},
-{
-"id": 158,
-"question": "What does the Hogwarts motto 'Draco Dormiens Nunquam Titillandus' translate to in English?",
-"answers": ["never tickle a sleeping dragon"],
-"image_url": null
-},
-{
-"id": 159,
-"question": "What is the job title of a Ministry-trained dark wizard hunter?",
-"answers": ["auror"],
-"image_url": null
-},
-{
-"id": 160,
-"question": "Who serves as the Secret Keeper for the Order's headquarters at 12 Grimmauld Place?",
-"answers": ["dumbledore", "albus dumbledore"],
-"image_url": null
-},
-{
-"id": 161,
-"question": "What is the name of Filch's cat?",
-"answers": ["mrs norris", "misses norris", "norris"],
-"image_url": null
-},
-{
-"id": 162,
-"question": "What is the name of Hagrid's giant half-brother?",
-"answers": ["grawp"],
-"image_url": null
-},
-{
-"id": 163,
-"question": "What is the name of the act in which a Dementor consumes a person's soul?",
-"answers": ["the kiss", "dementors kiss", "kiss"],
-"image_url": null
-},
-{
-"id": 164,
-"question": "What platform does the Hogwarts Express depart from at King's Cross Station?",
-"answers": ["nine and three quarters", "platform nine and three quarters", "9 3/4", "platform 9 3/4"],
-"image_url": null
-},
-{
-"id": 165,
-"question": "Who wrote 'A History of Magic'?",
-"answers": ["bathilda bagshot", "bagshot"],
-"image_url": null
-},
-{
-"id": 166,
-"question": "What are Inferi?",
-"answers": ["reanimated corpses", "animated corpses", "dead bodies controlled by dark magic", "corpses", "dead bodies", "reanimated bodies"],
-"image_url": null
-},
-{
-"id": 167,
-"question": "In which Ministry office does Arthur Weasley work?",
-"answers": ["misuse of muggle artifacts", "misuse of muggle artefacts"],
-"image_url": null
-},
-{
-"id": 168,
-"question": "What subject does Professor Sprout teach at Hogwarts?",
-"answers": ["herbology"],
-"image_url": null
-},
-{
-"id": 169,
-"question": "What force is contained in the permanently locked room in the Department of Mysteries?",
-"answers": ["love"],
-"image_url": null
-},
-{
-"id": 170,
-"question": "What information does Slughorn's true memory reveal to Dumbledore?",
-"answers": ["how to make a horcrux", "horcrux creation", "information about horcruxes", "how horcruxes are made"],
-"image_url": null
-},
-{
-"id": 171,
-"question": "What can influence the Sorting Hat's final decision about which house to place a student in?",
-"answers": ["the students own preference", "their wish", "asking", "the students request", "what the student wants"],
-"image_url": null
-},
-{
-"id": 172,
-"question": "What act must a dark wizard commit in order to split their soul and create a Horcrux?",
-"answers": ["murder", "killing someone", "commit murder"],
-"image_url": null
-},
-{
-"id": 173,
-"question": "What color is the jet of light produced by the Killing Curse?",
-"answers": ["green"],
-"image_url": null
-},
-{
-"id": 174,
-"question": "What type of wood is Harry Potter's wand made from?",
-"answers": ["holly"],
-"image_url": null
-},
-{
-"id": 175,
-"question": "Whose phoenix provided the feather cores of both Harry's and Voldemort's wands?",
-"answers": ["fawkes", "dumbledore", "dumbledores phoenix", "albus dumbledore"],
-"image_url": null
-},
-{
-"id": 176,
-"question": "Who teaches Charms at Hogwarts?",
-"answers": ["flitwick", "filius flitwick", "professor flitwick"],
-"image_url": null
-},
-{
-"id": 177,
-"question": "Who taught Potions at Hogwarts before Professor Slughorn?",
-"answers": ["snape", "severus snape"],
-"image_url": null
-},
-{
-"id": 178,
-"question": "What is the name of the Potions textbook Harry uses in his sixth year?",
-"answers": ["advanced potion-making", "advanced potion making"],
-"image_url": null
-},
-{
-"id": 179,
-"question": "What potion forces the drinker to tell the truth?",
-"answers": ["veritaserum"],
-"image_url": null
-},
-{
-"id": 180,
-"question": "What model of broomstick does Harry receive in his first year?",
-"answers": ["nimbus 2000"],
-"image_url": null
-},
-{
-"id": 181,
-"question": "What model of broomstick does Harry receive as an anonymous gift in his third year?",
-"answers": ["firebolt"],
-"image_url": null
-},
-{
-"id": 182,
-"question": "Who actually sent Harry the Firebolt in his third year?",
-"answers": ["sirius", "sirius black"],
-"image_url": null
-},
-{
-"id": 183,
-"question": "What is the full name of the secret student defense group Harry forms in his fifth year?",
-"answers": ["dumbledores army", "the da", "da"],
-"image_url": null
-},
-{
-"id": 184,
-"question": "Who is the Minister for Magic when Voldemort officially returns?",
-"answers": ["fudge", "cornelius fudge"],
-"image_url": null
-},
-{
-"id": 185,
-"question": "Who replaces Cornelius Fudge as Minister for Magic?",
-"answers": ["rufus scrimgeour", "scrimgeour"],
-"image_url": null
-},
-{
-"id": 186,
-"question": "What is the name of the all-wizarding village near Hogwarts that students visit from third year onward?",
-"answers": ["hogsmeade"],
-"image_url": null
-},
-{
-"id": 187,
-"question": "What is the name of the most popular pub in Hogsmeade?",
-"answers": ["three broomsticks", "the three broomsticks"],
-"image_url": null
-},
-{
-"id": 188,
-"question": "What is the name of the Hogsmeade sweet shop famous throughout the wizarding world?",
-"answers": ["honeydukes"],
-"image_url": null
-},
-{
-"id": 189,
-"question": "What subject does Hagrid teach at Hogwarts?",
-"answers": ["care of magical creatures"],
-"image_url": null
-},
-{
-"id": 190,
-"question": "Who substitutes as Care of Magical Creatures teacher when Hagrid is absent?",
-"answers": ["grubbly-plank", "professor grubbly-plank", "wilhelmina grubbly-plank"],
-"image_url": null
-},
-{
-"id": 191,
-"question": "How many points is catching the Golden Snitch worth in a Quidditch match?",
-"answers": ["150", "one hundred and fifty"],
-"image_url": null
-},
-{
-"id": 192,
-"question": "What type of magical being is Peeves?",
-"answers": ["poltergeist"],
-"image_url": null
-},
-{
-"id": 193,
-"question": "Who is credited with discovering the twelve uses of dragon's blood?",
-"answers": ["dumbledore", "albus dumbledore"],
-"image_url": null
-},
-{
-"id": 194,
-"question": "What form does Snape's Patronus take?",
-"answers": ["doe", "a doe"],
-"image_url": null
-},
-{
-"id": 195,
-"question": "What spell causes its target to dance uncontrollably?",
-"answers": ["tarantallegra"],
-"image_url": null
-},
-{
-"id": 196,
-"question": "What must a student do to gain entry to the Ravenclaw common room?",
-"answers": ["answer a riddle", "solve a riddle", "answer a question"],
-"image_url": null
-},
-{
-"id": 197,
-"question": "What is the name of the forest that borders Hogwarts?",
-"answers": ["forbidden forest", "the forbidden forest"],
-"image_url": null
-},
-{
-"id": 198,
-"question": "What is the name of the main dining hall in Hogwarts?",
-"answers": ["great hall", "the great hall"],
-"image_url": null
-},
-{
-"id": 199,
-"question": "What is the name of Neville Longbottom's toad?",
-"answers": ["trevor"],
-"image_url": null
-},
-{
-"id": 200,
-"question": "What is the name of the pub that serves as the entrance to Diagon Alley?",
-"answers": ["the leaky cauldron", "leaky cauldron"],
-"image_url": null
-}
+  {
+    "id": 1,
+    "question": "What magical mark detects underage spellcasting outside school?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "trace"
+      ]
+    ]
+  },
+  {
+    "id": 2,
+    "question": "Which branch of magic is Professor McGonagall most closely associated with teaching?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "transfiguration"
+      ]
+    ]
+  },
+  {
+    "id": 3,
+    "question": "What creature can be seen only by someone who has witnessed death?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "thestral"
+      ]
+    ]
+  },
+  {
+    "id": 4,
+    "question": "Name one of the three wand cores that Ollivander describes as his usual choices.",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "phoenix",
+        "feather"
+      ],
+      [
+        "dragon",
+        "heartstring"
+      ],
+      [
+        "unicorn",
+        "hair"
+      ]
+    ]
+  },
+  {
+    "id": 5,
+    "question": "What powder is used to travel through connected fireplaces?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "floo",
+        "powder"
+      ]
+    ]
+  },
+  {
+    "id": 6,
+    "question": "Who is revealed to be the Half-Blood Prince?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "snape"
+      ],
+      [
+        "severus",
+        "snape"
+      ],
+      [
+        "severus"
+      ]
+    ]
+  },
+  {
+    "id": 7,
+    "question": "What magical object stores thoughts for later viewing?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "pensieve"
+      ]
+    ]
+  },
+  {
+    "id": 8,
+    "question": "What spell is used to summon an object to the caster?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "accio"
+      ]
+    ]
+  },
+  {
+    "id": 9,
+    "question": "Name a Triwizard Tournament champion.",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "harry"
+      ],
+      [
+        "cedric"
+      ],
+      [
+        "fleur"
+      ],
+      [
+        "krum"
+      ],
+      [
+        "victor",
+        "krum"
+      ],
+      [
+        "fleur",
+        "delacour"
+      ],
+      [
+        "cedric",
+        "diggory"
+      ],
+      [
+        "harry",
+        "potter"
+      ]
+    ]
+  },
+  {
+    "id": 10,
+    "question": "What spell forces a boggart into a comical form?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "riddikulus"
+      ]
+    ]
+  },
+  {
+    "id": 11,
+    "question": "Who destroys the diary horcrux in the Chamber of Secrets?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "harry"
+      ],
+      [
+        "harry",
+        "potter"
+      ]
+    ]
+  },
+  {
+    "id": 12,
+    "question": "What plant's cry can be fatal when it is fully mature?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "mandrake"
+      ],
+      [
+        "mandrakes"
+      ]
+    ]
+  },
+  {
+    "id": 13,
+    "question": "Who is unmasked as the fake Moody at the end of the Triwizard Tournament?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "barty",
+        "crouch",
+        "jr"
+      ],
+      [
+        "barty",
+        "crouch",
+        "junior"
+      ]
+    ]
+  },
+  {
+    "id": 14,
+    "question": "Name one of the three D's that are essential for Apparition?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "destination"
+      ],
+      [
+        "determination"
+      ],
+      [
+        "deliberation"
+      ]
+    ]
+  },
+  {
+    "id": 15,
+    "question": "Who kills Bellatrix Lestrange during the Battle of Hogwarts?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "molly"
+      ],
+      [
+        "molly",
+        "weasley"
+      ]
+    ]
+  },
+  {
+    "id": 16,
+    "question": "What map shows named people moving around Hogwarts in real time?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "marauders",
+        "map"
+      ]
+    ]
+  },
+  {
+    "id": 17,
+    "question": "Who throws the knife that kills Dobby?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "bellatrix"
+      ],
+      [
+        "bellatrix",
+        "lestrange"
+      ]
+    ]
+  },
+  {
+    "id": 18,
+    "question": "What is one of the three objects that together make up the Deathly Hallows?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "elder",
+        "wand"
+      ],
+      [
+        "resurrection",
+        "stone"
+      ],
+      [
+        "invisibility",
+        "cloak"
+      ]
+    ]
+  },
+  {
+    "id": 19,
+    "question": "Which brother does Ron lose during the Battle of Hogwarts?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "fred"
+      ],
+      [
+        "fred",
+        "weasley"
+      ]
+    ]
+  },
+  {
+    "id": 20,
+    "question": "What law does Hermione cite to explain why good food cannot simply be created from nothing?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "gamps",
+        "law"
+      ],
+      [
+        "gamp"
+      ]
+    ]
+  },
+  {
+    "id": 21,
+    "question": "What magical barrier prevents underage wizards from entering the Triwizard Tournament?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "age",
+        "line"
+      ],
+      [
+        "the",
+        "age",
+        "line"
+      ]
+    ]
+  },
+  {
+    "id": 22,
+    "question": "What spell is used to unlock doors without a key?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "alohomora"
+      ]
+    ]
+  },
+  {
+    "id": 23,
+    "question": "Name one Unforgivable Curse.",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "imperius"
+      ],
+      [
+        "cruciatus"
+      ],
+      [
+        "avada",
+        "kedavra"
+      ]
+    ]
+  },
+  {
+    "id": 24,
+    "question": "What object must a witch or wizard have a clear image of before Apparating?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "destination"
+      ]
+    ]
+  },
+  {
+    "id": 25,
+    "question": "What creature guards the entrance to the Gryffindor common room?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "fat",
+        "lady"
+      ]
+    ]
+  },
+  {
+    "id": 26,
+    "question": "Who becomes the master of the Elder Wand after defeating Draco Malfoy?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "harry"
+      ],
+      [
+        "harry",
+        "potter"
+      ]
+    ]
+  },
+  {
+    "id": 27,
+    "question": "What form does Hermione's Patronus take?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "otter"
+      ]
+    ]
+  },
+  {
+    "id": 28,
+    "question": "Name one ingredient commonly used in Polyjuice Potion.",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "lacewing",
+        "flies"
+      ],
+      [
+        "leeches"
+      ],
+      [
+        "knotgrass"
+      ],
+      [
+        "fluxweed"
+      ]
+    ]
+  },
+  {
+    "id": 29,
+    "question": "What magical object reveals a person's deepest desire?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "mirror",
+        "of",
+        "erised"
+      ]
+    ]
+  },
+  {
+    "id": 30,
+    "question": "Who gives Harry the Invisibility Cloak at Hogwarts?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "dumbledore"
+      ],
+      [
+        "albus",
+        "dumbledore"
+      ]
+    ]
+  },
+  {
+    "id": 31,
+    "question": "What spell produces a shield to block attacks?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "protego"
+      ]
+    ]
+  },
+  {
+    "id": 32,
+    "question": "What is the name of the wizard prison guarded by dementors?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "azkaban"
+      ]
+    ]
+  },
+  {
+    "id": 33,
+    "question": "Name one house-elf known to have served at Hogwarts.",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "dobby"
+      ],
+      [
+        "winky"
+      ],
+      [
+        "kreacher"
+      ]
+    ]
+  },
+  {
+    "id": 34,
+    "question": "What magical device allows time travel in short increments?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "time",
+        "turner"
+      ],
+      [
+        "time",
+        "turner"
+      ]
+    ]
+  },
+  {
+    "id": 35,
+    "question": "Who kills Nagini during the Battle of Hogwarts?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "neville"
+      ],
+      [
+        "neville",
+        "longbottom"
+      ]
+    ]
+  },
+  {
+    "id": 36,
+    "question": "What form does Harry's Patronus take?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "stag"
+      ]
+    ]
+  },
+  {
+    "id": 37,
+    "question": "What creature delivers mail in the wizarding world?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "owl"
+      ],
+      [
+        "owls"
+      ]
+    ]
+  },
+  {
+    "id": 38,
+    "question": "Name one of Voldemort's horcruxes.",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "tom",
+        "riddles",
+        "diary"
+      ],
+      [
+        "marvolo",
+        "gaunts",
+        "ring"
+      ],
+      [
+        "ring",
+        "of",
+        "marvolo",
+        "gaunt"
+      ],
+      [
+        "slytherins",
+        "locket"
+      ],
+      [
+        "helga",
+        "hufflepuffs",
+        "cup"
+      ],
+      [
+        "hufflepuff",
+        "cup"
+      ],
+      [
+        "rowena",
+        "ravenclaws",
+        "diadem"
+      ],
+      [
+        "ravenclaw",
+        "diadem"
+      ],
+      [
+        "lost",
+        "diadem"
+      ],
+      [
+        "nagini"
+      ],
+      [
+        "harry",
+        "potter"
+      ],
+      [
+        "harry"
+      ]
+    ]
+  },
+  {
+    "id": 39,
+    "question": "What spell is used to disarm an opponent?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "expelliarmus"
+      ]
+    ]
+  },
+  {
+    "id": 40,
+    "question": "What spell is used to repair broken objects?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "reparo"
+      ]
+    ]
+  },
+  {
+    "id": 41,
+    "question": "What magical effect can prevent someone from revealing a specific secret?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "fidelius",
+        "charm"
+      ],
+      [
+        "fidelius"
+      ]
+    ]
+  },
+  {
+    "id": 42,
+    "question": "Who was the secret keeper for the Potters when they went into hiding?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "peter"
+      ],
+      [
+        "peter",
+        "pettigrew"
+      ],
+      [
+        "pettigrew"
+      ],
+      [
+        "wormtail"
+      ],
+      [
+        "scabbers"
+      ]
+    ]
+  },
+  {
+    "id": 43,
+    "question": "What type of magical object can think and act independently despite not being alive?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "portrait"
+      ],
+      [
+        "portraits"
+      ]
+    ]
+  },
+  {
+    "id": 44,
+    "question": "Name one method used to destroy a Horcrux.",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "basilisk",
+        "venom"
+      ],
+      [
+        "fiendfyre"
+      ],
+      [
+        "sword",
+        "of",
+        "gryffindor"
+      ]
+    ]
+  },
+  {
+    "id": 45,
+    "question": "What spell creates a jet of water from the caster's wand?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "aguamenti"
+      ]
+    ]
+  },
+  {
+    "id": 46,
+    "question": "What object is used to communicate between members of Dumbledore's Army in secret?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "fake",
+        "galleons"
+      ],
+      [
+        "enchanted",
+        "galleons"
+      ],
+      [
+        "coins"
+      ],
+      [
+        "galleons"
+      ]
+    ]
+  },
+  {
+    "id": 47,
+    "question": "What magical transport pulls the Hogwarts carriages for most students?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "thestrals"
+      ],
+      [
+        "thestral"
+      ]
+    ]
+  },
+  {
+    "id": 48,
+    "question": "who teaches harry how to conjure a patronus?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "lupin"
+      ],
+      [
+        "remus",
+        "lupin"
+      ]
+    ]
+  },
+  {
+    "id": 49,
+    "question": "what spell is specifically used to repel dementors?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "expecto",
+        "patronum"
+      ]
+    ]
+  },
+  {
+    "id": 50,
+    "question": "name one known animagus form.",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "dog"
+      ],
+      [
+        "rat"
+      ],
+      [
+        "cat"
+      ],
+      [
+        "beetle"
+      ],
+      [
+        "stag"
+      ]
+    ]
+  },
+  {
+    "id": 51,
+    "question": "what magical condition causes a wizard to transform involuntarily during a full moon?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "lycanthropy"
+      ]
+    ]
+  },
+  {
+    "id": 52,
+    "question": "who breaks the taboo by saying voldemort's name while on the run?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "harry"
+      ],
+      [
+        "harry",
+        "potter"
+      ]
+    ]
+  },
+  {
+    "id": 53,
+    "question": "what spell binds a person with invisible ropes?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "incarcerous"
+      ]
+    ]
+  },
+  {
+    "id": 54,
+    "question": "what magical object is used to store memories outside the mind?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "pensieve"
+      ]
+    ]
+  },
+  {
+    "id": 55,
+    "question": "name one of the founders of hogwarts.",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "godric",
+        "gryffindor"
+      ],
+      [
+        "helga",
+        "hufflepuff"
+      ],
+      [
+        "rowena",
+        "ravenclaw"
+      ],
+      [
+        "salazar",
+        "slytherin"
+      ]
+    ]
+  },
+  {
+    "id": 56,
+    "question": "what enchantment causes a person to become obsessed with an object or person?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "love",
+        "potion"
+      ],
+      [
+        "amortentia"
+      ]
+    ]
+  },
+  {
+    "id": 57,
+    "question": "What spell causes objects or people to levitate?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "wingardium",
+        "leviosa"
+      ]
+    ]
+  },
+  {
+    "id": 58,
+    "question": "who destroys the locket horcrux?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "ron"
+      ],
+      [
+        "ron",
+        "weasley"
+      ]
+    ]
+  },
+  {
+    "id": 59,
+    "question": "what magical map reveals hidden passages and people inside hogwarts?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "marauders",
+        "map"
+      ]
+    ]
+  },
+  {
+    "id": 60,
+    "question": "what potion grants temporary luck to the drinker?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "felix",
+        "felicis"
+      ]
+    ]
+  },
+  {
+    "id": 61,
+    "question": "what spell is used to create light at the tip of a wand?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "lumos"
+      ]
+    ]
+  },
+  {
+    "id": 62,
+    "question": "what creature can paralyze or kill its victims simply by making eye contact?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "basilisk"
+      ]
+    ]
+  },
+  {
+    "id": 63,
+    "question": "name one position in a quidditch team.",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "seeker"
+      ],
+      [
+        "chaser"
+      ],
+      [
+        "beater"
+      ],
+      [
+        "keeper"
+      ]
+    ]
+  },
+  {
+    "id": 64,
+    "question": "who becomes headmaster of hogwarts after dumbledore's death?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "snape"
+      ],
+      [
+        "severus",
+        "snape"
+      ]
+    ]
+  },
+  {
+    "id": 65,
+    "question": "what enchantment is placed on voldemort's name to track those who say it?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "taboo"
+      ],
+      [
+        "taboo",
+        "jinx"
+      ]
+    ]
+  },
+  {
+    "id": 66,
+    "question": "what object must be destroyed to truly defeat voldemort?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "horcrux"
+      ],
+      [
+        "horcruxes"
+      ]
+    ]
+  },
+  {
+    "id": 67,
+    "question": "name one method of magical transportation besides apparition.",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "floo",
+        "powder"
+      ],
+      [
+        "floo",
+        "network"
+      ],
+      [
+        "portkey"
+      ],
+      [
+        "broom"
+      ],
+      [
+        "knight",
+        "bus"
+      ],
+      [
+        "thestrals"
+      ]
+    ]
+  },
+  {
+    "id": 68,
+    "question": "what spell is used to erase or modify memories?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "obliviate"
+      ]
+    ]
+  },
+  {
+    "id": 69,
+    "question": "What magical charm or manifestation protects someone from dementors' full effects?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "patronus"
+      ]
+    ]
+  },
+  {
+    "id": 70,
+    "question": "who kills severus snape?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "voldemort"
+      ]
+    ]
+  },
+  {
+    "id": 71,
+    "question": "what type of creature is aragog?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "acromantula"
+      ]
+    ]
+  },
+  {
+    "id": 72,
+    "question": "what spell reveals invisible ink or hidden writing?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "revelio"
+      ]
+    ]
+  },
+  {
+    "id": 73,
+    "question": "name one hogwarts subject taught in harry's first year.",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "potions"
+      ],
+      [
+        "charms"
+      ],
+      [
+        "transfiguration"
+      ],
+      [
+        "herbology"
+      ],
+      [
+        "defense",
+        "against",
+        "the",
+        "dark",
+        "arts"
+      ],
+      [
+        "astronomy"
+      ]
+    ]
+  },
+  {
+    "id": 74,
+    "question": "what magical object binds participants to the triwizard tournament once they enter?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "goblet",
+        "of",
+        "fire"
+      ]
+    ]
+  },
+  {
+    "id": 75,
+    "question": "what creature drains happiness and feeds on positive emotions?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "dementor"
+      ],
+      [
+        "dementors"
+      ]
+    ]
+  },
+  {
+    "id": 76,
+    "question": "Which older brother originally owned Ron's first wand?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "charlie"
+      ],
+      [
+        "charlie",
+        "weasley"
+      ]
+    ]
+  },
+  {
+    "id": 77,
+    "question": "what spell creates birds from the caster's wand?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "avis"
+      ]
+    ]
+  },
+  {
+    "id": 78,
+    "question": "name one object used as a horcrux by voldemort that belonged to a hogwarts founder.",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "cup"
+      ],
+      [
+        "locket"
+      ],
+      [
+        "diadem"
+      ],
+      [
+        "hufflepuff",
+        "cup"
+      ],
+      [
+        "slytherin",
+        "locket"
+      ],
+      [
+        "ravenclaw",
+        "diadem"
+      ]
+    ]
+  },
+  {
+    "id": 79,
+    "question": "what spell causes a loud explosive bang like a gunshot?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "bombarda"
+      ]
+    ]
+  },
+  {
+    "id": 80,
+    "question": "What magical effect occurs when a wand is forced to fight its twin core?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "priori",
+        "incantatem"
+      ]
+    ]
+  },
+  {
+    "id": 81,
+    "question": "What creature is known for burrowing and stealing shiny objects?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "niffler"
+      ]
+    ]
+  },
+  {
+    "id": 82,
+    "question": "What spell is used to silence a person or object?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "silencio"
+      ]
+    ]
+  },
+  {
+    "id": 83,
+    "question": "Name one creature that appears in a Triwizard Tournament task.",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "dragon"
+      ],
+      [
+        "merpeople"
+      ],
+      [
+        "mermaids"
+      ],
+      [
+        "grindylows"
+      ],
+      [
+        "sphinx"
+      ],
+      [
+        "acromantula"
+      ],
+      [
+        "blast",
+        "ended",
+        "skrewt"
+      ]
+    ]
+  },
+  {
+    "id": 84,
+    "question": "What magical ability allows a witch or wizard to speak with snakes?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "parseltongue"
+      ]
+    ]
+  },
+  {
+    "id": 85,
+    "question": "What object does a witch or wizard raise to summon the Knight Bus?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "wand"
+      ]
+    ]
+  },
+  {
+    "id": 86,
+    "question": "Who was the owner of the Elder Wand before it passed to Dumbledore?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "grindelwald"
+      ],
+      [
+        "gellert",
+        "grindelwald"
+      ]
+    ]
+  },
+  {
+    "id": 87,
+    "question": "What spell causes a person to dangle upside down by the ankle?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "levicorpus"
+      ]
+    ]
+  },
+  {
+    "id": 88,
+    "question": "What magical object allows long-distance visual communication using fireplaces?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "floo",
+        "network"
+      ]
+    ]
+  },
+  {
+    "id": 89,
+    "question": "What creature is used to guard high-security vaults in Gringotts?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "dragon"
+      ],
+      [
+        "dragons"
+      ]
+    ]
+  },
+  {
+    "id": 90,
+    "question": "What happens to a wand when its master is defeated?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "changes",
+        "allegiance"
+      ],
+      [
+        "switches",
+        "allegiance"
+      ],
+      [
+        "changes",
+        "loyalty"
+      ],
+      [
+        "switches",
+        "loyalty"
+      ],
+      [
+        "changes",
+        "master"
+      ],
+      [
+        "switches",
+        "master"
+      ],
+      [
+        "belongs",
+        "to",
+        "the",
+        "winner"
+      ],
+      [
+        "obeys",
+        "the",
+        "winner"
+      ]
+    ]
+  },
+  {
+    "id": 91,
+    "question": "What spell is used to cut objects cleanly?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "diffindo"
+      ]
+    ]
+  },
+  {
+    "id": 92,
+    "question": "Who kills Sirius Black?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "bellatrix"
+      ],
+      [
+        "bellatrix",
+        "lestrange"
+      ]
+    ]
+  },
+  {
+    "id": 93,
+    "question": "What magical creature can regenerate by burning and being reborn from its ashes?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "phoenix"
+      ]
+    ]
+  },
+  {
+    "id": 94,
+    "question": "Name one magical object that was used as a Portkey.",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "triwizard",
+        "cup"
+      ],
+      [
+        "cup"
+      ],
+      [
+        "boot"
+      ],
+      [
+        "old",
+        "boot"
+      ],
+      [
+        "trophy"
+      ],
+      [
+        "suitcase"
+      ]
+    ]
+  },
+  {
+    "id": 95,
+    "question": "What spell is used to unlock and open containers violently?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "bombarda"
+      ]
+    ]
+  },
+  {
+    "id": 96,
+    "question": "What magical plant allows a person to breathe underwater during the second Triwizard task?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "gillyweed"
+      ]
+    ]
+  },
+  {
+    "id": 97,
+    "question": "Who is revealed to be the heir of Salazar Slytherin?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "voldemort"
+      ],
+      [
+        "tom",
+        "riddle"
+      ]
+    ]
+  },
+  {
+    "id": 98,
+    "question": "What spell conjures a Patronus?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "expecto",
+        "patronum"
+      ]
+    ]
+  },
+  {
+    "id": 99,
+    "question": "What creature is invisible by default and can only be seen after being stunned or killed?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "demiguise"
+      ]
+    ]
+  },
+  {
+    "id": 100,
+    "question": "What is the job title of a wizard who modifies memories for the Ministry?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "oblivator"
+      ],
+      [
+        "obliviator"
+      ]
+    ]
+  },
+  {
+    "id": 101,
+    "question": "What is the name of Dumbledore's phoenix?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "fawkes"
+      ]
+    ]
+  },
+  {
+    "id": 102,
+    "question": "What school does Fleur Delacour attend?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "beauxbatons"
+      ]
+    ]
+  },
+  {
+    "id": 103,
+    "question": "What school does Viktor Krum attend?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "durmstrang"
+      ]
+    ]
+  },
+  {
+    "id": 104,
+    "question": "What is the term for a failed Apparition that leaves part of the body behind?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "splinching"
+      ]
+    ]
+  },
+  {
+    "id": 105,
+    "question": "What spell was invented by Snape that causes deep slashing wounds?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "sectumsempra"
+      ]
+    ]
+  },
+  {
+    "id": 106,
+    "question": "What is the name of the Weasley family home?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "the",
+        "burrow"
+      ],
+      [
+        "burrow"
+      ]
+    ]
+  },
+  {
+    "id": 107,
+    "question": "What spell fills nearby ears with an unidentifiable buzzing sound?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "muffliato"
+      ]
+    ]
+  },
+  {
+    "id": 108,
+    "question": "What creature's tears have healing properties?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "phoenix"
+      ]
+    ]
+  },
+  {
+    "id": 109,
+    "question": "What is the name of the room at Hogwarts that transforms to provide whatever the user needs?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "room",
+        "of",
+        "requirement"
+      ]
+    ]
+  },
+  {
+    "id": 110,
+    "question": "Who teaches Divination at Hogwarts?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "trelawney"
+      ],
+      [
+        "sybill",
+        "trelawney"
+      ],
+      [
+        "professor",
+        "trelawney"
+      ]
+    ]
+  },
+  {
+    "id": 111,
+    "question": "Who created the Philosopher's Stone?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "nicolas",
+        "flamel"
+      ],
+      [
+        "flamel"
+      ]
+    ]
+  },
+  {
+    "id": 112,
+    "question": "What is the name of Ron's owl?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "pigwidgeon"
+      ],
+      [
+        "pig"
+      ]
+    ]
+  },
+  {
+    "id": 113,
+    "question": "What is the name of Dumbledore's brother?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "aberforth"
+      ],
+      [
+        "aberforth",
+        "dumbledore"
+      ]
+    ]
+  },
+  {
+    "id": 114,
+    "question": "What spell amplifies the caster's voice?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "sonorus"
+      ]
+    ]
+  },
+  {
+    "id": 115,
+    "question": "What is the name of the wizarding world's main newspaper?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "daily",
+        "prophet"
+      ]
+    ]
+  },
+  {
+    "id": 116,
+    "question": "What is the incantation used to conjure the Dark Mark in the sky?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "morsmordre"
+      ]
+    ]
+  },
+  {
+    "id": 117,
+    "question": "What is the consequence of breaking an Unbreakable Vow?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "death"
+      ],
+      [
+        "you",
+        "die"
+      ],
+      [
+        "the",
+        "person",
+        "dies"
+      ]
+    ]
+  },
+  {
+    "id": 118,
+    "question": "What discipline of magic allows the practitioner to enter and read another person's mind?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "legilimency"
+      ]
+    ]
+  },
+  {
+    "id": 119,
+    "question": "What mental discipline protects the mind from Legilimency?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "occlumency"
+      ]
+    ]
+  },
+  {
+    "id": 120,
+    "question": "What does the Cruciatus Curse inflict on its victim?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "pain"
+      ],
+      [
+        "torture"
+      ],
+      [
+        "intense",
+        "pain"
+      ],
+      [
+        "unbearable",
+        "pain"
+      ]
+    ]
+  },
+  {
+    "id": 121,
+    "question": "What potion allows a werewolf to retain their human mind during a full moon transformation?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "wolfsbane"
+      ],
+      [
+        "wolfsbane",
+        "potion"
+      ]
+    ]
+  },
+  {
+    "id": 122,
+    "question": "What form does Ron's Patronus take?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "jack",
+        "russell",
+        "terrier"
+      ],
+      [
+        "terrier"
+      ]
+    ]
+  },
+  {
+    "id": 123,
+    "question": "What form does Luna Lovegood's Patronus take?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "hare"
+      ],
+      [
+        "rabbit"
+      ]
+    ]
+  },
+  {
+    "id": 124,
+    "question": "What publication does Xenophilius Lovegood edit?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "the",
+        "quibbler"
+      ],
+      [
+        "quibbler"
+      ]
+    ]
+  },
+  {
+    "id": 125,
+    "question": "What is the term for a non-magical person born to at least one magical parent?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "squib"
+      ]
+    ]
+  },
+  {
+    "id": 126,
+    "question": "What derogatory term do pure-blood extremists use for Muggle-born witches and wizards?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "mudblood"
+      ]
+    ]
+  },
+  {
+    "id": 127,
+    "question": "What device, invented by Dumbledore, can absorb and store light from the surroundings?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "deluminator"
+      ],
+      [
+        "put",
+        "outer"
+      ]
+    ]
+  },
+  {
+    "id": 128,
+    "question": "What word does 'Erised' spell when reversed?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "desire"
+      ]
+    ]
+  },
+  {
+    "id": 129,
+    "question": "What is Voldemort's real name?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "tom",
+        "riddle"
+      ],
+      [
+        "tom",
+        "marvolo",
+        "riddle"
+      ]
+    ]
+  },
+  {
+    "id": 130,
+    "question": "Who is the ghost associated with Slytherin house?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "bloody",
+        "baron"
+      ],
+      [
+        "the",
+        "bloody",
+        "baron"
+      ]
+    ]
+  },
+  {
+    "id": 131,
+    "question": "Who is the ghost associated with Ravenclaw house?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "grey",
+        "lady"
+      ],
+      [
+        "the",
+        "grey",
+        "lady"
+      ],
+      [
+        "helena",
+        "ravenclaw"
+      ]
+    ]
+  },
+  {
+    "id": 132,
+    "question": "Who is the ghost associated with Hufflepuff house?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "fat",
+        "friar"
+      ],
+      [
+        "the",
+        "fat",
+        "friar"
+      ]
+    ]
+  },
+  {
+    "id": 133,
+    "question": "What physical effect did wearing the ring horcrux have on Dumbledore's hand?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "it",
+        "turned",
+        "black"
+      ],
+      [
+        "it",
+        "blackened"
+      ],
+      [
+        "it",
+        "withered"
+      ],
+      [
+        "it",
+        "was",
+        "cursed"
+      ],
+      [
+        "it",
+        "died"
+      ]
+    ]
+  },
+  {
+    "id": 134,
+    "question": "What spell transforms any object into a Portkey?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "portus"
+      ]
+    ]
+  },
+  {
+    "id": 135,
+    "question": "What charm creates a breathable air bubble around the caster's head for use underwater?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "bubble",
+        "head",
+        "charm"
+      ],
+      [
+        "bubble",
+        "head",
+        "charm"
+      ]
+    ]
+  },
+  {
+    "id": 136,
+    "question": "What is the name of the goblin who assists the trio in breaking into Gringotts?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "griphook"
+      ]
+    ]
+  },
+  {
+    "id": 137,
+    "question": "What word was jinxed to appear on Marietta Edgecombe's face for betraying the DA?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "sneak"
+      ]
+    ]
+  },
+  {
+    "id": 138,
+    "question": "What is the incantation for the Cruciatus Curse?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "crucio"
+      ]
+    ]
+  },
+  {
+    "id": 139,
+    "question": "What healing spell is used to fix minor injuries such as a broken nose?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "episkey"
+      ]
+    ]
+  },
+  {
+    "id": 140,
+    "question": "What spell cancels ongoing enchantments or active spells?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "finite",
+        "incantatem"
+      ],
+      [
+        "finite"
+      ]
+    ]
+  },
+  {
+    "id": 141,
+    "question": "What Quidditch position did James Potter play on the Gryffindor team?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "chaser"
+      ]
+    ]
+  },
+  {
+    "id": 142,
+    "question": "What is the name of the joke shop Fred and George open on Diagon Alley?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "weasleys",
+        "wizard",
+        "wheezes"
+      ],
+      [
+        "wizard",
+        "wheezes"
+      ]
+    ]
+  },
+  {
+    "id": 143,
+    "question": "What form does Dumbledore's Patronus take?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "phoenix"
+      ]
+    ]
+  },
+  {
+    "id": 144,
+    "question": "What does it indicate when a Remembrall turns red?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "forgot",
+        "something"
+      ],
+      [
+        "forgotten",
+        "something"
+      ],
+      [
+        "forgetting",
+        "something"
+      ]
+    ]
+  },
+  {
+    "id": 145,
+    "question": "What creature is known for guarding trees that produce wand-quality wood?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "bowtruckle"
+      ]
+    ]
+  },
+  {
+    "id": 146,
+    "question": "What effect do Veela have on male spectators when they perform?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "become",
+        "entranced"
+      ],
+      [
+        "become",
+        "obsessed"
+      ],
+      [
+        "lose",
+        "their",
+        "minds"
+      ],
+      [
+        "lose",
+        "their",
+        "mind"
+      ]
+    ]
+  },
+  {
+    "id": 147,
+    "question": "What vault number at Gringotts held the Philosopher's Stone?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "713"
+      ],
+      [
+        "vault",
+        "713"
+      ]
+    ]
+  },
+  {
+    "id": 148,
+    "question": "What is the term for a witch or wizard with the rare natural ability to predict the future?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "seer"
+      ]
+    ]
+  },
+  {
+    "id": 149,
+    "question": "What form of magic is Durmstrang particularly known for teaching?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "dark",
+        "arts"
+      ],
+      [
+        "the",
+        "dark",
+        "arts"
+      ]
+    ]
+  },
+  {
+    "id": 150,
+    "question": "What magical protection did Lily Potter's self-sacrifice create for Harry?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "ancient",
+        "magic"
+      ],
+      [
+        "sacrificial",
+        "protection"
+      ],
+      [
+        "protective",
+        "sacrifice"
+      ],
+      [
+        "mothers",
+        "sacrifice"
+      ],
+      [
+        "lilys",
+        "sacrifice"
+      ],
+      [
+        "the",
+        "charm",
+        "of",
+        "love"
+      ]
+    ]
+  },
+  {
+    "id": 151,
+    "question": "What is the name of the mysterious archway in the Department of Mysteries that leads to death?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "the",
+        "veil"
+      ],
+      [
+        "veil"
+      ]
+    ]
+  },
+  {
+    "id": 152,
+    "question": "What is the name of the Hogwarts caretaker?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "filch"
+      ],
+      [
+        "argus",
+        "filch"
+      ]
+    ]
+  },
+  {
+    "id": 153,
+    "question": "What does the Impervius charm make a surface resistant to?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "water"
+      ],
+      [
+        "rain"
+      ],
+      [
+        "moisture"
+      ],
+      [
+        "liquid"
+      ]
+    ]
+  },
+  {
+    "id": 154,
+    "question": "What enchantment causes objects to duplicate when touched?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "geminio"
+      ]
+    ]
+  },
+  {
+    "id": 155,
+    "question": "What spell makes an object grow significantly larger?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "engorgio"
+      ]
+    ]
+  },
+  {
+    "id": 156,
+    "question": "What is the incantation for the Imperius Curse?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "imperio"
+      ]
+    ]
+  },
+  {
+    "id": 157,
+    "question": "What is unique about the Elder Wand compared to all other wands?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "it",
+        "is",
+        "the",
+        "most",
+        "powerful",
+        "wand"
+      ],
+      [
+        "it",
+        "is",
+        "unbeatable"
+      ],
+      [
+        "it",
+        "never",
+        "lost",
+        "a",
+        "duel"
+      ],
+      [
+        "most",
+        "powerful",
+        "wand",
+        "ever",
+        "made"
+      ]
+    ]
+  },
+  {
+    "id": 158,
+    "question": "What does the Hogwarts motto 'Draco Dormiens Nunquam Titillandus' translate to in English?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "never",
+        "tickle",
+        "a",
+        "sleeping",
+        "dragon"
+      ]
+    ]
+  },
+  {
+    "id": 159,
+    "question": "What is the job title of a Ministry-trained dark wizard hunter?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "auror"
+      ]
+    ]
+  },
+  {
+    "id": 160,
+    "question": "Who serves as the Secret Keeper for the Order's headquarters at 12 Grimmauld Place?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "dumbledore"
+      ],
+      [
+        "albus",
+        "dumbledore"
+      ]
+    ]
+  },
+  {
+    "id": 161,
+    "question": "What is the name of Filch's cat?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "mrs",
+        "norris"
+      ],
+      [
+        "misses",
+        "norris"
+      ],
+      [
+        "norris"
+      ]
+    ]
+  },
+  {
+    "id": 162,
+    "question": "What is the name of Hagrid's giant half-brother?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "grawp"
+      ]
+    ]
+  },
+  {
+    "id": 163,
+    "question": "What is the name of the act in which a Dementor consumes a person's soul?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "the",
+        "kiss"
+      ],
+      [
+        "dementors",
+        "kiss"
+      ],
+      [
+        "kiss"
+      ]
+    ]
+  },
+  {
+    "id": 164,
+    "question": "What platform does the Hogwarts Express depart from at King's Cross Station?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "nine",
+        "and",
+        "three",
+        "quarters"
+      ],
+      [
+        "platform",
+        "nine",
+        "and",
+        "three",
+        "quarters"
+      ],
+      [
+        "9",
+        "3",
+        "4"
+      ],
+      [
+        "platform",
+        "9",
+        "3",
+        "4"
+      ]
+    ]
+  },
+  {
+    "id": 165,
+    "question": "Who wrote 'A History of Magic'?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "bathilda",
+        "bagshot"
+      ],
+      [
+        "bagshot"
+      ]
+    ]
+  },
+  {
+    "id": 166,
+    "question": "What are Inferi?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "reanimated",
+        "corpses"
+      ],
+      [
+        "animated",
+        "corpses"
+      ],
+      [
+        "dead",
+        "bodies",
+        "controlled",
+        "by",
+        "dark",
+        "magic"
+      ],
+      [
+        "corpses",
+        "reanimated",
+        "by",
+        "dark",
+        "magic"
+      ]
+    ]
+  },
+  {
+    "id": 167,
+    "question": "In which Ministry office does Arthur Weasley work?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "misuse",
+        "of",
+        "muggle",
+        "artifacts"
+      ],
+      [
+        "misuse",
+        "of",
+        "muggle",
+        "artefacts"
+      ]
+    ]
+  },
+  {
+    "id": 168,
+    "question": "What subject does Professor Sprout teach at Hogwarts?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "herbology"
+      ]
+    ]
+  },
+  {
+    "id": 169,
+    "question": "What force is contained in the permanently locked room in the Department of Mysteries?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "love"
+      ]
+    ]
+  },
+  {
+    "id": 170,
+    "question": "What information does Slughorn's true memory reveal to Dumbledore?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "how",
+        "to",
+        "make",
+        "a",
+        "horcrux"
+      ],
+      [
+        "horcrux",
+        "creation"
+      ],
+      [
+        "information",
+        "about",
+        "horcruxes"
+      ],
+      [
+        "how",
+        "horcruxes",
+        "are",
+        "made"
+      ]
+    ]
+  },
+  {
+    "id": 171,
+    "question": "What can influence the Sorting Hat's final decision about which house to place a student in?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "students",
+        "own",
+        "preference"
+      ],
+      [
+        "student",
+        "preference"
+      ],
+      [
+        "their",
+        "own",
+        "preference"
+      ],
+      [
+        "what",
+        "the",
+        "student",
+        "wants"
+      ],
+      [
+        "the",
+        "students",
+        "request"
+      ],
+      [
+        "students",
+        "request"
+      ]
+    ]
+  },
+  {
+    "id": 172,
+    "question": "What act must a dark wizard commit in order to split their soul and create a Horcrux?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "murder"
+      ],
+      [
+        "killing",
+        "someone"
+      ],
+      [
+        "commit",
+        "murder"
+      ]
+    ]
+  },
+  {
+    "id": 173,
+    "question": "What color is the jet of light produced by the Killing Curse?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "green"
+      ]
+    ]
+  },
+  {
+    "id": 174,
+    "question": "What type of wood is Harry Potter's wand made from?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "holly"
+      ]
+    ]
+  },
+  {
+    "id": 175,
+    "question": "Whose phoenix provided the feather cores of both Harry's and Voldemort's wands?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "fawkes"
+      ],
+      [
+        "dumbledores",
+        "phoenix"
+      ],
+      [
+        "albus",
+        "dumbledores",
+        "phoenix"
+      ],
+      [
+        "albus",
+        "dumbledore"
+      ]
+    ]
+  },
+  {
+    "id": 176,
+    "question": "Who teaches Charms at Hogwarts?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "flitwick"
+      ],
+      [
+        "filius",
+        "flitwick"
+      ],
+      [
+        "professor",
+        "flitwick"
+      ]
+    ]
+  },
+  {
+    "id": 177,
+    "question": "Who taught Potions at Hogwarts before Professor Slughorn?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "snape"
+      ],
+      [
+        "severus",
+        "snape"
+      ]
+    ]
+  },
+  {
+    "id": 178,
+    "question": "What is the name of the Potions textbook Harry uses in his sixth year?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "advanced",
+        "potion",
+        "making"
+      ],
+      [
+        "advanced",
+        "potion",
+        "making"
+      ]
+    ]
+  },
+  {
+    "id": 179,
+    "question": "What potion forces the drinker to tell the truth?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "veritaserum"
+      ]
+    ]
+  },
+  {
+    "id": 180,
+    "question": "What model of broomstick does Harry receive in his first year?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "nimbus",
+        "2000"
+      ]
+    ]
+  },
+  {
+    "id": 181,
+    "question": "What model of broomstick does Harry receive as an anonymous gift in his third year?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "firebolt"
+      ]
+    ]
+  },
+  {
+    "id": 182,
+    "question": "Who actually sent Harry the Firebolt in his third year?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "sirius"
+      ],
+      [
+        "sirius",
+        "black"
+      ]
+    ]
+  },
+  {
+    "id": 183,
+    "question": "What is the name of the secret student defense group Harry forms in his fifth year?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "dumbledores",
+        "army"
+      ],
+      [
+        "the",
+        "da"
+      ],
+      [
+        "da"
+      ]
+    ]
+  },
+  {
+    "id": 184,
+    "question": "Who is the Minister for Magic when Voldemort officially returns?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "fudge"
+      ],
+      [
+        "cornelius",
+        "fudge"
+      ]
+    ]
+  },
+  {
+    "id": 185,
+    "question": "Who replaces Cornelius Fudge as Minister for Magic?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "rufus",
+        "scrimgeour"
+      ],
+      [
+        "scrimgeour"
+      ]
+    ]
+  },
+  {
+    "id": 186,
+    "question": "What is the name of the all-wizarding village near Hogwarts that students visit from third year onward?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "hogsmeade"
+      ]
+    ]
+  },
+  {
+    "id": 187,
+    "question": "What is the name of the most popular pub in Hogsmeade?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "three",
+        "broomsticks"
+      ],
+      [
+        "the",
+        "three",
+        "broomsticks"
+      ]
+    ]
+  },
+  {
+    "id": 188,
+    "question": "What is the name of the Hogsmeade sweet shop famous throughout the wizarding world?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "honeydukes"
+      ]
+    ]
+  },
+  {
+    "id": 189,
+    "question": "What subject does Hagrid teach at Hogwarts?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "care",
+        "of",
+        "magical",
+        "creatures"
+      ]
+    ]
+  },
+  {
+    "id": 190,
+    "question": "Who substitutes as Care of Magical Creatures teacher when Hagrid is absent?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "grubbly",
+        "plank"
+      ],
+      [
+        "professor",
+        "grubbly",
+        "plank"
+      ],
+      [
+        "wilhelmina",
+        "grubbly",
+        "plank"
+      ]
+    ]
+  },
+  {
+    "id": 191,
+    "question": "How many points is catching the Golden Snitch worth in a Quidditch match?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "150"
+      ],
+      [
+        "one",
+        "hundred",
+        "and",
+        "fifty"
+      ]
+    ]
+  },
+  {
+    "id": 192,
+    "question": "What type of magical being is Peeves?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "poltergeist"
+      ]
+    ]
+  },
+  {
+    "id": 193,
+    "question": "Who is credited with discovering the twelve uses of dragon's blood?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "dumbledore"
+      ],
+      [
+        "albus",
+        "dumbledore"
+      ]
+    ]
+  },
+  {
+    "id": 194,
+    "question": "What form does Snape's Patronus take?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "doe"
+      ],
+      [
+        "a",
+        "doe"
+      ]
+    ]
+  },
+  {
+    "id": 195,
+    "question": "What spell causes its target to dance uncontrollably?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "tarantallegra"
+      ]
+    ]
+  },
+  {
+    "id": 196,
+    "question": "What must a student do to gain entry to the Ravenclaw common room?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "answer",
+        "a",
+        "riddle"
+      ],
+      [
+        "solve",
+        "a",
+        "riddle"
+      ],
+      [
+        "answer",
+        "a",
+        "question"
+      ]
+    ]
+  },
+  {
+    "id": 197,
+    "question": "What is the name of the forest that borders Hogwarts?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "forbidden",
+        "forest"
+      ],
+      [
+        "the",
+        "forbidden",
+        "forest"
+      ]
+    ]
+  },
+  {
+    "id": 198,
+    "question": "What is the name of the main dining hall in Hogwarts?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "great",
+        "hall"
+      ],
+      [
+        "the",
+        "great",
+        "hall"
+      ]
+    ]
+  },
+  {
+    "id": 199,
+    "question": "What is the name of Neville Longbottom's toad?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "trevor"
+      ]
+    ]
+  },
+  {
+    "id": 200,
+    "question": "What is the name of the pub that serves as the entrance to Diagon Alley?",
+    "image_url": null,
+    "answer_groups": [
+      [
+        "the",
+        "leaky",
+        "cauldron"
+      ],
+      [
+        "leaky",
+        "cauldron"
+      ]
+    ]
+  }
 ]
