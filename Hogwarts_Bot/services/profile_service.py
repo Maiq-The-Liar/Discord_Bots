@@ -309,7 +309,6 @@ class ProfileService:
         house_name = role_ctx.current_house or "None"
 
         profile_embed = discord.Embed(
-            title=f"✦ {member.display_name}",
             description=(
                 f"**Name:** {member.display_name}\n"
                 f"**House:** {house_name}\n"
@@ -320,7 +319,7 @@ class ProfileService:
         profile_embed.set_thumbnail(url=member.display_avatar.url)
 
         profile_embed.add_field(
-            name="👤 Profile",
+            name="👤 __Profile__",
             value=(
                 f"**Pronouns:** {pronouns}\n"
                 f"**Birthday:** {birthday_text}\n"
@@ -329,7 +328,7 @@ class ProfileService:
             inline=True,
         )
         profile_embed.add_field(
-            name="🧭 Details",
+            name="🧭 __Details__",
             value=(
                 f"**Continent:** {continent_text}\n"
                 f"**Age:** {age_text}"
@@ -340,7 +339,7 @@ class ProfileService:
         profile_embed.add_field(name="\u200b", value="\u200b", inline=False)
 
         profile_embed.add_field(
-            name="🏰 House Points",
+            name="🏰 __House Points__",
             value=(
                 f"**Monthly:** {monthly_points}\n"
                 f"**Total:** {user_row['lifetime_house_points']}"
@@ -348,7 +347,7 @@ class ProfileService:
             inline=True,
         )
         profile_embed.add_field(
-            name="📚 Progress",
+            name="📚 __Progress__",
             value=(
                 f"**Year:** {current_level}\n"
                 f"**XP:** {xp_progress_text}"
@@ -356,8 +355,10 @@ class ProfileService:
             inline=True,
         )
 
+        profile_embed.add_field(name="\u200b", value="\u200b", inline=False)
+
         profile_embed.add_field(
-            name="💰 Collection & Economy",
+            name="💰 __Collection & Economy__",
             value=(
                 f"**Balance:** {user_row['sickles_balance']} Galleons\n"
                 f"**Chocolate Frogs:** {collected_frogs} / {total_possible_frogs}"
@@ -365,29 +366,19 @@ class ProfileService:
             inline=False,
         )
 
+        profile_embed.add_field(name="\u200b", value="\u200b", inline=False)
+
         profile_embed.add_field(
-            name="✒️ Bio",
+            name="✒️ __Bio__",
             value=bio_text,
             inline=False,
         )
-
-        footer_parts = []
-        if role_ctx.current_house:
-            footer_parts.append(role_ctx.current_house)
-        if role_ctx.has_arena_role:
-            footer_parts.append("Arena active")
-        if footer_parts:
-            profile_embed.set_footer(text=" • ".join(footer_parts))
 
         embeds: list[discord.Embed] = [banner_embed, profile_embed]
 
         # 3) Patronus image embed
         if patronus_gif_url:
-            patronus_embed = discord.Embed(
-                title="🦌 Patronus",
-                description=f"**{patronus_name}** *({patronus_rarity})*",
-                color=color,
-            )
+            patronus_embed = discord.Embed(color=color)
             patronus_embed.set_image(url=patronus_gif_url)
             embeds.append(patronus_embed)
 
