@@ -357,11 +357,9 @@ class ProfileService:
         embeds: list[discord.Embed] = [banner_embed, profile_embed]
 
         if patronus_gif_url:
-            patronus_embed = discord.Embed(
-                description=f"**{patronus_name}** *({patronus_rarity})*",
-                color=color,
-            )
+            patronus_embed = discord.Embed(color=color)
             patronus_embed.set_image(url=patronus_gif_url)
+            patronus_embed.set_footer(text=f"{patronus_name} ({patronus_rarity})")
             embeds.append(patronus_embed)
-
+            
         return embeds, files
