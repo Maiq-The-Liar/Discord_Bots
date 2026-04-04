@@ -67,7 +67,7 @@ class ProfileService:
         base_dir = Path(__file__).resolve().parents[1]
         self.base_dir = base_dir
         self.resources_dir = base_dir / "resources"
-        self.profile_banners_dir = self.resources_dir / "profile_banners"
+        self.profile_banners_dir = self.resources_dir / "house_banners"
 
         self.patronus_repo = PatronusRepository(
             str(base_dir / "resources" / "patronus.json")
@@ -99,10 +99,10 @@ class ProfileService:
             return None
 
         preferred_map = {
-            "Gryffindor": self.profile_banners_dir / "Gryffindor_banner.png",
-            "Hufflepuff": self.profile_banners_dir / "hufflepuff_banner.png",
-            "Ravenclaw": self.profile_banners_dir / "ravenclaw_banner.png",
-            "Slytherin": self.profile_banners_dir / "sryffindor_banner.png",
+            "Gryffindor": self.profile_banners_dir / "gryffindor.png",
+            "Hufflepuff": self.profile_banners_dir / "hufflepuff.png",
+            "Ravenclaw": self.profile_banners_dir / "ravenclaw.png",
+            "Slytherin": self.profile_banners_dir / "slytherin.png",
         }
 
         preferred_path = preferred_map.get(house_name)
