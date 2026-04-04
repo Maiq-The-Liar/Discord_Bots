@@ -30,24 +30,24 @@ class ProfileService:
     # shadow = soft shadow color
     HOUSE_BANNER_TEXT_STYLES: dict[str, dict[str, tuple[int, int, int, int]]] = {
         "Gryffindor": {
-            "fill": (248, 219, 155, 255),
-            "stroke": (90, 25, 18, 255),
-            "shadow": (35, 8, 8, 180),
+            "fill": (214, 167, 86, 255),
+            "stroke": (74, 20, 16, 255),
+            "shadow": (20, 6, 6, 185),
         },
         "Hufflepuff": {
-            "fill": (255, 240, 145, 255),
-            "stroke": (34, 34, 34, 255),
-            "shadow": (0, 0, 0, 170),
+            "fill": (214, 176, 52, 255),
+            "stroke": (24, 24, 24, 255),
+            "shadow": (0, 0, 0, 180),
         },
         "Ravenclaw": {
-            "fill": (186, 232, 255, 255),
-            "stroke": (67, 44, 28, 255),
-            "shadow": (17, 24, 39, 170),
+            "fill": (184, 138, 96, 255),
+            "stroke": (54, 32, 20, 255),
+            "shadow": (10, 10, 10, 180),
         },
         "Slytherin": {
-            "fill": (198, 245, 203, 255),
-            "stroke": (28, 28, 28, 255),
-            "shadow": (0, 0, 0, 170),
+            "fill": (196, 210, 198, 255),
+            "stroke": (30, 30, 30, 255),
+            "shadow": (0, 0, 0, 185),
         },
     }
 
