@@ -119,6 +119,7 @@ class ProfileService:
 
     def _get_font_candidates(self) -> list[Path]:
         return [
+            self.resources_dir / "house_banners" / "HARRYP__.TTF",
             self.resources_dir / "house_points" / "font" / "Crimson-Bold.otf",
             self.resources_dir / "house_points" / "font" / "Crimson-Bold.ttf",
             Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"),
@@ -204,7 +205,7 @@ class ProfileService:
         text_height = bbox[3] - bbox[1]
 
         x = (width - text_width) / 2 - bbox[0]
-        y = ((text_area_top + text_area_bottom) / 2 - text_height / 2) - bbox[1]
+        y = ((text_area_top + text_area_bottom) / 2 - text_height / 2) - bbox[1] + 25
 
         shadow_offset = max(2, approx_size // 20)
 
