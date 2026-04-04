@@ -252,7 +252,7 @@ class ProfileService:
         color = HOUSE_COLORS.get(role_ctx.current_house or "", 0x2F3136)
 
         patronus_name = "No Patronus yet"
-        patronus_rarity = "-"
+        patronus_rarity = "—"
         patronus_gif_url = None
 
         patronus_id = self.user_repo.get_patronus_id(member.id)
@@ -266,7 +266,7 @@ class ProfileService:
         pronouns = self._resolve_pronouns_text(member)
         continent_text = self._resolve_continent_text(member)
         age_text = self._resolve_age_text(member)
-        bio_text = user_row["bio"] if user_row["bio"] else "n/a"
+        bio_text = user_row["bio"].strip() if user_row["bio"] else "No bio set."
 
         birth_day, birth_month = self.user_repo.get_birthday(member.id)
         if birth_day and birth_month:
@@ -280,8 +280,18 @@ class ProfileService:
         collected_frogs = self.frog_collection_repo.get_unique_count(member.id)
         total_possible_frogs = self.chocolate_frog_repo.get_total_count()
 
+        current_level = int(user_row["level"])
+        current_xp = int(user_row["xp"])
+
+        if current_level >= 7:
+            xp_progress_text = "MAX"
+        else:
+            needed_xp = 5 * (current_level ** 2) + 50 * current_level + 100
+            xp_progress_text = f"{current_xp} / {needed_xp}"
+
         files: list[discord.File] = []
 
+        # 1) Banner embed
         banner_embed = discord.Embed(color=color)
 
         banner_file = self._render_profile_banner(
@@ -293,62 +303,76 @@ class ProfileService:
             files.append(banner_file)
             banner_embed.set_image(url=f"attachment://{banner_file.filename}")
         else:
-            banner_embed.description = f"# {member.display_name}'s Profile"
+            banner_embed.title = f"{member.display_name}'s Profile"
 
-        info_lines = [
-            f"╭ • **Name:** {member.display_name}",
-            f"│ • **Pronouns:** {pronouns}",
-            f"│ • **Birthday:** {birthday_text}",
-            f"│ • **Continent:** {continent_text}",
-            f"│ • **Age:** {age_text}",
-            f"│ • **Zodiac Sign:** {zodiac_text}",
-            f"╰ • **Bio:** {bio_text}",
-        ]
-
-        current_level = int(user_row["level"])
-        current_xp = int(user_row["xp"])
-
-        if current_level >= 7:
-            xp_progress_text = "MAX"
-        else:
-            needed_xp = 5 * (current_level ** 2) + 50 * current_level + 100
-            xp_progress_text = f"{current_xp} / {needed_xp}"
-
-        stats_lines = [
-            f"╭ • **Monthly Housepoints:** {monthly_points}",
-            f"│ • **Total collected Housepoints:** {user_row['lifetime_house_points']}",
-            f"│ • **Balance:** {user_row['sickles_balance']} Galleons",
-            f"│ • **School Year Level:** {current_level}",
-            f"│ • **XP Progress:** {xp_progress_text}",
-            f"╰ • **Collected Chocolate Frogs:** {collected_frogs} / {total_possible_frogs}",
-        ]
-
-        patronus_lines = [
-            f"╭ • **Patronus Name:** {patronus_name}",
-            f"╰ • **Rarity:** {patronus_rarity}",
-        ]
-
-        main_description = (
-            f"{HOGWARTS_CREST_EMOJI} **─────Info─────** {HOGWARTS_CREST_EMOJI}\n"
-            + "\n".join(info_lines)
-            + "\n\n"
-            + f"{HOGWARTS_CREST_EMOJI} **─────Stats─────** {HOGWARTS_CREST_EMOJI}\n"
-            + "\n".join(stats_lines)
-            + "\n\n"
-            + f"{HOGWARTS_CREST_EMOJI} **─────Patronus─────** {HOGWARTS_CREST_EMOJI}\n"
-            + "\n".join(patronus_lines)
-        )
-
-        main_embed = discord.Embed(
-            description=main_description,
+        # 2) Main profile embed
+        profile_embed = discord.Embed(
+            description=(
+                f"**House:** {role_ctx.current_house or 'None'}\n"
+                f"**Patronus:** {patronus_name}"
+            ),
             color=color,
         )
-        main_embed.set_thumbnail(url=member.display_avatar.url)
+        profile_embed.set_thumbnail(url=member.display_avatar.url)
 
-        if patronus_gif_url:
-            main_embed.set_image(url=patronus_gif_url)
+        profile_embed.add_field(
+            name="About",
+            value=(
+                f"**Pronouns:** {pronouns}\n"
+                f"**Birthday:** {birthday_text}\n"
+                f"**Zodiac:** {zodiac_text}\n"
+                f"**Continent:** {continent_text}\n"
+                f"**Age:** {age_text}"
+            ),
+            inline=False,
+        )
 
+        profile_embed.add_field(
+            name="Progress",
+            value=(
+                f"**Monthly Housepoints:** {monthly_points}\n"
+                f"**Total Housepoints:** {user_row['lifetime_house_points']}\n"
+                f"**Balance:** {user_row['sickles_balance']} Galleons\n"
+                f"**School Year:** {current_level}\n"
+                f"**XP:** {xp_progress_text}"
+            ),
+            inline=False,
+        )
+
+        profile_embed.add_field(
+            name="Collection",
+            value=(
+                f"**Chocolate Frogs:** {collected_frogs} / {total_possible_frogs}\n"
+                f"**Patronus Rarity:** {patronus_rarity}"
+            ),
+            inline=False,
+        )
+
+        profile_embed.add_field(
+            name="Bio",
+            value=bio_text,
+            inline=False,
+        )
+
+        footer_parts = []
+        if role_ctx.current_house:
+            footer_parts.append(role_ctx.current_house)
         if role_ctx.has_arena_role:
-            main_embed.set_footer(text="Arena role active")
+            footer_parts.append("Arena active")
 
-        return [banner_embed, main_embed], files
+        if footer_parts:
+            profile_embed.set_footer(text=" • ".join(footer_parts))
+
+        embeds: list[discord.Embed] = [banner_embed, profile_embed]
+
+        # 3) Patronus embed only if there is a patronus image
+        if patronus_gif_url:
+            patronus_embed = discord.Embed(
+                title="Patronus",
+                description=f"**{patronus_name}** • {patronus_rarity}",
+                color=color,
+            )
+            patronus_embed.set_image(url=patronus_gif_url)
+            embeds.append(patronus_embed)
+
+        return embeds, files
