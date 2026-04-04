@@ -272,7 +272,8 @@ class ProfileService:
         if birth_day and birth_month:
             birthday_text = self.birthday_service.format_birthday(birth_day, birth_month)
             zodiac_sign = self.birthday_service.get_zodiac_sign(birth_day, birth_month)
-            zodiac_text = self.birthday_service.get_zodiac_display(zodiac_sign)
+            zodiac_display = self.birthday_service.get_zodiac_display(zodiac_sign)
+            zodiac_text = zodiac_display.split(" ", 1)[1] if " " in zodiac_display else zodiac_display
         else:
             birthday_text = "n/a"
             zodiac_text = "n/a"
@@ -323,22 +324,22 @@ class ProfileService:
             inline=True,
         )
         profile_embed.add_field(
-            name="🏰 __Hogwarts Progress__",
-            value=(
-                f"**Monthly Points:** {monthly_points}\n"
-                f"**Total Points:** {user_row['lifetime_house_points']}\n"
-                f"**XP:** {xp_progress_text}"
-            ),
-            inline=True,
-        )
-
-        profile_embed.add_field(
             name="🧭 __Details__",
             value=(
                 f"**Birthday:** {birthday_text}\n"
                 f"**Zodiac:** {zodiac_text}\n"
                 f"**Age:** {age_text}\n"
                 f"**Continent:** {continent_text}"
+            ),
+            inline=True,
+        )
+
+        profile_embed.add_field(
+            name="🏰 __Hogwarts Progress__",
+            value=(
+                f"**Monthly Points:** {monthly_points}\n"
+                f"**Total Points:** {user_row['lifetime_house_points']}\n"
+                f"**XP:** {xp_progress_text}"
             ),
             inline=False,
         )
