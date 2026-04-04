@@ -40,8 +40,8 @@ class ProfileService:
             "shadow": (0, 0, 0, 180),
         },
         "Ravenclaw": {
-            "fill": (120, 78, 48, 255),
-            "stroke": (32, 18, 10, 255),
+            "fill": (214, 191, 160, 255),
+            "stroke": (58, 36, 24, 255),
             "shadow": (0, 0, 0, 185),
         },
         "Slytherin": {
