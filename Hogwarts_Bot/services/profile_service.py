@@ -307,51 +307,40 @@ class ProfileService:
         house_name = role_ctx.current_house or "None"
 
         profile_embed = discord.Embed(
-            description=(
-                f"**Name:** {member.display_name}\n"
-                f"**House:** {house_name}\n"
-                f"**Patronus:** {patronus_name} *({patronus_rarity})*"
-            ),
+            description=f"**Patronus:** {patronus_name} *({patronus_rarity})*",
             color=color,
         )
         profile_embed.set_thumbnail(url=member.display_avatar.url)
 
-        # One spacer only between top identity block and the structured fields
-        profile_embed.add_field(name="\u200b", value="\u200b", inline=False)
-
         profile_embed.add_field(
             name="👤 __Profile__",
             value=(
-                f"**Pronouns:** {pronouns}\n"
-                f"**Birthday:** {birthday_text}\n"
-                f"**Zodiac:** {zodiac_text}"
+                f"**Name:** {member.display_name}\n"
+                f"**House:** {house_name}\n"
+                f"**School Year:** {current_level}\n"
+                f"**Pronouns:** {pronouns}"
             ),
             inline=True,
         )
         profile_embed.add_field(
-            name="🧭 __Details__",
+            name="🏰 __Hogwarts Progress__",
             value=(
-                f"**Continent:** {continent_text}\n"
-                f"**Age:** {age_text}"
+                f"**Monthly Points:** {monthly_points}\n"
+                f"**Total Points:** {user_row['lifetime_house_points']}\n"
+                f"**XP:** {xp_progress_text}"
             ),
             inline=True,
         )
 
         profile_embed.add_field(
-            name="🏰 __House Points__",
+            name="🧭 __Details__",
             value=(
-                f"**Monthly:** {monthly_points}\n"
-                f"**Total:** {user_row['lifetime_house_points']}"
+                f"**Birthday:** {birthday_text}\n"
+                f"**Zodiac:** {zodiac_text}\n"
+                f"**Age:** {age_text}\n"
+                f"**Continent:** {continent_text}"
             ),
-            inline=True,
-        )
-        profile_embed.add_field(
-            name="📚 __Progress__",
-            value=(
-                f"**Year:** {current_level}\n"
-                f"**XP:** {xp_progress_text}"
-            ),
-            inline=True,
+            inline=False,
         )
 
         profile_embed.add_field(
