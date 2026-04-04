@@ -205,7 +205,7 @@ class ProfileService:
         text_height = bbox[3] - bbox[1]
 
         x = (width - text_width) / 2 - bbox[0]
-        y = ((text_area_top + text_area_bottom) / 2 - text_height / 2) - bbox[1] + 25
+        y = ((text_area_top + text_area_bottom) / 2 - text_height / 2) - bbox[1] + 75
 
         shadow_offset = max(2, approx_size // 20)
 
