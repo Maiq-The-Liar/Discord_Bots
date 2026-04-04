@@ -305,49 +305,70 @@ class ProfileService:
         else:
             banner_embed.title = f"{member.display_name}'s Profile"
 
-        # 2) Main profile embed
+        # 2) Main profile card
+        house_name = role_ctx.current_house or "None"
+
         profile_embed = discord.Embed(
+            title=member.display_name,
             description=(
-                f"**House:** {role_ctx.current_house or 'None'}\n"
+                f"**House:** {house_name}\n"
                 f"**Patronus:** {patronus_name}"
             ),
             color=color,
         )
         profile_embed.set_thumbnail(url=member.display_avatar.url)
 
+        # Identity / quick info
         profile_embed.add_field(
-            name="About",
+            name="Profile",
             value=(
                 f"**Pronouns:** {pronouns}\n"
                 f"**Birthday:** {birthday_text}\n"
-                f"**Zodiac:** {zodiac_text}\n"
-                f"**Continent:** {continent_text}\n"
-                f"**Age:** {age_text}"
+                f"**Zodiac:** {zodiac_text}"
             ),
-            inline=False,
+            inline=True,
+        )
+        profile_embed.add_field(
+            name="Details",
+            value=(
+                f"**Continent:** {continent_text}\n"
+                f"**Age:** {age_text}\n"
+                f"**Rarity:** {patronus_rarity}"
+            ),
+            inline=True,
         )
 
+        # Spacer to force a clean new row on mobile/desktop
+        profile_embed.add_field(name="\u200b", value="\u200b", inline=False)
+
+        # Progress / economy in two columns
+        profile_embed.add_field(
+            name="House Points",
+            value=(
+                f"**Monthly:** {monthly_points}\n"
+                f"**Total:** {user_row['lifetime_house_points']}"
+            ),
+            inline=True,
+        )
         profile_embed.add_field(
             name="Progress",
             value=(
-                f"**Monthly Housepoints:** {monthly_points}\n"
-                f"**Total Housepoints:** {user_row['lifetime_house_points']}\n"
-                f"**Balance:** {user_row['sickles_balance']} Galleons\n"
-                f"**School Year:** {current_level}\n"
+                f"**Year:** {current_level}\n"
                 f"**XP:** {xp_progress_text}"
             ),
-            inline=False,
+            inline=True,
         )
 
         profile_embed.add_field(
-            name="Collection",
+            name="Economy",
             value=(
-                f"**Chocolate Frogs:** {collected_frogs} / {total_possible_frogs}\n"
-                f"**Patronus Rarity:** {patronus_rarity}"
+                f"**Balance:** {user_row['sickles_balance']} Galleons\n"
+                f"**Chocolate Frogs:** {collected_frogs} / {total_possible_frogs}"
             ),
             inline=False,
         )
 
+        # Bio full width
         profile_embed.add_field(
             name="Bio",
             value=bio_text,
@@ -359,13 +380,12 @@ class ProfileService:
             footer_parts.append(role_ctx.current_house)
         if role_ctx.has_arena_role:
             footer_parts.append("Arena active")
-
         if footer_parts:
             profile_embed.set_footer(text=" • ".join(footer_parts))
 
         embeds: list[discord.Embed] = [banner_embed, profile_embed]
 
-        # 3) Patronus embed only if there is a patronus image
+        # 3) Patronus image embed
         if patronus_gif_url:
             patronus_embed = discord.Embed(
                 title="Patronus",
