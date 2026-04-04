@@ -309,18 +309,18 @@ class ProfileService:
         house_name = role_ctx.current_house or "None"
 
         profile_embed = discord.Embed(
-            title=member.display_name,
+            title=f"✦ {member.display_name}",
             description=(
+                f"**Name:** {member.display_name}\n"
                 f"**House:** {house_name}\n"
-                f"**Patronus:** {patronus_name}"
+                f"**Patronus:** {patronus_name} *({patronus_rarity})*"
             ),
             color=color,
         )
         profile_embed.set_thumbnail(url=member.display_avatar.url)
 
-        # Identity / quick info
         profile_embed.add_field(
-            name="Profile",
+            name="👤 Profile",
             value=(
                 f"**Pronouns:** {pronouns}\n"
                 f"**Birthday:** {birthday_text}\n"
@@ -329,21 +329,18 @@ class ProfileService:
             inline=True,
         )
         profile_embed.add_field(
-            name="Details",
+            name="🧭 Details",
             value=(
                 f"**Continent:** {continent_text}\n"
-                f"**Age:** {age_text}\n"
-                f"**Rarity:** {patronus_rarity}"
+                f"**Age:** {age_text}"
             ),
             inline=True,
         )
 
-        # Spacer to force a clean new row on mobile/desktop
         profile_embed.add_field(name="\u200b", value="\u200b", inline=False)
 
-        # Progress / economy in two columns
         profile_embed.add_field(
-            name="House Points",
+            name="🏰 House Points",
             value=(
                 f"**Monthly:** {monthly_points}\n"
                 f"**Total:** {user_row['lifetime_house_points']}"
@@ -351,7 +348,7 @@ class ProfileService:
             inline=True,
         )
         profile_embed.add_field(
-            name="Progress",
+            name="📚 Progress",
             value=(
                 f"**Year:** {current_level}\n"
                 f"**XP:** {xp_progress_text}"
@@ -360,7 +357,7 @@ class ProfileService:
         )
 
         profile_embed.add_field(
-            name="Economy",
+            name="💰 Collection & Economy",
             value=(
                 f"**Balance:** {user_row['sickles_balance']} Galleons\n"
                 f"**Chocolate Frogs:** {collected_frogs} / {total_possible_frogs}"
@@ -368,9 +365,8 @@ class ProfileService:
             inline=False,
         )
 
-        # Bio full width
         profile_embed.add_field(
-            name="Bio",
+            name="✒️ Bio",
             value=bio_text,
             inline=False,
         )
@@ -388,8 +384,8 @@ class ProfileService:
         # 3) Patronus image embed
         if patronus_gif_url:
             patronus_embed = discord.Embed(
-                title="Patronus",
-                description=f"**{patronus_name}** • {patronus_rarity}",
+                title="🦌 Patronus",
+                description=f"**{patronus_name}** *({patronus_rarity})*",
                 color=color,
             )
             patronus_embed.set_image(url=patronus_gif_url)
