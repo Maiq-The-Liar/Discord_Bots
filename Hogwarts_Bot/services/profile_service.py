@@ -193,7 +193,7 @@ class ProfileService:
             text=text,
             max_width=max_text_width,
             max_height=max_text_height,
-            max_font_size=min(135, int(height * 0.27)),
+            max_font_size=min(200, int(height * 0.27)),
             min_font_size=30,
         )
 
