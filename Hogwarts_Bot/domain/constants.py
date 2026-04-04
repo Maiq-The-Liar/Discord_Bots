@@ -25,10 +25,10 @@ MAX_SCHOOL_LEVEL = 7
 ARENA_ROLE_ID = 1485343667089576077
 
 HOUSE_COLORS: dict[str, int] = {
-    "Gryffindor": 0xAE0001,
-    "Hufflepuff": 0xFFDB00,
-    "Ravenclaw": 0x0E1A40,
-    "Slytherin": 0x1A472A,
+    "Gryffindor": 0xBB0019,
+    "Hufflepuff": 0xE6BF23,
+    "Ravenclaw": 0x0079A7,
+    "Slytherin": 0x269647,
 }
 
 HOUSE_EMOJIS: dict[str, str] = {
