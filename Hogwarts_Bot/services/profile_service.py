@@ -291,7 +291,6 @@ class ProfileService:
 
         files: list[discord.File] = []
 
-        # 1) Banner embed
         banner_embed = discord.Embed(color=color)
 
         banner_file = self._render_profile_banner(
@@ -305,7 +304,6 @@ class ProfileService:
         else:
             banner_embed.title = f"{member.display_name}'s Profile"
 
-        # 2) Main profile card
         house_name = role_ctx.current_house or "None"
 
         profile_embed = discord.Embed(
@@ -317,6 +315,9 @@ class ProfileService:
             color=color,
         )
         profile_embed.set_thumbnail(url=member.display_avatar.url)
+
+        # One spacer only between top identity block and the structured fields
+        profile_embed.add_field(name="\u200b", value="\u200b", inline=False)
 
         profile_embed.add_field(
             name="👤 __Profile__",
@@ -336,8 +337,6 @@ class ProfileService:
             inline=True,
         )
 
-        profile_embed.add_field(name="\u200b", value="\u200b", inline=False)
-
         profile_embed.add_field(
             name="🏰 __House Points__",
             value=(
@@ -355,8 +354,6 @@ class ProfileService:
             inline=True,
         )
 
-        profile_embed.add_field(name="\u200b", value="\u200b", inline=False)
-
         profile_embed.add_field(
             name="💰 __Collection & Economy__",
             value=(
@@ -366,8 +363,6 @@ class ProfileService:
             inline=False,
         )
 
-        profile_embed.add_field(name="\u200b", value="\u200b", inline=False)
-
         profile_embed.add_field(
             name="✒️ __Bio__",
             value=bio_text,
@@ -376,7 +371,6 @@ class ProfileService:
 
         embeds: list[discord.Embed] = [banner_embed, profile_embed]
 
-        # 3) Patronus image embed
         if patronus_gif_url:
             patronus_embed = discord.Embed(color=color)
             patronus_embed.set_image(url=patronus_gif_url)
