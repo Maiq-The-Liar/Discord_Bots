@@ -2,7 +2,8 @@ from datetime import datetime, timedelta, timezone
 
 
 class MediaService:
-    VOTE_COOLDOWN_MINUTES = 60
+    VOTE_WINDOW_MINUTES = 60
+    MAX_VOTES_PER_WINDOW = 3
     POST_DURATION_HOURS = 2
     POINTS_PER_VOTE = 3
 
@@ -27,18 +28,14 @@ class MediaService:
         lowered_name = filename.lower()
         return lowered_name.endswith(".png") or lowered_name.endswith(".jpg") or lowered_name.endswith(".jpeg")
 
-    def can_vote_again(self, last_vote_at: str | None) -> tuple[bool, int]:
-        if not last_vote_at:
-            return True, 0
+    def calculate_vote_window_start_iso(self) -> str:
+        return (self.now() - timedelta(minutes=self.VOTE_WINDOW_MINUTES)).isoformat()
 
-        last_dt = datetime.fromisoformat(last_vote_at)
-        remaining = timedelta(minutes=self.VOTE_COOLDOWN_MINUTES) - (self.now() - last_dt)
-
-        if remaining.total_seconds() <= 0:
-            return True, 0
-
-        remaining_minutes = max(1, int(remaining.total_seconds() // 60))
-        return False, remaining_minutes
+    def can_vote_in_window(self, recent_vote_count: int) -> tuple[bool, int]:
+        remaining_votes = self.MAX_VOTES_PER_WINDOW - recent_vote_count
+        if remaining_votes > 0:
+            return True, remaining_votes
+        return False, 0
 
     def is_post_closed(self, closes_at_iso: str, is_closed: bool) -> bool:
         if is_closed:

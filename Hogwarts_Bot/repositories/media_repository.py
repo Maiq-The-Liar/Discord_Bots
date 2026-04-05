@@ -152,29 +152,31 @@ class MediaRepository:
         ).fetchone()
         return int(row["total"]) if row else 0
 
-    def get_last_vote_time(self, voter_user_id: int) -> str | None:
+    def get_recent_vote_count(self, voter_user_id: int, since_iso: str) -> int:
         row = self.conn.execute(
             """
-            SELECT last_vote_at
-            FROM media_vote_cooldowns
+            SELECT COUNT(*) AS total
+            FROM media_votes
             WHERE voter_user_id = ?
+              AND created_at >= ?
             """,
-            (voter_user_id,),
+            (voter_user_id, since_iso),
         ).fetchone()
-        return row["last_vote_at"] if row else None
+        return int(row["total"]) if row else 0
 
-    def set_vote_cooldown(self, voter_user_id: int, last_vote_at: str) -> None:
-        self.conn.execute(
+    def get_oldest_recent_vote_time(self, voter_user_id: int, since_iso: str) -> str | None:
+        row = self.conn.execute(
             """
-            INSERT INTO media_vote_cooldowns (voter_user_id, last_vote_at)
-            VALUES (?, ?)
-            ON CONFLICT(voter_user_id)
-            DO UPDATE SET
-                last_vote_at = excluded.last_vote_at
+            SELECT created_at
+            FROM media_votes
+            WHERE voter_user_id = ?
+              AND created_at >= ?
+            ORDER BY created_at ASC
+            LIMIT 1
             """,
-            (voter_user_id, last_vote_at),
-        )
-        self.conn.commit()
+            (voter_user_id, since_iso),
+        ).fetchone()
+        return row["created_at"] if row else None
 
     def clear_vote_cooldown(self, voter_user_id: int) -> None:
         self.conn.execute(

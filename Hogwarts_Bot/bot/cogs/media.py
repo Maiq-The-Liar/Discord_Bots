@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
+from datetime import datetime, timedelta
 
 from db.database import Database
 from repositories.media_repository import MediaRepository
@@ -173,8 +174,7 @@ class MediaCog(commands.Cog):
                 message.channel.id,
             )
 
-            # User already has one active voteable post in this channel.
-            # Allow additional image posts, but do not make them voteable.
+            # Allow extra uploads, but only one active voteable image per user per channel.
             if existing_open_post is not None:
                 return
 
@@ -244,13 +244,27 @@ class MediaCog(commands.Cog):
             if media_repo.has_user_voted(payload.message_id, payload.user_id):
                 return
 
-            last_vote_at = media_repo.get_last_vote_time(payload.user_id)
-            can_vote, remaining_minutes = media_service.can_vote_again(last_vote_at)
+            since_iso = media_service.calculate_vote_window_start_iso()
+            recent_vote_count = media_repo.get_recent_vote_count(payload.user_id, since_iso)
+            can_vote, _ = media_service.can_vote_in_window(recent_vote_count)
+
             if not can_vote:
                 await self.remove_user_reaction_if_possible(channel, payload.message_id, payload.user_id)
+
+                oldest_recent_vote_time = media_repo.get_oldest_recent_vote_time(payload.user_id, since_iso)
+                minutes_left_text = "some time"
+
+                if oldest_recent_vote_time:
+                    oldest_dt = datetime.fromisoformat(oldest_recent_vote_time)
+                    retry_dt = oldest_dt + timedelta(minutes=media_service.VOTE_WINDOW_MINUTES)
+                    remaining = retry_dt - media_service.now()
+                    remaining_minutes = max(1, int(remaining.total_seconds() // 60))
+                    minutes_left_text = f"about **{remaining_minutes} minute(s)**"
+
                 try:
                     await channel.send(
-                        f"<@{payload.user_id}> you must wait about **{remaining_minutes} minute(s)** before supporting another post.",
+                        f"<@{payload.user_id}> you can only support **3** media posts per hour. "
+                        f"Please wait {minutes_left_text} before supporting another post.",
                         delete_after=8,
                     )
                 except discord.HTTPException:
@@ -259,7 +273,6 @@ class MediaCog(commands.Cog):
 
             now_iso = media_service.now_iso()
             media_repo.add_vote(payload.message_id, payload.user_id, now_iso)
-            media_repo.set_vote_cooldown(payload.user_id, now_iso)
 
     @tasks.loop(minutes=1)
     async def media_close_loop(self) -> None:
