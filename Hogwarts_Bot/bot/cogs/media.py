@@ -161,29 +161,6 @@ class MediaCog(commands.Cog):
         if valid_attachment is None:
             return
 
-        with self.database.connect() as conn:
-            media_repo = MediaRepository(conn)
-            existing_open_post = media_repo.get_open_post_for_user_in_channel(
-                message.author.id,
-                message.channel.id,
-            )
-            if existing_open_post is not None:
-                try:
-                    await message.delete()
-                except discord.HTTPException:
-                    pass
-
-                warning_embed = discord.Embed(
-                    title="Media Post Already Active",
-                    description=(
-                        f"{message.author.mention}, you already have an active media post in this channel.\n"
-                        f"Please wait until it closes before posting another image here."
-                    ),
-                    color=0xE67E22,
-                )
-                await message.channel.send(embed=warning_embed, delete_after=10)
-                return
-
         role_ctx = resolve_member_roles(message.author)
         is_valid, _ = validate_house_context(role_ctx)
         if not is_valid:
@@ -191,6 +168,16 @@ class MediaCog(commands.Cog):
 
         with self.database.connect() as conn:
             media_repo = MediaRepository(conn)
+            existing_open_post = media_repo.get_open_post_for_user_in_channel(
+                message.author.id,
+                message.channel.id,
+            )
+
+            # User already has one active voteable post in this channel.
+            # Allow additional image posts, but do not make them voteable.
+            if existing_open_post is not None:
+                return
+
             media_repo.create_media_post(
                 message_id=message.id,
                 channel_id=message.channel.id,
