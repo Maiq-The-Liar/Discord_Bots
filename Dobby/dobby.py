@@ -36,16 +36,15 @@ DB_FILE = DATA_DIR / "bot_data.db"
 FLAVORS_FILE = DATA_DIR / "flavors.json"
 
 # =========================================================
-# TEST SETTINGS
+# SETTINGS
 # =========================================================
-TEST_MODE = True
-START_RANDOM_SPAWN_LOOP = False
+TEST_MODE = False
 
 MAX_PARTICIPANTS = 5
-EVENT_DURATION_SECONDS = 60 if TEST_MODE else 10 * 60
+EVENT_DURATION_SECONDS = 20 * 60  # 20 minutes
 
-MIN_SPAWN_SECONDS = 30
-MAX_SPAWN_SECONDS = 60
+MIN_SPAWN_SECONDS = 5 * 60 * 60   # 5 hours
+MAX_SPAWN_SECONDS = 7 * 60 * 60   # 7 hours
 
 EVENT_TITLE = "\"Would Master kindly give Dobby another sock?\""
 EVENT_DESCRIPTION = (
@@ -93,8 +92,8 @@ DOBBY_RESPONSE_BY_RANK = {
     5: "This sock is... a choice. Dobby supposes Master may have **1 Bertie Bott’s Every Flavoured Bean**.",
 }
 
-DOBBY_DISAPPEAR_MESSAGE = (
-    "Dobby disappeared — and you just missed him! "
+DOBBY_MISSED_DESCRIPTION = (
+    "Dobby disappeared — and Master just missed him!\n"
     "But surely he’ll be back again soon with more socks to inspect..."
 )
 
@@ -352,6 +351,17 @@ def disallow_channel(channel_id: int) -> None:
         )
         conn.commit()
 
+
+def clear_allowed_channels() -> int:
+    with get_db_connection() as conn:
+        row = conn.execute("SELECT COUNT(*) AS count FROM allowed_channels").fetchone()
+        removed_count = int(row["count"]) if row else 0
+
+        conn.execute("DELETE FROM allowed_channels")
+        conn.commit()
+
+    return removed_count
+
 # =========================================================
 # EVENT STATE
 # =========================================================
@@ -426,7 +436,7 @@ class DobbyEvent:
         )
         embed.set_image(url=self.gif_url)
         embed.set_footer(
-            text=f"Event ends after {EVENT_DURATION_SECONDS} seconds or when {MAX_PARTICIPANTS} unique users have interacted."
+            text=f"Event ends after {EVENT_DURATION_SECONDS // 60} minutes or when {MAX_PARTICIPANTS} unique users have interacted."
         )
         return embed
 
@@ -482,17 +492,15 @@ class DobbyEvent:
 
         if self.message:
             try:
-                await self.message.delete()
+                missed_embed = discord.Embed(
+                    title=EVENT_TITLE,
+                    description=DOBBY_MISSED_DESCRIPTION,
+                    color=discord.Color.dark_grey(),
+                )
+                missed_embed.set_footer(text="Dobby has already left.")
+                await self.message.edit(embed=missed_embed, view=self.view)
             except discord.HTTPException:
-                try:
-                    await self.message.edit(embed=self.build_embed(), view=self.view)
-                except discord.HTTPException:
-                    log.exception("Failed to update old Dobby message in channel=%s", self.channel_id)
-
-        try:
-            await self.channel.send(DOBBY_DISAPPEAR_MESSAGE)
-        except discord.HTTPException:
-            log.exception("Failed to send disappearance message in channel=%s", self.channel_id)
+                log.exception("Failed to edit finished Dobby message in channel=%s", self.channel_id)
 
 # =========================================================
 # BUTTON VIEW
@@ -595,21 +603,25 @@ def choose_spawn_channel() -> discord.TextChannel | None:
 async def random_spawn_loop() -> None:
     await bot.wait_until_ready()
 
-    while not bot.is_closed():
-        delay = random.randint(MIN_SPAWN_SECONDS, MAX_SPAWN_SECONDS)
-        log.info("Next Dobby spawn check in %s seconds.", delay)
-        await asyncio.sleep(delay)
+    try:
+        while not bot.is_closed():
+            delay = random.randint(MIN_SPAWN_SECONDS, MAX_SPAWN_SECONDS)
+            log.info("Next Dobby spawn check in %s seconds.", delay)
+            await asyncio.sleep(delay)
 
-        channel = choose_spawn_channel()
-        if channel is None:
-            log.info("No allowed channel available for Dobby spawn.")
-            continue
+            channel = choose_spawn_channel()
+            if channel is None:
+                log.info("No allowed channel available for Dobby spawn.")
+                continue
 
-        try:
-            _, message = await start_dobby_event(channel)
-            log.info("Spawn attempt in #%s: %s", channel.name, message)
-        except Exception:
-            log.exception("Failed to start Dobby event.")
+            try:
+                _, message = await start_dobby_event(channel)
+                log.info("Spawn attempt in #%s: %s", channel.name, message)
+            except Exception:
+                log.exception("Failed to start Dobby event.")
+    except asyncio.CancelledError:
+        log.info("Random Dobby spawn loop cancelled.")
+        raise
 
 # =========================================================
 # PERMISSION HELPERS
@@ -664,13 +676,12 @@ async def eat_bean(interaction: discord.Interaction) -> None:
         ),
         color=discord.Color.green(),
     )
-
     embed.set_thumbnail(url=bean_image_url)
 
     await interaction.response.send_message(embed=embed)
 
 # =========================================================
-# TEST / ADMIN COMMANDS
+# ADMIN COMMANDS
 # =========================================================
 @bot.tree.command(
     guild=TEST_GUILD,
@@ -692,28 +703,71 @@ async def dobby_test(interaction: discord.Interaction) -> None:
 
 @bot.tree.command(
     guild=TEST_GUILD,
+    name="dobby_start",
+    description="Start Dobby's random spawn loop.",
+)
+@ADMIN_COMMAND_PERMS
+@GUILD_ONLY
+@admin_only()
+async def dobby_start(interaction: discord.Interaction) -> None:
+    global spawn_loop_task
+
+    if spawn_loop_task is not None and not spawn_loop_task.done():
+        await interaction.response.send_message(
+            "Dobby's random spawn loop is already running.",
+            ephemeral=True,
+        )
+        return
+
+    spawn_loop_task = asyncio.create_task(random_spawn_loop())
+    await interaction.response.send_message(
+        "Dobby's random spawn loop has started.",
+        ephemeral=True,
+    )
+
+
+@bot.tree.command(
+    guild=TEST_GUILD,
+    name="dobby_stop",
+    description="Stop Dobby's random spawn loop.",
+)
+@ADMIN_COMMAND_PERMS
+@GUILD_ONLY
+@admin_only()
+async def dobby_stop(interaction: discord.Interaction) -> None:
+    global spawn_loop_task
+
+    if spawn_loop_task is None or spawn_loop_task.done():
+        await interaction.response.send_message(
+            "Dobby's random spawn loop is not currently running.",
+            ephemeral=True,
+        )
+        return
+
+    spawn_loop_task.cancel()
+    spawn_loop_task = None
+
+    await interaction.response.send_message(
+        "Dobby's random spawn loop has stopped.",
+        ephemeral=True,
+    )
+
+
+@bot.tree.command(
+    guild=TEST_GUILD,
     name="dobby_cleanup",
-    description="Force end the Dobby event in this channel.",
+    description="Clear all channels where Dobby is allowed to randomly appear.",
 )
 @ADMIN_COMMAND_PERMS
 @GUILD_ONLY
 @admin_only()
 async def dobby_cleanup(interaction: discord.Interaction) -> None:
-    channel = interaction.channel
-    if not isinstance(channel, discord.TextChannel):
-        await interaction.response.send_message("Use this in a text channel.", ephemeral=True)
-        return
+    removed_count = clear_allowed_channels()
 
-    event = active_events.get(channel.id)
-    if not event or not event.active:
-        await interaction.response.send_message(
-            "There is no active Dobby event in this channel.",
-            ephemeral=True,
-        )
-        return
-
-    await event.end(reason="manual_cleanup")
-    await interaction.response.send_message("Dobby event ended.", ephemeral=True)
+    await interaction.response.send_message(
+        f"Removed **{removed_count}** allowed channel(s). Dobby now has nowhere to randomly appear.",
+        ephemeral=True,
+    )
 
 
 @bot.tree.command(
@@ -815,20 +869,12 @@ async def on_app_command_error(
 # =========================================================
 @bot.event
 async def on_ready() -> None:
-    global spawn_loop_task
-
     synced = await bot.tree.sync(guild=TEST_GUILD)
 
     log.info("Logged in as %s (%s)", bot.user, bot.user.id if bot.user else "unknown")
     log.info("Synced %s guild slash commands to guild %s.", len(synced), GUILD_ID)
     log.info("TEST_MODE=%s EVENT_DURATION_SECONDS=%s", TEST_MODE, EVENT_DURATION_SECONDS)
-
-    if START_RANDOM_SPAWN_LOOP:
-        if spawn_loop_task is None or spawn_loop_task.done():
-            spawn_loop_task = asyncio.create_task(random_spawn_loop())
-            log.info("Random Dobby spawn loop started.")
-    else:
-        log.info("Random Dobby spawn loop disabled for testing.")
+    log.info("Random Dobby spawn loop is controlled via /dobby_start and /dobby_stop.")
 
 # =========================================================
 # MAIN
