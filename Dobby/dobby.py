@@ -4,12 +4,13 @@ import logging
 import os
 import random
 import sqlite3
+import time
 from pathlib import Path
 from typing import Any
 
 import discord
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 from dotenv import load_dotenv
 
 # =========================================================
@@ -38,13 +39,15 @@ FLAVORS_FILE = DATA_DIR / "flavors.json"
 # =========================================================
 # SETTINGS
 # =========================================================
-TEST_MODE = False
-
 MAX_PARTICIPANTS = 5
-EVENT_DURATION_SECONDS = 20 * 60  # 20 minutes
+EVENT_DURATION_SECONDS = 20 * 60  # 20 min
 
-MIN_SPAWN_SECONDS = 5 * 60 * 60   # 5 hours
-MAX_SPAWN_SECONDS = 7 * 60 * 60   # 7 hours
+# Dobby starts becoming possible after 5h and is guaranteed by 7h
+MIN_SPAWN_SECONDS = 5 * 60 * 60
+MAX_SPAWN_SECONDS = 7 * 60 * 60
+
+# Supervisor checks once per minute
+SPAWN_CHECK_INTERVAL_SECONDS = 60
 
 EVENT_TITLE = "\"Would Master kindly give Dobby another sock?\""
 EVENT_DESCRIPTION = (
@@ -67,7 +70,7 @@ SOCK_EMOJI_POOL = [
     "<:Sock1:1485675915584344124>",
     "<:Sock2:1485675913499771061>",
     "<:Sock3:1485675911935168522>",
-    "<:Sock4:148567591046424408>",
+    "<:Sock4:1485675910464244080>",
     "<:Sock5:1485675909582295171>",
     "<:Sock7:1485675907434811625>",
     "<:Sock8:1485675897389449287>",
@@ -113,8 +116,8 @@ intents = discord.Intents.default()
 intents.guilds = True
 intents.members = True
 
-bot = commands.Bot(command_prefix="!", intents=intents)
 TEST_GUILD = discord.Object(id=GUILD_ID)
+
 
 # =========================================================
 # JSON HELPERS
@@ -150,6 +153,7 @@ def get_flavors() -> list[str]:
 def get_total_flavours() -> int:
     return len(get_flavors())
 
+
 # =========================================================
 # SQLITE HELPERS
 # =========================================================
@@ -169,6 +173,7 @@ def init_db() -> None:
             )
             """
         )
+
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS tasted_flavours (
@@ -178,6 +183,7 @@ def init_db() -> None:
             )
             """
         )
+
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS allowed_channels (
@@ -185,14 +191,41 @@ def init_db() -> None:
             )
             """
         )
+
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS dobby_state (
+                singleton INTEGER PRIMARY KEY CHECK (singleton = 1),
+                enabled INTEGER NOT NULL DEFAULT 0,
+                clock_reset_ts INTEGER,
+                last_spawn_ts INTEGER,
+                last_spawn_channel_id TEXT
+            )
+            """
+        )
+
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO dobby_state (
+                singleton,
+                enabled,
+                clock_reset_ts,
+                last_spawn_ts,
+                last_spawn_channel_id
+            )
+            VALUES (1, 0, NULL, NULL, NULL)
+            """
+        )
+
         conn.commit()
 
 
 init_db()
 get_flavors()
 
+
 # =========================================================
-# DATA HELPERS
+# BEAN / INVENTORY HELPERS
 # =========================================================
 def ensure_user_inventory(user_id: int) -> None:
     uid = str(user_id)
@@ -316,25 +349,19 @@ def add_tasted_flavour(user_id: int, flavour: str) -> tuple[bool, int]:
     return is_new, discovered_count
 
 
+# =========================================================
+# DOBBY STATE HELPERS
+# =========================================================
 def get_allowed_channels() -> set[int]:
     with get_db_connection() as conn:
-        rows = conn.execute(
-            """
-            SELECT channel_id
-            FROM allowed_channels
-            """
-        ).fetchall()
-
+        rows = conn.execute("SELECT channel_id FROM allowed_channels").fetchall()
     return {int(row["channel_id"]) for row in rows}
 
 
 def allow_channel(channel_id: int) -> None:
     with get_db_connection() as conn:
         conn.execute(
-            """
-            INSERT OR IGNORE INTO allowed_channels (channel_id)
-            VALUES (?)
-            """,
+            "INSERT OR IGNORE INTO allowed_channels (channel_id) VALUES (?)",
             (str(channel_id),),
         )
         conn.commit()
@@ -343,10 +370,7 @@ def allow_channel(channel_id: int) -> None:
 def disallow_channel(channel_id: int) -> None:
     with get_db_connection() as conn:
         conn.execute(
-            """
-            DELETE FROM allowed_channels
-            WHERE channel_id = ?
-            """,
+            "DELETE FROM allowed_channels WHERE channel_id = ?",
             (str(channel_id),),
         )
         conn.commit()
@@ -355,18 +379,135 @@ def disallow_channel(channel_id: int) -> None:
 def clear_allowed_channels() -> int:
     with get_db_connection() as conn:
         row = conn.execute("SELECT COUNT(*) AS count FROM allowed_channels").fetchone()
-        removed_count = int(row["count"]) if row else 0
-
+        count = int(row["count"]) if row else 0
         conn.execute("DELETE FROM allowed_channels")
         conn.commit()
+    return count
 
-    return removed_count
+
+def get_dobby_state() -> dict[str, Any]:
+    with get_db_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT enabled, clock_reset_ts, last_spawn_ts, last_spawn_channel_id
+            FROM dobby_state
+            WHERE singleton = 1
+            """
+        ).fetchone()
+
+    if row is None:
+        raise RuntimeError("dobby_state row missing.")
+
+    return {
+        "enabled": bool(row["enabled"]),
+        "clock_reset_ts": int(row["clock_reset_ts"]) if row["clock_reset_ts"] is not None else None,
+        "last_spawn_ts": int(row["last_spawn_ts"]) if row["last_spawn_ts"] is not None else None,
+        "last_spawn_channel_id": int(row["last_spawn_channel_id"]) if row["last_spawn_channel_id"] is not None else None,
+    }
+
+
+def set_dobby_enabled(enabled: bool, reset_clock: bool = False) -> None:
+    now = int(time.time())
+    with get_db_connection() as conn:
+        if reset_clock:
+            conn.execute(
+                """
+                UPDATE dobby_state
+                SET enabled = ?, clock_reset_ts = ?
+                WHERE singleton = 1
+                """,
+                (1 if enabled else 0, now),
+            )
+        else:
+            conn.execute(
+                """
+                UPDATE dobby_state
+                SET enabled = ?
+                WHERE singleton = 1
+                """,
+                (1 if enabled else 0,),
+            )
+        conn.commit()
+
+
+def reset_dobby_clock() -> None:
+    now = int(time.time())
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            UPDATE dobby_state
+            SET clock_reset_ts = ?
+            WHERE singleton = 1
+            """,
+            (now,),
+        )
+        conn.commit()
+
+
+def register_dobby_spawn(channel_id: int) -> None:
+    now = int(time.time())
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            UPDATE dobby_state
+            SET clock_reset_ts = ?, last_spawn_ts = ?, last_spawn_channel_id = ?
+            WHERE singleton = 1
+            """,
+            (now, now, str(channel_id)),
+        )
+        conn.commit()
+
+
+# =========================================================
+# GENERAL HELPERS
+# =========================================================
+def utc_now_ts() -> int:
+    return int(time.time())
+
+
+def format_duration(seconds: int | None) -> str:
+    if seconds is None:
+        return "n/a"
+
+    if seconds < 0:
+        seconds = 0
+
+    hours, rem = divmod(seconds, 3600)
+    minutes, secs = divmod(rem, 60)
+
+    parts: list[str] = []
+    if hours:
+        parts.append(f"{hours}h")
+    if minutes or hours:
+        parts.append(f"{minutes}m")
+    parts.append(f"{secs}s")
+    return " ".join(parts)
+
+
+def format_discord_timestamp(ts: int | None) -> str:
+    if ts is None:
+        return "Never"
+    return f"<t:{ts}:F> (<t:{ts}:R>)"
+
+
+def compute_spawn_probability(elapsed_seconds: int | None) -> float:
+    if elapsed_seconds is None:
+        return 0.0
+    if elapsed_seconds < MIN_SPAWN_SECONDS:
+        return 0.0
+    if elapsed_seconds >= MAX_SPAWN_SECONDS:
+        return 1.0
+
+    window = MAX_SPAWN_SECONDS - MIN_SPAWN_SECONDS
+    progressed = elapsed_seconds - MIN_SPAWN_SECONDS
+    return progressed / window
+
 
 # =========================================================
 # EVENT STATE
 # =========================================================
 active_events: dict[int, "DobbyEvent"] = {}
-spawn_loop_task: asyncio.Task | None = None
+
 
 # =========================================================
 # EVENT CLASS
@@ -502,6 +643,7 @@ class DobbyEvent:
             except discord.HTTPException:
                 log.exception("Failed to edit finished Dobby message in channel=%s", self.channel_id)
 
+
 # =========================================================
 # BUTTON VIEW
 # =========================================================
@@ -564,27 +706,44 @@ class DobbyView(discord.ui.View):
         if self.event.participant_count() >= MAX_PARTICIPANTS:
             await self.event.end(reason="max_participants")
 
+
+# =========================================================
+# BOT CLASS
+# =========================================================
+class DobbyBot(commands.Bot):
+    async def setup_hook(self) -> None:
+        if not dobby_supervisor.is_running():
+            dobby_supervisor.start()
+
+        synced = await self.tree.sync(guild=TEST_GUILD)
+        log.info("Synced %s guild slash commands to guild %s.", len(synced), GUILD_ID)
+
+
+bot = DobbyBot(command_prefix="!", intents=intents)
+
+
 # =========================================================
 # EVENT HELPERS
 # =========================================================
-async def start_dobby_event(channel: discord.TextChannel) -> tuple[bool, str]:
-    if channel.id in active_events:
-        return False, "A Dobby event is already active in this channel."
-
-    event = DobbyEvent(channel)
-    active_events[channel.id] = event
-    await event.send()
-    return True, "Dobby has appeared."
+def get_single_guild() -> discord.Guild | None:
+    return bot.get_guild(GUILD_ID)
 
 
 def get_valid_allowed_channels() -> list[discord.TextChannel]:
-    channels: list[discord.TextChannel] = []
+    guild = get_single_guild()
+    if guild is None:
+        return []
 
+    channels: list[discord.TextChannel] = []
     for channel_id in get_allowed_channels():
-        channel = bot.get_channel(channel_id)
+        channel = guild.get_channel(channel_id)
         if not isinstance(channel, discord.TextChannel):
             continue
         if channel.id in active_events:
+            continue
+        if not channel.permissions_for(guild.me).send_messages:
+            continue
+        if not channel.permissions_for(guild.me).view_channel:
             continue
         channels.append(channel)
 
@@ -597,31 +756,92 @@ def choose_spawn_channel() -> discord.TextChannel | None:
         return None
     return random.choice(channels)
 
+
+async def start_dobby_event(channel: discord.TextChannel) -> tuple[bool, str]:
+    state = get_dobby_state()
+    if not state["enabled"]:
+        return False, "Dobby is currently not started."
+
+    if channel.id not in get_allowed_channels():
+        return False, "This channel is not allowed for Dobby."
+
+    if channel.id in active_events:
+        return False, "A Dobby event is already active in this channel."
+
+    event = DobbyEvent(channel)
+    active_events[channel.id] = event
+    await event.send()
+    register_dobby_spawn(channel.id)
+    return True, "Dobby has appeared."
+
+
+async def end_all_active_events(reason: str) -> int:
+    events = list(active_events.values())
+    for event in events:
+        await event.end(reason=reason)
+    return len(events)
+
+
 # =========================================================
-# RANDOM SPAWN LOOP
+# RANDOM SUPERVISOR LOOP
 # =========================================================
-async def random_spawn_loop() -> None:
+@tasks.loop(seconds=SPAWN_CHECK_INTERVAL_SECONDS)
+async def dobby_supervisor() -> None:
     await bot.wait_until_ready()
 
     try:
-        while not bot.is_closed():
-            delay = random.randint(MIN_SPAWN_SECONDS, MAX_SPAWN_SECONDS)
-            log.info("Next Dobby spawn check in %s seconds.", delay)
-            await asyncio.sleep(delay)
+        state = get_dobby_state()
+        if not state["enabled"]:
+            return
 
-            channel = choose_spawn_channel()
-            if channel is None:
-                log.info("No allowed channel available for Dobby spawn.")
-                continue
+        if active_events:
+            return
 
-            try:
-                _, message = await start_dobby_event(channel)
-                log.info("Spawn attempt in #%s: %s", channel.name, message)
-            except Exception:
-                log.exception("Failed to start Dobby event.")
-    except asyncio.CancelledError:
-        log.info("Random Dobby spawn loop cancelled.")
-        raise
+        allowed = get_valid_allowed_channels()
+        if not allowed:
+            return
+
+        now = utc_now_ts()
+        clock_reset_ts = state["clock_reset_ts"]
+        if clock_reset_ts is None:
+            # Safety: if somehow started without a reset time, begin now
+            reset_dobby_clock()
+            return
+
+        elapsed = now - clock_reset_ts
+        probability = compute_spawn_probability(elapsed)
+
+        log.info(
+            "Dobby supervisor tick | enabled=%s | allowed=%s | elapsed=%s | probability=%.4f",
+            state["enabled"],
+            len(allowed),
+            elapsed,
+            probability,
+        )
+
+        if probability <= 0.0:
+            return
+
+        roll = random.random()
+        if roll > probability:
+            return
+
+        channel = random.choice(allowed)
+        try:
+            ok, message = await start_dobby_event(channel)
+            log.info("Spawn attempt in #%s: %s", channel.name, message)
+            if not ok:
+                log.warning("Spawn failed in #%s: %s", channel.name, message)
+        except Exception:
+            log.exception("Failed to start Dobby event.")
+    except Exception:
+        log.exception("Unexpected error in dobby_supervisor.")
+
+
+@dobby_supervisor.before_loop
+async def before_dobby_supervisor() -> None:
+    await bot.wait_until_ready()
+
 
 # =========================================================
 # PERMISSION HELPERS
@@ -639,6 +859,7 @@ def admin_only() -> app_commands.check:
 
 ADMIN_COMMAND_PERMS = app_commands.default_permissions(administrator=True)
 GUILD_ONLY = app_commands.guild_only()
+
 
 # =========================================================
 # PUBLIC COMMANDS
@@ -680,48 +901,24 @@ async def eat_bean(interaction: discord.Interaction) -> None:
 
     await interaction.response.send_message(embed=embed)
 
+
 # =========================================================
 # ADMIN COMMANDS
 # =========================================================
 @bot.tree.command(
     guild=TEST_GUILD,
-    name="dobby_test",
-    description="Spawn Dobby in the current channel for testing.",
-)
-@ADMIN_COMMAND_PERMS
-@GUILD_ONLY
-@admin_only()
-async def dobby_test(interaction: discord.Interaction) -> None:
-    channel = interaction.channel
-    if not isinstance(channel, discord.TextChannel):
-        await interaction.response.send_message("Use this in a text channel.", ephemeral=True)
-        return
-
-    _, message = await start_dobby_event(channel)
-    await interaction.response.send_message(message, ephemeral=True)
-
-
-@bot.tree.command(
-    guild=TEST_GUILD,
     name="dobby_start",
-    description="Start Dobby's random spawn loop.",
+    description="Start Dobby activity and reset his timer to zero.",
 )
 @ADMIN_COMMAND_PERMS
 @GUILD_ONLY
 @admin_only()
 async def dobby_start(interaction: discord.Interaction) -> None:
-    global spawn_loop_task
+    set_dobby_enabled(True, reset_clock=True)
 
-    if spawn_loop_task is not None and not spawn_loop_task.done():
-        await interaction.response.send_message(
-            "Dobby's random spawn loop is already running.",
-            ephemeral=True,
-        )
-        return
-
-    spawn_loop_task = asyncio.create_task(random_spawn_loop())
     await interaction.response.send_message(
-        "Dobby's random spawn loop has started.",
+        "Dobby has been **started**.\n"
+        "His timer has been reset to zero and he may begin appearing again in allowed channels.",
         ephemeral=True,
     )
 
@@ -729,43 +926,40 @@ async def dobby_start(interaction: discord.Interaction) -> None:
 @bot.tree.command(
     guild=TEST_GUILD,
     name="dobby_stop",
-    description="Stop Dobby's random spawn loop.",
+    description="Stop Dobby activity and end all active Dobby events. Allowed channels stay.",
 )
 @ADMIN_COMMAND_PERMS
 @GUILD_ONLY
 @admin_only()
 async def dobby_stop(interaction: discord.Interaction) -> None:
-    global spawn_loop_task
-
-    if spawn_loop_task is None or spawn_loop_task.done():
-        await interaction.response.send_message(
-            "Dobby's random spawn loop is not currently running.",
-            ephemeral=True,
-        )
-        return
-
-    spawn_loop_task.cancel()
-    spawn_loop_task = None
+    ended = await end_all_active_events(reason="stopped")
+    set_dobby_enabled(False, reset_clock=True)
 
     await interaction.response.send_message(
-        "Dobby's random spawn loop has stopped.",
+        f"Dobby has been **stopped**.\n"
+        f"Ended **{ended}** active event(s).\n"
+        f"Allowed channels were kept.",
         ephemeral=True,
     )
 
 
 @bot.tree.command(
     guild=TEST_GUILD,
-    name="dobby_cleanup",
-    description="Clear all channels where Dobby is allowed to randomly appear.",
+    name="dobby_reset",
+    description="Stop Dobby, end all events, and remove all allowed channels.",
 )
 @ADMIN_COMMAND_PERMS
 @GUILD_ONLY
 @admin_only()
-async def dobby_cleanup(interaction: discord.Interaction) -> None:
-    removed_count = clear_allowed_channels()
+async def dobby_reset(interaction: discord.Interaction) -> None:
+    ended = await end_all_active_events(reason="reset")
+    removed_channels = clear_allowed_channels()
+    set_dobby_enabled(False, reset_clock=True)
 
     await interaction.response.send_message(
-        f"Removed **{removed_count}** allowed channel(s). Dobby now has nowhere to randomly appear.",
+        f"Dobby has been **fully reset**.\n"
+        f"Ended **{ended}** active event(s).\n"
+        f"Removed **{removed_channels}** allowed channel(s).",
         ephemeral=True,
     )
 
@@ -773,12 +967,12 @@ async def dobby_cleanup(interaction: discord.Interaction) -> None:
 @bot.tree.command(
     guild=TEST_GUILD,
     name="dobby_allow",
-    description="Allow Dobby to randomly appear in a selected channel.",
+    description="Allow Dobby to appear in a selected channel.",
 )
 @ADMIN_COMMAND_PERMS
 @GUILD_ONLY
 @admin_only()
-@app_commands.describe(channel="The channel to allow for random Dobby spawns")
+@app_commands.describe(channel="The channel to allow for Dobby")
 async def dobby_allow(interaction: discord.Interaction, channel: discord.TextChannel) -> None:
     allow_channel(channel.id)
     await interaction.response.send_message(
@@ -790,18 +984,146 @@ async def dobby_allow(interaction: discord.Interaction, channel: discord.TextCha
 @bot.tree.command(
     guild=TEST_GUILD,
     name="dobby_disallow",
-    description="Stop Dobby from randomly appearing in a selected channel.",
+    description="Disallow Dobby from appearing in a selected channel.",
 )
 @ADMIN_COMMAND_PERMS
 @GUILD_ONLY
 @admin_only()
-@app_commands.describe(channel="The channel to remove from random Dobby spawns")
+@app_commands.describe(channel="The channel to remove from Dobby spawns")
 async def dobby_disallow(interaction: discord.Interaction, channel: discord.TextChannel) -> None:
     disallow_channel(channel.id)
+
+    was_active = channel.id in active_events
+    if was_active:
+        await active_events[channel.id].end(reason="disallowed")
+
     await interaction.response.send_message(
-        f"Dobby will no longer randomly appear in {channel.mention}.",
+        f"Dobby will no longer appear in {channel.mention}."
+        + (" An active event there was also ended." if was_active else ""),
         ephemeral=True,
     )
+
+
+@bot.tree.command(
+    guild=TEST_GUILD,
+    name="dobby_test",
+    description="Trigger Dobby immediately in this channel if allowed and started.",
+)
+@ADMIN_COMMAND_PERMS
+@GUILD_ONLY
+@admin_only()
+async def dobby_test(interaction: discord.Interaction) -> None:
+    channel = interaction.channel
+    if not isinstance(channel, discord.TextChannel):
+        await interaction.response.send_message("Use this in a text channel.", ephemeral=True)
+        return
+
+    state = get_dobby_state()
+    if not state["enabled"]:
+        await interaction.response.send_message(
+            "Dobby is not started. Use `/dobby_start` first.",
+            ephemeral=True,
+        )
+        return
+
+    if channel.id not in get_allowed_channels():
+        await interaction.response.send_message(
+            "This channel is not allowed for Dobby. Use `/dobby_allow` first.",
+            ephemeral=True,
+        )
+        return
+
+    ok, message = await start_dobby_event(channel)
+    await interaction.response.send_message(message, ephemeral=True)
+
+
+@bot.tree.command(
+    guild=TEST_GUILD,
+    name="dobby_stats",
+    description="Show Dobby state, allowed channels, last appearance and current probability.",
+)
+@ADMIN_COMMAND_PERMS
+@GUILD_ONLY
+@admin_only()
+async def dobby_stats(interaction: discord.Interaction) -> None:
+    state = get_dobby_state()
+    allowed_ids = sorted(get_allowed_channels())
+    guild = interaction.guild
+
+    now = utc_now_ts()
+    elapsed = None
+    probability = 0.0
+
+    if state["clock_reset_ts"] is not None:
+        elapsed = now - state["clock_reset_ts"]
+        probability = compute_spawn_probability(elapsed)
+
+    allowed_mentions: list[str] = []
+    for cid in allowed_ids:
+        ch = guild.get_channel(cid) if guild else None
+        allowed_mentions.append(ch.mention if isinstance(ch, discord.TextChannel) else f"`{cid}`")
+
+    last_channel_text = "Never"
+    if state["last_spawn_channel_id"] is not None and guild is not None:
+        ch = guild.get_channel(state["last_spawn_channel_id"])
+        last_channel_text = ch.mention if isinstance(ch, discord.TextChannel) else f"`{state['last_spawn_channel_id']}`"
+
+    current_active_channels = []
+    for cid, event in active_events.items():
+        ch = guild.get_channel(cid) if guild else None
+        current_active_channels.append(ch.mention if isinstance(ch, discord.TextChannel) else f"`{cid}`")
+
+    embed = discord.Embed(
+        title="Dobby Stats",
+        color=discord.Color.blurple(),
+    )
+
+    embed.add_field(
+        name="Active",
+        value="Yes" if state["enabled"] else "No",
+        inline=True,
+    )
+    embed.add_field(
+        name="Allowed channels",
+        value="\n".join(allowed_mentions) if allowed_mentions else "None",
+        inline=False,
+    )
+    embed.add_field(
+        name="Current active event channels",
+        value="\n".join(current_active_channels) if current_active_channels else "None",
+        inline=False,
+    )
+    embed.add_field(
+        name="Last appearance time",
+        value=format_discord_timestamp(state["last_spawn_ts"]),
+        inline=False,
+    )
+    embed.add_field(
+        name="Last appearance channel",
+        value=last_channel_text,
+        inline=False,
+    )
+    embed.add_field(
+        name="Elapsed since last trigger reset",
+        value=format_duration(elapsed),
+        inline=True,
+    )
+    embed.add_field(
+        name="Current spawn probability",
+        value=f"{probability * 100:.2f}%",
+        inline=True,
+    )
+    embed.add_field(
+        name="Spawn model",
+        value=(
+            f"0% before **{MIN_SPAWN_SECONDS // 3600}h**, "
+            f"then ramps up linearly to **100% by {MAX_SPAWN_SECONDS // 3600}h**.\n"
+            f"Checked every **{SPAWN_CHECK_INTERVAL_SECONDS} seconds**."
+        ),
+        inline=False,
+    )
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 @bot.tree.command(
@@ -826,6 +1148,7 @@ async def give_beans(
         f"Gave **{amount} Bertie Bott’s Every Flavoured {bean_word}** to {user.mention}. "
         f"They now have **{new_total} Bertie Bott’s Every Flavoured {total_word}**."
     )
+
 
 # =========================================================
 # ERROR HANDLER
@@ -864,17 +1187,15 @@ async def on_app_command_error(
             ephemeral=True,
         )
 
+
 # =========================================================
 # READY
 # =========================================================
 @bot.event
 async def on_ready() -> None:
-    synced = await bot.tree.sync(guild=TEST_GUILD)
-
     log.info("Logged in as %s (%s)", bot.user, bot.user.id if bot.user else "unknown")
-    log.info("Synced %s guild slash commands to guild %s.", len(synced), GUILD_ID)
-    log.info("TEST_MODE=%s EVENT_DURATION_SECONDS=%s", TEST_MODE, EVENT_DURATION_SECONDS)
-    log.info("Random Dobby spawn loop is controlled via /dobby_start and /dobby_stop.")
+    log.info("Dobby supervisor running: %s", dobby_supervisor.is_running())
+
 
 # =========================================================
 # MAIN
