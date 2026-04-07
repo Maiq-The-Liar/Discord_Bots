@@ -2045,22 +2045,21 @@
     "image_url": null,
     "answer_groups": [
       [
-        "become",
         "entranced"
       ],
       [
-        "become",
         "obsessed"
       ],
       [
         "lose",
-        "their",
         "minds"
       ],
       [
         "lose",
-        "their",
         "mind"
+      ],
+      [
+        "obsession"
       ]
     ]
   },
