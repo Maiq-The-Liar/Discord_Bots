@@ -95,6 +95,8 @@ class AdminCog(commands.Cog):
             )
             return
 
+        await interaction.response.defer(ephemeral=True)
+
         with self.database.connect() as conn:
             user_repo = UserRepository(conn)
             contribution_repo = ContributionRepository(conn)
@@ -102,7 +104,7 @@ class AdminCog(commands.Cog):
 
             house_cup_service = HouseCupService(user_repo, contribution_repo, bot_state_repo)
             if not house_cup_service.is_active():
-                await interaction.response.send_message(
+                await interaction.followup.send(
                     "The House Cup is not currently running.",
                     ephemeral=True,
                 )
@@ -124,47 +126,48 @@ class AdminCog(commands.Cog):
             _, board_message = await board_service.create_or_update_board(interaction.guild)
 
         action_word = "Added" if points > 0 else "Removed"
-        await interaction.response.send_message(
+        await interaction.followup.send(
             f"{action_word} **{abs(points)}** monthly house points "
             f"{'to' if points > 0 else 'from'} {member.mention} "
             f"for **{role_ctx.current_house}**.\n"
             f"User's monthly contribution is now **{monthly_total}**.\n"
-            f"Board status: **{board_message}**"
+            f"Board status: **{board_message}**",
+            ephemeral=True,
         )
 
-    @app_commands.command(
-        name="sethouseboard",
-        description="Admin: set the channel used for the House Cup scoreboard.",
-    )
-    @app_commands.describe(channel="The text channel for the scoreboard")
-    async def sethouseboard(
-        self,
-        interaction: discord.Interaction,
-        channel: discord.TextChannel,
-    ) -> None:
-        if not self.is_admin(interaction):
-            await interaction.response.send_message(
-                "You do not have permission to use this command.",
-                ephemeral=True,
-            )
-            return
-
-        if not interaction.guild:
-            await interaction.response.send_message(
-                "This command can only be used inside the server.",
-                ephemeral=True,
-            )
-            return
-
-        with self.database.connect() as conn:
-            contribution_repo = ContributionRepository(conn)
-            bot_state_repo = BotStateRepository(conn)
-            board_service = HouseCupBoardService(bot_state_repo, contribution_repo)
-            _, message = await board_service.create_or_update_board(interaction.guild, channel)
-
-        await interaction.response.send_message(
-            f"{message} Channel: {channel.mention}"
+        @app_commands.command(
+            name="sethouseboard",
+            description="Admin: set the channel used for the House Cup scoreboard.",
         )
+        @app_commands.describe(channel="The text channel for the scoreboard")
+        async def sethouseboard(
+            self,
+            interaction: discord.Interaction,
+            channel: discord.TextChannel,
+        ) -> None:
+            if not self.is_admin(interaction):
+                await interaction.response.send_message(
+                    "You do not have permission to use this command.",
+                    ephemeral=True,
+                )
+                return
+
+            if not interaction.guild:
+                await interaction.response.send_message(
+                    "This command can only be used inside the server.",
+                    ephemeral=True,
+                )
+                return
+
+            with self.database.connect() as conn:
+                contribution_repo = ContributionRepository(conn)
+                bot_state_repo = BotStateRepository(conn)
+                board_service = HouseCupBoardService(bot_state_repo, contribution_repo)
+                _, message = await board_service.create_or_update_board(interaction.guild, channel)
+
+            await interaction.response.send_message(
+                f"{message} Channel: {channel.mention}"
+            )
 
     @app_commands.command(
         name="refreshhouseboard",
