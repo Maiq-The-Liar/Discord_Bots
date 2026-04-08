@@ -72,11 +72,39 @@ ZODIAC_ROLE_KEYS_BY_SIGN: dict[str, str] = {
     "Pisces": "zodiac_pisces",
 }
 
+PRONOUN_CHOICE_TO_ROLE_KEY: dict[str, str] = {
+    "she_her": "pronouns_she_her",
+    "she_they": "pronouns_she_they",
+    "he_him": "pronouns_he_him",
+    "he_they": "pronouns_he_they",
+    "they_them": "pronouns_they_them",
+    "ask_pronouns": "pronouns_ask",
+}
+
+AGE_CHOICE_TO_ROLE_KEY: dict[str, str] = {
+    "below_21": "age_below_21",
+    "21_25": "age_21_25",
+    "26_30": "age_26_30",
+    "31_35": "age_31_35",
+    "36_40": "age_36_40",
+    "41_45": "age_41_45",
+    "46_plus": "age_46_plus",
+}
+
+CONTINENT_CHOICE_TO_ROLE_KEY: dict[str, str] = {
+    "africa": "continent_africa",
+    "antarctica": "continent_antarctica",
+    "asia": "continent_asia",
+    "australia_oceania": "continent_australia_oceania",
+    "europe": "continent_europe",
+    "north_america": "continent_north_america",
+    "south_america": "continent_south_america",
+}
+
 
 def _build_role_definitions() -> list[ManagedRoleDefinition]:
     defs: list[ManagedRoleDefinition] = []
 
-    # System / auto-managed
     defs.extend(
         [
             ManagedRoleDefinition(
@@ -116,7 +144,6 @@ def _build_role_definitions() -> list[ManagedRoleDefinition]:
         ]
     )
 
-    # Reaction role groups
     defs.extend(
         [
             ManagedRoleDefinition("age_below_21", "Below 21", 0xA8DADC, ROLE_GROUP_AGES),
@@ -198,7 +225,6 @@ def _build_role_definitions() -> list[ManagedRoleDefinition]:
         ]
     )
 
-    # Gryffindor colours
     defs.extend(
         [
             ManagedRoleDefinition("gryff_color_crimson", "Gryffindor • Crimson", 0x7F1D1D, ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR),
@@ -214,7 +240,6 @@ def _build_role_definitions() -> list[ManagedRoleDefinition]:
         ]
     )
 
-    # Hufflepuff colours
     defs.extend(
         [
             ManagedRoleDefinition("huff_color_gold", "Hufflepuff • Gold", 0xD4A017, ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF),
@@ -230,7 +255,6 @@ def _build_role_definitions() -> list[ManagedRoleDefinition]:
         ]
     )
 
-    # Ravenclaw colours
     defs.extend(
         [
             ManagedRoleDefinition("raven_color_royal", "Ravenclaw • Royal Blue", 0x1D4ED8, ROLE_GROUP_HOUSE_COLOR_RAVENCLAW),
@@ -246,7 +270,6 @@ def _build_role_definitions() -> list[ManagedRoleDefinition]:
         ]
     )
 
-    # Slytherin colours
     defs.extend(
         [
             ManagedRoleDefinition("slyth_color_emerald", "Slytherin • Emerald", 0x10B981, ROLE_GROUP_HOUSE_COLOR_SLYTHERIN),
