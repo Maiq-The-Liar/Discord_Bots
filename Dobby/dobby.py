@@ -14,7 +14,7 @@ from discord.ext import commands, tasks
 from dotenv import load_dotenv
 
 # =========================================================
-# ENV / CONFIG test
+# ENV / CONFIG
 # =========================================================
 load_dotenv()
 
@@ -32,21 +32,43 @@ try:
 except ValueError as exc:
     raise RuntimeError("GUILD_ID in .env must be a valid integer.") from exc
 
-DATA_DIR = Path(__file__).parent
-DB_FILE = DATA_DIR / "bot_data.db"
-FLAVORS_FILE = DATA_DIR / "flavors.json"
+SCRIPT_DIR = Path(__file__).resolve().parent
+PARENT_DIR = SCRIPT_DIR.parent
+
+DB_FILE = SCRIPT_DIR / "bot_data.db"
+FLAVORS_FILE = SCRIPT_DIR / "flavors.json"
+
+
+def resolve_beans_dir() -> Path:
+    candidates = [
+        SCRIPT_DIR / "Beans",
+        PARENT_DIR / "Beans",
+    ]
+
+    for candidate in candidates:
+        if candidate.exists() and candidate.is_dir():
+            return candidate
+
+    raise RuntimeError(
+        "Could not find a Beans folder. Expected either:\n"
+        f"- {SCRIPT_DIR / 'Beans'}\n"
+        f"- {PARENT_DIR / 'Beans'}"
+    )
+
+
+BEANS_DIR = resolve_beans_dir()
 
 # =========================================================
 # SETTINGS
 # =========================================================
 MAX_PARTICIPANTS = 5
-EVENT_DURATION_SECONDS = 20 * 60  # 20 min
+EVENT_DURATION_SECONDS = 20 * 60  # 20 minutes
 
-# Dobby starts becoming possible after 5h and is guaranteed by 7h
+# Dobby starts becoming possible after 5h and reaches 100% by 7h
 MIN_SPAWN_SECONDS = 5 * 60 * 60
 MAX_SPAWN_SECONDS = 7 * 60 * 60
 
-# Supervisor checks once per minute
+# Supervisor checks once every minute
 SPAWN_CHECK_INTERVAL_SECONDS = 60
 
 EVENT_TITLE = "\"Would Master kindly give Dobby another sock?\""
@@ -57,11 +79,6 @@ EVENT_DESCRIPTION = (
 
 EVENT_GIF_URLS = [
     "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Dobby_bed.gif?raw=true"
-]
-
-BEAN_IMAGE_URLS = [
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean1_cleanup.png?raw=true",
-    "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Beans/Bean2_cleanup.png?raw=true",
 ]
 
 SOCK_EMOJI_POOL = [
@@ -118,7 +135,6 @@ intents.members = True
 
 TEST_GUILD = discord.Object(id=GUILD_ID)
 
-
 # =========================================================
 # JSON HELPERS
 # =========================================================
@@ -153,6 +169,37 @@ def get_flavors() -> list[str]:
 def get_total_flavours() -> int:
     return len(get_flavors())
 
+# =========================================================
+# BEAN IMAGE HELPERS
+# =========================================================
+last_bean_image_path: Path | None = None
+
+
+def get_all_bean_image_paths() -> list[Path]:
+    image_paths = sorted(
+        [p for p in BEANS_DIR.iterdir() if p.is_file() and p.suffix.lower() == ".png"]
+    )
+
+    if not image_paths:
+        raise RuntimeError(f"No .png files found in Beans folder: {BEANS_DIR}")
+
+    return image_paths
+
+
+def get_random_bean_image_path() -> Path:
+    global last_bean_image_path
+
+    image_paths = get_all_bean_image_paths()
+
+    if len(image_paths) == 1:
+        chosen = image_paths[0]
+        last_bean_image_path = chosen
+        return chosen
+
+    available = [p for p in image_paths if p != last_bean_image_path]
+    chosen = random.choice(available)
+    last_bean_image_path = chosen
+    return chosen
 
 # =========================================================
 # SQLITE HELPERS
@@ -217,12 +264,22 @@ def init_db() -> None:
             """
         )
 
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS dobby_ping_subscriptions (
+                channel_id TEXT NOT NULL,
+                user_id TEXT NOT NULL,
+                PRIMARY KEY (channel_id, user_id)
+            )
+            """
+        )
+
         conn.commit()
 
 
 init_db()
 get_flavors()
-
+get_all_bean_image_paths()
 
 # =========================================================
 # BEAN / INVENTORY HELPERS
@@ -348,9 +405,8 @@ def add_tasted_flavour(user_id: int, flavour: str) -> tuple[bool, int]:
     discovered_count = int(row["count"]) if row else 0
     return is_new, discovered_count
 
-
 # =========================================================
-# DOBBY STATE HELPERS
+# DOBBY CHANNEL / STATE / PING HELPERS
 # =========================================================
 def get_allowed_channels() -> set[int]:
     with get_db_connection() as conn:
@@ -379,10 +435,10 @@ def disallow_channel(channel_id: int) -> None:
 def clear_allowed_channels() -> int:
     with get_db_connection() as conn:
         row = conn.execute("SELECT COUNT(*) AS count FROM allowed_channels").fetchone()
-        count = int(row["count"]) if row else 0
+        removed_count = int(row["count"]) if row else 0
         conn.execute("DELETE FROM allowed_channels")
         conn.commit()
-    return count
+    return removed_count
 
 
 def get_dobby_state() -> dict[str, Any]:
@@ -408,6 +464,7 @@ def get_dobby_state() -> dict[str, Any]:
 
 def set_dobby_enabled(enabled: bool, reset_clock: bool = False) -> None:
     now = int(time.time())
+
     with get_db_connection() as conn:
         if reset_clock:
             conn.execute(
@@ -458,6 +515,43 @@ def register_dobby_spawn(channel_id: int) -> None:
         conn.commit()
 
 
+def add_dobby_ping_subscription(channel_id: int, user_id: int) -> None:
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO dobby_ping_subscriptions (channel_id, user_id)
+            VALUES (?, ?)
+            """,
+            (str(channel_id), str(user_id)),
+        )
+        conn.commit()
+
+
+def remove_dobby_ping_subscription(channel_id: int, user_id: int) -> None:
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            DELETE FROM dobby_ping_subscriptions
+            WHERE channel_id = ? AND user_id = ?
+            """,
+            (str(channel_id), str(user_id)),
+        )
+        conn.commit()
+
+
+def get_dobby_ping_user_ids(channel_id: int) -> list[int]:
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT user_id
+            FROM dobby_ping_subscriptions
+            WHERE channel_id = ?
+            """,
+            (str(channel_id),),
+        ).fetchall()
+
+    return [int(row["user_id"]) for row in rows]
+
 # =========================================================
 # GENERAL HELPERS
 # =========================================================
@@ -481,6 +575,7 @@ def format_duration(seconds: int | None) -> str:
     if minutes or hours:
         parts.append(f"{minutes}m")
     parts.append(f"{secs}s")
+
     return " ".join(parts)
 
 
@@ -502,12 +597,10 @@ def compute_spawn_probability(elapsed_seconds: int | None) -> float:
     progressed = elapsed_seconds - MIN_SPAWN_SECONDS
     return progressed / window
 
-
 # =========================================================
 # EVENT STATE
 # =========================================================
 active_events: dict[int, "DobbyEvent"] = {}
-
 
 # =========================================================
 # EVENT CLASS
@@ -554,9 +647,14 @@ class DobbyEvent:
         }
 
         add_beans(member.id, reward)
+
         log.info(
             "Participant added: user=%s sock=%s rank=%s reward=%s channel=%s",
-            member.id, sock_emoji, rank, reward, self.channel_id,
+            member.id,
+            sock_emoji,
+            rank,
+            reward,
+            self.channel_id,
         )
         return rank, reward
 
@@ -584,10 +682,25 @@ class DobbyEvent:
     async def send(self) -> None:
         self.view = DobbyView(self)
         self.message = await self.channel.send(embed=self.build_embed(), view=self.view)
+
+        ping_user_ids = get_dobby_ping_user_ids(self.channel_id)
+        if ping_user_ids:
+            mention_text = " ".join(f"<@{uid}>" for uid in ping_user_ids)
+            try:
+                await self.channel.send(
+                    f"{mention_text} Dobby has appeared in {self.channel.mention}!",
+                    allowed_mentions=discord.AllowedMentions(users=True),
+                )
+            except discord.HTTPException:
+                log.exception("Failed to send Dobby ping message in channel=%s", self.channel_id)
+
         log.info(
             "Dobby event sent: guild=%s channel=%s message=%s",
-            self.guild_id, self.channel_id, self.message.id,
+            self.guild_id,
+            self.channel_id,
+            self.message.id,
         )
+
         self.end_task = asyncio.create_task(self._auto_end())
 
     async def refresh_message(self) -> None:
@@ -642,7 +755,6 @@ class DobbyEvent:
                 await self.message.edit(embed=missed_embed, view=self.view)
             except discord.HTTPException:
                 log.exception("Failed to edit finished Dobby message in channel=%s", self.channel_id)
-
 
 # =========================================================
 # BUTTON VIEW
@@ -706,7 +818,6 @@ class DobbyView(discord.ui.View):
         if self.event.participant_count() >= MAX_PARTICIPANTS:
             await self.event.end(reason="max_participants")
 
-
 # =========================================================
 # BOT CLASS
 # =========================================================
@@ -721,7 +832,6 @@ class DobbyBot(commands.Bot):
 
 bot = DobbyBot(command_prefix="!", intents=intents)
 
-
 # =========================================================
 # EVENT HELPERS
 # =========================================================
@@ -735,30 +845,28 @@ def get_valid_allowed_channels() -> list[discord.TextChannel]:
         return []
 
     channels: list[discord.TextChannel] = []
+
     for channel_id in get_allowed_channels():
         channel = guild.get_channel(channel_id)
         if not isinstance(channel, discord.TextChannel):
             continue
         if channel.id in active_events:
             continue
-        if not channel.permissions_for(guild.me).send_messages:
+        if guild.me is None:
             continue
-        if not channel.permissions_for(guild.me).view_channel:
+
+        perms = channel.permissions_for(guild.me)
+        if not perms.view_channel or not perms.send_messages:
             continue
+
         channels.append(channel)
 
     return channels
 
 
-def choose_spawn_channel() -> discord.TextChannel | None:
-    channels = get_valid_allowed_channels()
-    if not channels:
-        return None
-    return random.choice(channels)
-
-
 async def start_dobby_event(channel: discord.TextChannel) -> tuple[bool, str]:
     state = get_dobby_state()
+
     if not state["enabled"]:
         return False, "Dobby is currently not started."
 
@@ -781,7 +889,6 @@ async def end_all_active_events(reason: str) -> int:
         await event.end(reason=reason)
     return len(events)
 
-
 # =========================================================
 # RANDOM SUPERVISOR LOOP
 # =========================================================
@@ -791,20 +898,21 @@ async def dobby_supervisor() -> None:
 
     try:
         state = get_dobby_state()
+
         if not state["enabled"]:
             return
 
         if active_events:
             return
 
-        allowed = get_valid_allowed_channels()
-        if not allowed:
+        valid_channels = get_valid_allowed_channels()
+        if not valid_channels:
             return
 
         now = utc_now_ts()
         clock_reset_ts = state["clock_reset_ts"]
+
         if clock_reset_ts is None:
-            # Safety: if somehow started without a reset time, begin now
             reset_dobby_clock()
             return
 
@@ -814,7 +922,7 @@ async def dobby_supervisor() -> None:
         log.info(
             "Dobby supervisor tick | enabled=%s | allowed=%s | elapsed=%s | probability=%.4f",
             state["enabled"],
-            len(allowed),
+            len(valid_channels),
             elapsed,
             probability,
         )
@@ -826,7 +934,8 @@ async def dobby_supervisor() -> None:
         if roll > probability:
             return
 
-        channel = random.choice(allowed)
+        channel = random.choice(valid_channels)
+
         try:
             ok, message = await start_dobby_event(channel)
             log.info("Spawn attempt in #%s: %s", channel.name, message)
@@ -834,6 +943,7 @@ async def dobby_supervisor() -> None:
                 log.warning("Spawn failed in #%s: %s", channel.name, message)
         except Exception:
             log.exception("Failed to start Dobby event.")
+
     except Exception:
         log.exception("Unexpected error in dobby_supervisor.")
 
@@ -841,7 +951,6 @@ async def dobby_supervisor() -> None:
 @dobby_supervisor.before_loop
 async def before_dobby_supervisor() -> None:
     await bot.wait_until_ready()
-
 
 # =========================================================
 # PERMISSION HELPERS
@@ -859,7 +968,6 @@ def admin_only() -> app_commands.check:
 
 ADMIN_COMMAND_PERMS = app_commands.default_permissions(administrator=True)
 GUILD_ONLY = app_commands.guild_only()
-
 
 # =========================================================
 # PUBLIC COMMANDS
@@ -884,7 +992,9 @@ async def eat_bean(interaction: discord.Interaction) -> None:
 
     is_new_flavour, discovered_count = add_tasted_flavour(interaction.user.id, flavor)
     total_flavours = get_total_flavours()
-    bean_image_url = random.choice(BEAN_IMAGE_URLS)
+
+    bean_image_path = get_random_bean_image_path()
+    bean_file = discord.File(bean_image_path, filename=bean_image_path.name)
 
     status = "unfamiliar tasting" if is_new_flavour else "familiar tasting"
     bean_word = "bean" if remaining == 1 else "beans"
@@ -897,10 +1007,9 @@ async def eat_bean(interaction: discord.Interaction) -> None:
         ),
         color=discord.Color.green(),
     )
-    embed.set_thumbnail(url=bean_image_url)
+    embed.set_thumbnail(url=f"attachment://{bean_image_path.name}")
 
-    await interaction.response.send_message(embed=embed)
-
+    await interaction.response.send_message(embed=embed, file=bean_file)
 
 # =========================================================
 # ADMIN COMMANDS
@@ -975,6 +1084,7 @@ async def dobby_reset(interaction: discord.Interaction) -> None:
 @app_commands.describe(channel="The channel to allow for Dobby")
 async def dobby_allow(interaction: discord.Interaction, channel: discord.TextChannel) -> None:
     allow_channel(channel.id)
+
     await interaction.response.send_message(
         f"Dobby is now allowed to appear in {channel.mention}.",
         ephemeral=True,
@@ -1039,6 +1149,63 @@ async def dobby_test(interaction: discord.Interaction) -> None:
 
 @bot.tree.command(
     guild=TEST_GUILD,
+    name="dobby_pingme",
+    description="Set a user to be pinged when Dobby appears in a specific channel.",
+)
+@ADMIN_COMMAND_PERMS
+@GUILD_ONLY
+@admin_only()
+@app_commands.describe(
+    channel="The allowed channel to watch for Dobby",
+    user="The user to ping when Dobby appears there",
+)
+async def dobby_pingme(
+    interaction: discord.Interaction,
+    channel: discord.TextChannel,
+    user: discord.Member,
+) -> None:
+    if channel.id not in get_allowed_channels():
+        await interaction.response.send_message(
+            f"{channel.mention} is not currently an allowed Dobby channel.",
+            ephemeral=True,
+        )
+        return
+
+    add_dobby_ping_subscription(channel.id, user.id)
+
+    await interaction.response.send_message(
+        f"{user.mention} will now be pinged when Dobby appears in {channel.mention}.",
+        ephemeral=True,
+    )
+
+
+@bot.tree.command(
+    guild=TEST_GUILD,
+    name="dobby_unpingme",
+    description="Remove a Dobby ping subscription for a user in a specific channel.",
+)
+@ADMIN_COMMAND_PERMS
+@GUILD_ONLY
+@admin_only()
+@app_commands.describe(
+    channel="The channel to stop watching",
+    user="The user to stop pinging",
+)
+async def dobby_unpingme(
+    interaction: discord.Interaction,
+    channel: discord.TextChannel,
+    user: discord.Member,
+) -> None:
+    remove_dobby_ping_subscription(channel.id, user.id)
+
+    await interaction.response.send_message(
+        f"{user.mention} will no longer be pinged when Dobby appears in {channel.mention}.",
+        ephemeral=True,
+    )
+
+
+@bot.tree.command(
+    guild=TEST_GUILD,
     name="dobby_stats",
     description="Show Dobby state, allowed channels, last appearance and current probability.",
 )
@@ -1068,10 +1235,21 @@ async def dobby_stats(interaction: discord.Interaction) -> None:
         ch = guild.get_channel(state["last_spawn_channel_id"])
         last_channel_text = ch.mention if isinstance(ch, discord.TextChannel) else f"`{state['last_spawn_channel_id']}`"
 
-    current_active_channels = []
-    for cid, event in active_events.items():
+    current_active_channels: list[str] = []
+    for cid in active_events:
         ch = guild.get_channel(cid) if guild else None
         current_active_channels.append(ch.mention if isinstance(ch, discord.TextChannel) else f"`{cid}`")
+
+    ping_lines: list[str] = []
+    for cid in allowed_ids:
+        user_ids = get_dobby_ping_user_ids(cid)
+        if not user_ids:
+            continue
+
+        ch = guild.get_channel(cid) if guild else None
+        ch_name = ch.mention if isinstance(ch, discord.TextChannel) else f"`{cid}`"
+        mentions = " ".join(f"<@{uid}>" for uid in user_ids)
+        ping_lines.append(f"{ch_name}: {mentions}")
 
     embed = discord.Embed(
         title="Dobby Stats",
@@ -1114,6 +1292,11 @@ async def dobby_stats(interaction: discord.Interaction) -> None:
         inline=True,
     )
     embed.add_field(
+        name="Ping subscriptions",
+        value="\n".join(ping_lines) if ping_lines else "None",
+        inline=False,
+    )
+    embed.add_field(
         name="Spawn model",
         value=(
             f"0% before **{MIN_SPAWN_SECONDS // 3600}h**, "
@@ -1148,7 +1331,6 @@ async def give_beans(
         f"Gave **{amount} Bertie Bott’s Every Flavoured {bean_word}** to {user.mention}. "
         f"They now have **{new_total} Bertie Bott’s Every Flavoured {total_word}**."
     )
-
 
 # =========================================================
 # ERROR HANDLER
@@ -1187,7 +1369,6 @@ async def on_app_command_error(
             ephemeral=True,
         )
 
-
 # =========================================================
 # READY
 # =========================================================
@@ -1195,7 +1376,7 @@ async def on_app_command_error(
 async def on_ready() -> None:
     log.info("Logged in as %s (%s)", bot.user, bot.user.id if bot.user else "unknown")
     log.info("Dobby supervisor running: %s", dobby_supervisor.is_running())
-
+    log.info("Beans folder resolved to: %s", BEANS_DIR)
 
 # =========================================================
 # MAIN
