@@ -26,6 +26,76 @@ class AdminCog(commands.Cog):
             and interaction.user.guild_permissions.administrator
         )
 
+
+    @app_commands.command(
+        name="cleanup_roles",
+        description="Admin: remove duplicate managed roles created by previous syncs.",
+    )
+    async def cleanup_roles(
+        self,
+        interaction: discord.Interaction,
+    ) -> None:
+        if not self.is_admin(interaction):
+            await interaction.response.send_message(
+                "You do not have permission to use this command.",
+                ephemeral=True,
+            )
+            return
+
+        if interaction.guild is None:
+            await interaction.response.send_message(
+                "This command can only be used inside the server.",
+                ephemeral=True,
+            )
+            return
+
+        await interaction.response.defer(ephemeral=True)
+
+        try:
+            with self.database.connect() as conn:
+                role_repo = GuildRoleRepository(conn)
+                role_service = RoleService(role_repo)
+                result = await role_service.cleanup_duplicate_managed_roles(interaction.guild)
+        except discord.Forbidden:
+            await interaction.followup.send(
+                "I could not clean up duplicate roles. Make sure I have **Manage Roles** and that my role is above the roles I need to delete.",
+                ephemeral=True,
+            )
+            return
+        except discord.HTTPException as exc:
+            await interaction.followup.send(
+                f"Cleanup failed: {exc}",
+                ephemeral=True,
+            )
+            return
+
+        lines = [
+            f"Deleted duplicates: **{len(result['deleted'])}**",
+            f"Failed deletions: **{len(result['failed'])}**",
+        ]
+
+        if result["deleted"]:
+            preview = "\n".join(f"• {item}" for item in result["deleted"][:20])
+            lines.append("")
+            lines.append("Deleted:")
+            lines.append(preview)
+
+        if result["failed"]:
+            preview = "\n".join(f"• {item}" for item in result["failed"][:20])
+            lines.append("")
+            lines.append("Failed:")
+            lines.append(preview)
+
+        if not result["deleted"] and not result["failed"]:
+            lines.append("")
+            lines.append("No duplicate managed roles were found.")
+
+        await interaction.followup.send(
+            "\n".join(lines),
+            ephemeral=True,
+        )
+
+
     @app_commands.command(
         name="update_roles",
         description="Admin: create missing managed roles and refresh stored role mappings.",

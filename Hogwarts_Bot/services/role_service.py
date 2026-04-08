@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections import defaultdict
+
 import discord
 
 from domain.role_registry import (
@@ -89,10 +91,12 @@ class RoleService:
                 return mapped_role
 
         role_def = ROLE_DEFINITION_BY_KEY[role_key]
-        by_name = discord.utils.get(guild.roles, name=role_def.name)
-        if by_name is not None:
-            self.role_repo.upsert_mapping(guild.id, role_key, by_name.id, by_name.name)
-            return by_name
+        matching_roles = [role for role in guild.roles if role.name == role_def.name]
+
+        if matching_roles:
+            chosen = sorted(matching_roles, key=lambda r: r.id)[0]
+            self.role_repo.upsert_mapping(guild.id, role_key, chosen.id, chosen.name)
+            return chosen
 
         return None
 
@@ -121,6 +125,49 @@ class RoleService:
         sign: str,
     ) -> discord.Role | None:
         return self.get_role(guild, zodiac_role_key_for_sign(sign))
+
+    async def cleanup_duplicate_managed_roles(
+        self,
+        guild: discord.Guild,
+    ) -> dict[str, list[str]]:
+        managed_defs = get_all_managed_role_definitions()
+        managed_by_name = {role_def.name: role_def for role_def in managed_defs}
+
+        roles_by_name: dict[str, list[discord.Role]] = defaultdict(list)
+        for role in guild.roles:
+            if role.name in managed_by_name:
+                roles_by_name[role.name].append(role)
+
+        deleted: list[str] = []
+        failed: list[str] = []
+        kept: list[str] = []
+
+        for role_name, roles in roles_by_name.items():
+            if len(roles) <= 1:
+                continue
+
+            roles_sorted = sorted(roles, key=lambda r: r.id)
+            keep_role = roles_sorted[0]
+            extras = roles_sorted[1:]
+
+            role_def = managed_by_name[role_name]
+            self.role_repo.upsert_mapping(guild.id, role_def.key, keep_role.id, keep_role.name)
+            kept.append(f"{role_name} → kept {keep_role.id}")
+
+            for extra in extras:
+                try:
+                    await extra.delete(reason="Hogwarts Bot cleanup duplicate managed role")
+                    deleted.append(f"{role_name} → deleted {extra.id}")
+                except discord.Forbidden:
+                    failed.append(f"{role_name} → could not delete {extra.id} (permissions/hierarchy)")
+                except discord.HTTPException as exc:
+                    failed.append(f"{role_name} → could not delete {extra.id} ({exc})")
+
+        return {
+            "kept": kept,
+            "deleted": deleted,
+            "failed": failed,
+        }
 
     def _needs_edit(self, role: discord.Role, role_def) -> bool:
         return any(
