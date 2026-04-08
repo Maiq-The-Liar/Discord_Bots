@@ -310,18 +310,30 @@ class ReactionRoleService:
         return "\n".join(lines)
 
     def _emoji_for_display(self, option: ReactionRoleOption) -> str:
-        if option.emoji_id and option.emoji_name:
-            prefix = "a" if option.emoji_animated else ""
-            return f"<{prefix}:{option.emoji_name}:{option.emoji_id}>"
+        if option.emoji_id:
+            emoji_obj = self.bot.get_emoji(option.emoji_id)
+            if emoji_obj is not None:
+                return str(emoji_obj)
+
+            if option.emoji_name:
+                prefix = "a" if option.emoji_animated else ""
+                return f"<{prefix}:{option.emoji_name}:{option.emoji_id}>"
+
         return option.emoji_unicode or "•"
 
     def _emoji_for_reaction(self, option: ReactionRoleOption):
-        if option.emoji_id and option.emoji_name:
-            return discord.PartialEmoji(
-                name=option.emoji_name,
-                id=option.emoji_id,
-                animated=option.emoji_animated,
-            )
+        if option.emoji_id:
+            emoji_obj = self.bot.get_emoji(option.emoji_id)
+            if emoji_obj is not None:
+                return emoji_obj
+
+            if option.emoji_name:
+                return discord.PartialEmoji(
+                    name=option.emoji_name,
+                    id=option.emoji_id,
+                    animated=option.emoji_animated,
+                )
+
         return option.emoji_unicode or "•"
 
     def _match_option(
@@ -332,7 +344,7 @@ class ReactionRoleService:
         for option in group.options:
             if option.emoji_id is not None and emoji.id == option.emoji_id:
                 return option
-            if option.emoji_unicode is not None and str(emoji) == option.emoji_unicode:
+            if option.emoji_unicode is not None and emoji.id is None and emoji.name == option.emoji_unicode:
                 return option
         return None
 
