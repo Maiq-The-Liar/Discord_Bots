@@ -1,6 +1,6 @@
 from pathlib import Path
 from io import BytesIO
-import os
+import unicodedata
 
 import discord
 from PIL import Image, ImageDraw, ImageFont
@@ -133,8 +133,21 @@ class ProfileService:
             Path("/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf"),
         ]
 
-    def _load_font(self, size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
-        for candidate in self._get_font_candidates():
+    def _get_emoji_font_candidates(self) -> list[Path]:
+        return [
+            Path("/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf"),
+            Path("/usr/share/fonts/noto/NotoColorEmoji.ttf"),
+            Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+            Path("/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf"),
+        ]
+
+    def _load_font(
+        self,
+        size: int,
+        candidates: list[Path] | None = None,
+    ) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+        font_candidates = candidates or self._get_font_candidates()
+        for candidate in font_candidates:
             if candidate.exists():
                 try:
                     return ImageFont.truetype(str(candidate), size=size)
@@ -142,23 +155,211 @@ class ProfileService:
                     continue
         return ImageFont.load_default()
 
+    def _normalize_banner_text(self, text: str) -> str:
+        replacements = {
+            "ß": "ss",
+            "ẞ": "SS",
+            "æ": "ae",
+            "Æ": "AE",
+            "œ": "oe",
+            "Œ": "OE",
+            "ø": "o",
+            "Ø": "O",
+            "ł": "l",
+            "Ł": "L",
+            "đ": "d",
+            "Đ": "D",
+            "þ": "th",
+            "Þ": "Th",
+            "ð": "d",
+            "Ð": "D",
+        }
+
+        for src, dst in replacements.items():
+            text = text.replace(src, dst)
+
+        decomposed = unicodedata.normalize("NFKD", text)
+        return "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+
+    def _is_emoji_char(self, ch: str) -> bool:
+        code = ord(ch)
+        return (
+            0x1F300 <= code <= 0x1FAFF
+            or 0x2600 <= code <= 0x27BF
+            or 0xFE00 <= code <= 0xFE0F
+        )
+
+    def _split_banner_runs(self, text: str) -> list[tuple[str, str]]:
+        runs: list[tuple[str, str]] = []
+        buffer: list[str] = []
+        current_kind: str | None = None
+
+        for ch in text:
+            kind = "emoji" if self._is_emoji_char(ch) else "text"
+
+            if current_kind is None:
+                current_kind = kind
+
+            if kind != current_kind:
+                run_text = "".join(buffer)
+                if current_kind == "text":
+                    run_text = self._normalize_banner_text(run_text)
+                if run_text:
+                    runs.append((run_text, current_kind))
+                buffer = [ch]
+                current_kind = kind
+            else:
+                buffer.append(ch)
+
+        if buffer:
+            run_text = "".join(buffer)
+            if current_kind == "text":
+                run_text = self._normalize_banner_text(run_text)
+            if run_text:
+                runs.append((run_text, current_kind))
+
+        return runs
+
+    def _measure_text_runs(
+        self,
+        draw: ImageDraw.ImageDraw,
+        runs: list[tuple[str, str]],
+        text_font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
+        emoji_font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
+        stroke_width: int,
+    ) -> tuple[int, int]:
+        total_width = 0
+        max_height = 0
+
+        for run_text, kind in runs:
+            font = emoji_font if kind == "emoji" else text_font
+            current_stroke = 0 if kind == "emoji" else stroke_width
+
+            try:
+                bbox = draw.textbbox(
+                    (0, 0),
+                    run_text,
+                    font=font,
+                    stroke_width=current_stroke,
+                    embedded_color=(kind == "emoji"),
+                )
+            except TypeError:
+                bbox = draw.textbbox(
+                    (0, 0),
+                    run_text,
+                    font=font,
+                    stroke_width=current_stroke,
+                )
+
+            width = bbox[2] - bbox[0]
+            height = bbox[3] - bbox[1]
+
+            total_width += width
+            max_height = max(max_height, height)
+
+        return total_width, max_height
+
     def _fit_text_font(
         self,
         draw: ImageDraw.ImageDraw,
-        text: str,
+        runs: list[tuple[str, str]],
         max_width: int,
         max_height: int,
         max_font_size: int = 110,
         min_font_size: int = 28,
-    ) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+    ) -> tuple[
+        ImageFont.FreeTypeFont | ImageFont.ImageFont,
+        ImageFont.FreeTypeFont | ImageFont.ImageFont,
+    ]:
         for size in range(max_font_size, min_font_size - 1, -2):
-            font = self._load_font(size)
-            bbox = draw.textbbox((0, 0), text, font=font, stroke_width=max(2, size // 18))
-            width = bbox[2] - bbox[0]
-            height = bbox[3] - bbox[1]
+            text_font = self._load_font(size, self._get_font_candidates())
+            emoji_font = self._load_font(size, self._get_emoji_font_candidates())
+            stroke_width = max(2, size // 18)
+
+            width, height = self._measure_text_runs(
+                draw=draw,
+                runs=runs,
+                text_font=text_font,
+                emoji_font=emoji_font,
+                stroke_width=stroke_width,
+            )
             if width <= max_width and height <= max_height:
-                return font
-        return self._load_font(min_font_size)
+                return text_font, emoji_font
+
+        return (
+            self._load_font(min_font_size, self._get_font_candidates()),
+            self._load_font(min_font_size, self._get_emoji_font_candidates()),
+        )
+
+    def _draw_text_runs(
+        self,
+        draw: ImageDraw.ImageDraw,
+        x: float,
+        y: float,
+        runs: list[tuple[str, str]],
+        text_font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
+        emoji_font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
+        style: dict[str, tuple[int, int, int, int]],
+        stroke_width: int,
+        shadow_offset: int,
+    ) -> None:
+        current_x = x
+
+        for run_text, kind in runs:
+            font = emoji_font if kind == "emoji" else text_font
+            current_stroke = 0 if kind == "emoji" else stroke_width
+
+            try:
+                bbox = draw.textbbox(
+                    (0, 0),
+                    run_text,
+                    font=font,
+                    stroke_width=current_stroke,
+                    embedded_color=(kind == "emoji"),
+                )
+            except TypeError:
+                bbox = draw.textbbox(
+                    (0, 0),
+                    run_text,
+                    font=font,
+                    stroke_width=current_stroke,
+                )
+
+            run_width = bbox[2] - bbox[0]
+
+            if kind == "text":
+                draw.text(
+                    (current_x + shadow_offset, y + shadow_offset),
+                    run_text,
+                    font=font,
+                    fill=style["shadow"],
+                    stroke_width=0,
+                )
+                draw.text(
+                    (current_x, y),
+                    run_text,
+                    font=font,
+                    fill=style["fill"],
+                    stroke_width=stroke_width,
+                    stroke_fill=style["stroke"],
+                )
+            else:
+                try:
+                    draw.text(
+                        (current_x, y),
+                        run_text,
+                        font=font,
+                        embedded_color=True,
+                    )
+                except TypeError:
+                    draw.text(
+                        (current_x, y),
+                        run_text,
+                        font=font,
+                        fill=style["fill"],
+                    )
+
+            current_x += run_width
 
     def _render_profile_banner(
         self,
@@ -181,7 +382,11 @@ class ProfileService:
             },
         )
 
-        text = display_name.strip() if display_name.strip() else "Unknown Wizard"
+        raw_text = display_name.strip() if display_name.strip() else "Unknown Wizard"
+        runs = self._split_banner_runs(raw_text)
+
+        if not runs:
+            runs = [("Unknown Wizard", "text")]
 
         width, height = image.size
 
@@ -195,41 +400,41 @@ class ProfileService:
         max_text_width = text_area_right - text_area_left
         max_text_height = text_area_bottom - text_area_top
 
-        font = self._fit_text_font(
+        text_font, emoji_font = self._fit_text_font(
             draw=draw,
-            text=text,
+            runs=runs,
             max_width=max_text_width,
             max_height=max_text_height,
             max_font_size=min(200, int(height * 0.27)),
             min_font_size=30,
         )
 
-        # Recompute with final font.
-        approx_size = getattr(font, "size", 48)
+        approx_size = getattr(text_font, "size", 48)
         stroke_width = max(2, approx_size // 18)
-        bbox = draw.textbbox((0, 0), text, font=font, stroke_width=stroke_width)
-        text_width = bbox[2] - bbox[0]
-        text_height = bbox[3] - bbox[1]
 
-        x = (width - text_width) / 2 - bbox[0]
-        y = ((text_area_top + text_area_bottom) / 2 - text_height / 2) - bbox[1] + 75
+        text_width, text_height = self._measure_text_runs(
+            draw=draw,
+            runs=runs,
+            text_font=text_font,
+            emoji_font=emoji_font,
+            stroke_width=stroke_width,
+        )
+
+        x = (width - text_width) / 2
+        y = ((text_area_top + text_area_bottom) / 2 - text_height / 2) + 75
 
         shadow_offset = max(2, approx_size // 20)
 
-        draw.text(
-            (x + shadow_offset, y + shadow_offset),
-            text,
-            font=font,
-            fill=style["shadow"],
-            stroke_width=0,
-        )
-        draw.text(
-            (x, y),
-            text,
-            font=font,
-            fill=style["fill"],
+        self._draw_text_runs(
+            draw=draw,
+            x=x,
+            y=y,
+            runs=runs,
+            text_font=text_font,
+            emoji_font=emoji_font,
+            style=style,
             stroke_width=stroke_width,
-            stroke_fill=style["stroke"],
+            shadow_offset=shadow_offset,
         )
 
         output = BytesIO()
@@ -280,7 +485,11 @@ class ProfileService:
             birthday_text = self.birthday_service.format_birthday(birth_day, birth_month)
             zodiac_sign = self.birthday_service.get_zodiac_sign(birth_day, birth_month)
             zodiac_display = self.birthday_service.get_zodiac_display(zodiac_sign)
-            zodiac_text = zodiac_display.split(" ", 1)[1] if " " in zodiac_display else zodiac_display
+            zodiac_text = (
+                zodiac_display.split(" ", 1)[1]
+                if " " in zodiac_display
+                else zodiac_display
+            )
         else:
             birthday_text = "n/a"
             zodiac_text = "n/a"
@@ -368,5 +577,5 @@ class ProfileService:
             patronus_embed.set_image(url=patronus_gif_url)
             patronus_embed.set_footer(text=f"{patronus_name} ({patronus_rarity})")
             embeds.append(patronus_embed)
-            
+
         return embeds, files
