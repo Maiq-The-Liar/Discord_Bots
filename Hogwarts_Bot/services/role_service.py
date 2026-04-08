@@ -6,6 +6,10 @@ import discord
 
 from domain.role_registry import (
     ROLE_DEFINITION_BY_KEY,
+    ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR,
+    ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF,
+    ROLE_GROUP_HOUSE_COLOR_RAVENCLAW,
+    ROLE_GROUP_HOUSE_COLOR_SLYTHERIN,
     get_all_managed_role_definitions,
     get_role_definition,
     role_keys_for_group,
@@ -13,6 +17,14 @@ from domain.role_registry import (
     zodiac_role_key_for_sign,
 )
 from repositories.guild_role_repository import GuildRoleRepository
+
+
+HOUSE_COLOR_GROUPS = {
+    ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR,
+    ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF,
+    ROLE_GROUP_HOUSE_COLOR_RAVENCLAW,
+    ROLE_GROUP_HOUSE_COLOR_SLYTHERIN,
+}
 
 
 class RoleService:
@@ -38,6 +50,13 @@ class RoleService:
                 failed.append(f"{role_def.name} (missing permissions or bad role hierarchy)")
             except discord.HTTPException as exc:
                 failed.append(f"{role_def.name} ({exc})")
+
+        try:
+            await self.reorder_managed_roles(guild)
+        except discord.Forbidden:
+            failed.append("Role hierarchy reorder failed (missing permissions or bad role hierarchy)")
+        except discord.HTTPException as exc:
+            failed.append(f"Role hierarchy reorder failed ({exc})")
 
         return {
             "created": created,
@@ -142,6 +161,45 @@ class RoleService:
                     failed.append(f"{role_name} → could not delete {extra.id} ({exc})")
 
         return {"deleted": deleted, "failed": failed}
+
+    async def reorder_managed_roles(self, guild: discord.Guild) -> None:
+        managed_roles: list[tuple[discord.Role, str]] = []
+
+        for role_def in get_all_managed_role_definitions():
+            role = self.get_role(guild, role_def.key)
+            if role is not None:
+                managed_roles.append((role, role_def.group))
+
+        if not managed_roles:
+            return
+
+        editable_roles = [
+            (role, group)
+            for role, group in managed_roles
+            if guild.me is not None and role < guild.me.top_role
+        ]
+
+        if not editable_roles:
+            return
+
+        color_roles = [(role, group) for role, group in editable_roles if group in HOUSE_COLOR_GROUPS]
+        other_roles = [(role, group) for role, group in editable_roles if group not in HOUSE_COLOR_GROUPS]
+
+        color_roles.sort(key=lambda item: item[0].name.lower())
+        other_roles.sort(key=lambda item: item[0].name.lower())
+
+        # Discord hierarchy: larger position = higher role.
+        # We place managed roles as high as possible under the bot's top role,
+        # with all house colour roles above the other managed roles.
+        ordered_roles = [role for role, _ in other_roles] + [role for role, _ in color_roles]
+
+        base_position = 1
+        positions: dict[discord.Role, int] = {}
+
+        for index, role in enumerate(ordered_roles, start=base_position):
+            positions[role] = index
+
+        await guild.edit_role_positions(positions=positions)
 
     def _needs_edit(self, role: discord.Role, role_def) -> bool:
         return any(
