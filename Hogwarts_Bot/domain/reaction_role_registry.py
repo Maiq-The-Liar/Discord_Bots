@@ -32,10 +32,9 @@ class ReactionRoleOption:
 @dataclass(frozen=True)
 class ReactionRoleGroup:
     key: str
-    title: str
-    description: str
     role_group: str
     multi_select: bool
+    banner_filename: str
     options: tuple[ReactionRoleOption, ...]
     house_name: str | None = None
 
@@ -49,19 +48,38 @@ AGE_VERIFY_EMOJIS = {
     "purpleverify": 1491468937718665358,
 }
 
+CONTINENT_EMOJIS = {
+    "europe": 1491428638107635792,
+    "asia": 1491428636040105994,
+    "southamerica": 1491428634265911428,
+    "africa": 1491428632202055843,
+    "oceania": 1491428629995852026,
+    "northamerica": 1491428628032913531,
+    "antarctica": 1491428626288214056,
+}
+
+PRONOUN_EMOJIS = {
+    "they_them": 1491531137603076217,
+    "shethem": 1491531031570944222,
+    "hethem": 1491531029356347523,
+    "she_her": 1491531024541155430,
+    "he_him": 1491531022548860938,
+    "ask": 1491532075273027827,
+}
+
 GENDER_IDENTITY_EMOJIS = {
-    "male": 1491498348467851354,
+    "nonbinary": 1491498356525240380,
+    "demigender": 1491498355216482324,
+    "genderfluid": 1491498353761063184,
+    "bigender": 1491498352590848070,
     "female": 1491498351294677192,
     "transgender": 1491498349935984830,
-    "bigender": 1491498352590848070,
-    "genderfluid": 1491498353761063184,
-    "demigender": 1491498355216482324,
-    "nonbinary": 1491498356525240380,
+    "male": 1491498348467851354,
 }
 
 SEXUALITY_EMOJIS = {
-    "bisexual": 1491503728128295135,
-    "demiromantic": 1491503475874595030,
+    "Bisexual": 1491503728128295135,
+    "Demiromantic": 1491503475874595030,
     "aromantic": 1491503473831972875,
     "lesbian": 1491503108591980596,
     "gay": 1491503106939420935,
@@ -70,49 +88,30 @@ SEXUALITY_EMOJIS = {
     "asexual": 1491503092984840272,
     "demisexual": 1491503091541872660,
     "heterosexual": 1491503089864278016,
-    "abrosexual": 1491503088278966323,
-    "polyamorous": 1491503086613565511,
+    "Abrosexual": 1491503088278966323,
+    "Polyamorus": 1491503086613565511,
 }
-
 
 REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
     ReactionRoleGroup(
-        key="ages",
-        title="Ages",
-        description="Choose one age range.",
-        role_group=ROLE_GROUP_AGES,
-        multi_select=False,
-        options=(
-            ReactionRoleOption("age_below_21", "redverify", AGE_VERIFY_EMOJIS["redverify"]),
-            ReactionRoleOption("age_21_25", "orangeverify", AGE_VERIFY_EMOJIS["orangeverify"]),
-            ReactionRoleOption("age_26_30", "yellowverify", AGE_VERIFY_EMOJIS["yellowverify"]),
-            ReactionRoleOption("age_31_35", "greenverify", AGE_VERIFY_EMOJIS["greenverify"]),
-            ReactionRoleOption("age_36_40", "blueverify", AGE_VERIFY_EMOJIS["blueverify"]),
-            ReactionRoleOption("age_41_45", "purpleverify", AGE_VERIFY_EMOJIS["purpleverify"]),
-            ReactionRoleOption("age_46_plus", emoji_unicode="✅"),
-        ),
-    ),
-    ReactionRoleGroup(
         key="pronouns",
-        title="Pronouns",
-        description="Choose one pronoun set.",
         role_group=ROLE_GROUP_PRONOUNS,
         multi_select=False,
+        banner_filename="select_pronouns.png",
         options=(
-            ReactionRoleOption("pronouns_she_her", emoji_unicode="1️⃣"),
-            ReactionRoleOption("pronouns_she_they", emoji_unicode="2️⃣"),
-            ReactionRoleOption("pronouns_he_him", emoji_unicode="3️⃣"),
-            ReactionRoleOption("pronouns_he_they", emoji_unicode="4️⃣"),
-            ReactionRoleOption("pronouns_they_them", emoji_unicode="5️⃣"),
-            ReactionRoleOption("pronouns_ask", emoji_unicode="6️⃣"),
+            ReactionRoleOption("pronouns_she_her", "she_her", PRONOUN_EMOJIS["she_her"]),
+            ReactionRoleOption("pronouns_she_they", "shethem", PRONOUN_EMOJIS["shethem"]),
+            ReactionRoleOption("pronouns_he_him", "he_him", PRONOUN_EMOJIS["he_him"]),
+            ReactionRoleOption("pronouns_he_they", "hethem", PRONOUN_EMOJIS["hethem"]),
+            ReactionRoleOption("pronouns_they_them", "they_them", PRONOUN_EMOJIS["they_them"]),
+            ReactionRoleOption("pronouns_ask", "ask", PRONOUN_EMOJIS["ask"]),
         ),
     ),
     ReactionRoleGroup(
         key="gender_identity",
-        title="Gender Identity",
-        description="Choose one gender identity role.",
         role_group=ROLE_GROUP_GENDER_IDENTITY,
         multi_select=False,
+        banner_filename="select_gender.png",
         options=(
             ReactionRoleOption("gender_male", "male", GENDER_IDENTITY_EMOJIS["male"]),
             ReactionRoleOption("gender_female", "female", GENDER_IDENTITY_EMOJIS["female"]),
@@ -124,49 +123,72 @@ REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
         ),
     ),
     ReactionRoleGroup(
-        key="continents",
-        title="Continents",
-        description="Choose one continent.",
-        role_group=ROLE_GROUP_CONTINENTS,
-        multi_select=False,
-        options=(
-            ReactionRoleOption("continent_africa", emoji_unicode="1️⃣"),
-            ReactionRoleOption("continent_antarctica", emoji_unicode="2️⃣"),
-            ReactionRoleOption("continent_asia", emoji_unicode="3️⃣"),
-            ReactionRoleOption("continent_australia_oceania", emoji_unicode="4️⃣"),
-            ReactionRoleOption("continent_europe", emoji_unicode="5️⃣"),
-            ReactionRoleOption("continent_north_america", emoji_unicode="6️⃣"),
-            ReactionRoleOption("continent_south_america", emoji_unicode="7️⃣"),
-        ),
-    ),
-    ReactionRoleGroup(
         key="sexuality",
-        title="Sexuality",
-        description="Choose any that fit you.",
         role_group=ROLE_GROUP_SEXUALITY,
         multi_select=True,
+        banner_filename="select_orientation.png",
         options=(
             ReactionRoleOption("sexuality_lesbian", "lesbian", SEXUALITY_EMOJIS["lesbian"]),
             ReactionRoleOption("sexuality_gay", "gay", SEXUALITY_EMOJIS["gay"]),
-            ReactionRoleOption("sexuality_bisexual", "bisexual", SEXUALITY_EMOJIS["bisexual"]),
+            ReactionRoleOption("sexuality_bisexual", "Bisexual", SEXUALITY_EMOJIS["Bisexual"]),
             ReactionRoleOption("sexuality_pansexual", "pansexual", SEXUALITY_EMOJIS["pansexual"]),
             ReactionRoleOption("sexuality_omnisexual", "omnisexual", SEXUALITY_EMOJIS["omnisexual"]),
             ReactionRoleOption("sexuality_asexual", "asexual", SEXUALITY_EMOJIS["asexual"]),
             ReactionRoleOption("sexuality_aromantic", "aromantic", SEXUALITY_EMOJIS["aromantic"]),
             ReactionRoleOption("sexuality_demisexual", "demisexual", SEXUALITY_EMOJIS["demisexual"]),
-            ReactionRoleOption("sexuality_demiromantic", "demiromantic", SEXUALITY_EMOJIS["demiromantic"]),
+            ReactionRoleOption("sexuality_demiromantic", "Demiromantic", SEXUALITY_EMOJIS["Demiromantic"]),
             ReactionRoleOption("sexuality_heterosexual", "heterosexual", SEXUALITY_EMOJIS["heterosexual"]),
-            ReactionRoleOption("sexuality_abrosexual", "abrosexual", SEXUALITY_EMOJIS["abrosexual"]),
-            ReactionRoleOption("sexuality_polyamorous", "polyamorous", SEXUALITY_EMOJIS["polyamorous"]),
+            ReactionRoleOption("sexuality_abrosexual", "Abrosexual", SEXUALITY_EMOJIS["Abrosexual"]),
+            ReactionRoleOption("sexuality_polyamorous", "Polyamorus", SEXUALITY_EMOJIS["Polyamorus"]),
             ReactionRoleOption("sexuality_questioning", emoji_unicode="❔"),
         ),
     ),
     ReactionRoleGroup(
+        key="relationship",
+        role_group=ROLE_GROUP_RELATIONSHIP,
+        multi_select=False,
+        banner_filename="select_relationship.png",
+        options=(
+            ReactionRoleOption("relationship_taken", emoji_unicode="❤️"),
+            ReactionRoleOption("relationship_single", emoji_unicode="✨"),
+            ReactionRoleOption("relationship_complicated", emoji_unicode="🌀"),
+        ),
+    ),
+    ReactionRoleGroup(
+        key="ages",
+        role_group=ROLE_GROUP_AGES,
+        multi_select=False,
+        banner_filename="select_age.png",
+        options=(
+            ReactionRoleOption("age_below_21", "redverify", AGE_VERIFY_EMOJIS["redverify"]),
+            ReactionRoleOption("age_21_25", "orangeverify", AGE_VERIFY_EMOJIS["orangeverify"]),
+            ReactionRoleOption("age_26_30", "yellowverify", AGE_VERIFY_EMOJIS["yellowverify"]),
+            ReactionRoleOption("age_31_35", "greenverify", AGE_VERIFY_EMOJIS["greenverify"]),
+            ReactionRoleOption("age_36_40", "blueverify", AGE_VERIFY_EMOJIS["blueverify"]),
+            ReactionRoleOption("age_41_45", "purpleverify", AGE_VERIFY_EMOJIS["purpleverify"]),
+            ReactionRoleOption("age_46_plus", emoji_unicode="✅"),
+        ),
+    ),
+    ReactionRoleGroup(
+        key="continents",
+        role_group=ROLE_GROUP_CONTINENTS,
+        multi_select=False,
+        banner_filename="select_location.png",
+        options=(
+            ReactionRoleOption("continent_africa", "africa", CONTINENT_EMOJIS["africa"]),
+            ReactionRoleOption("continent_antarctica", "antarctica", CONTINENT_EMOJIS["antarctica"]),
+            ReactionRoleOption("continent_asia", "asia", CONTINENT_EMOJIS["asia"]),
+            ReactionRoleOption("continent_australia_oceania", "oceania", CONTINENT_EMOJIS["oceania"]),
+            ReactionRoleOption("continent_europe", "europe", CONTINENT_EMOJIS["europe"]),
+            ReactionRoleOption("continent_north_america", "northamerica", CONTINENT_EMOJIS["northamerica"]),
+            ReactionRoleOption("continent_south_america", "southamerica", CONTINENT_EMOJIS["southamerica"]),
+        ),
+    ),
+    ReactionRoleGroup(
         key="pings",
-        title="Pings",
-        description="Choose any pings you want.",
         role_group=ROLE_GROUP_PINGS,
         multi_select=True,
+        banner_filename="select_pings.png",
         options=(
             ReactionRoleOption(ROLE_KEY_DUEL_PING, emoji_unicode="⚔️"),
             ReactionRoleOption(ROLE_KEY_EVENT_PING, emoji_unicode="🎉"),
@@ -175,10 +197,9 @@ REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
     ),
     ReactionRoleGroup(
         key="dm_status",
-        title="DM Status",
-        description="Choose one DM preference.",
         role_group=ROLE_GROUP_DM,
         multi_select=False,
+        banner_filename="select_DM.png",
         options=(
             ReactionRoleOption("dm_open", emoji_unicode="📬"),
             ReactionRoleOption("dm_closed", emoji_unicode="🔒"),
@@ -186,23 +207,10 @@ REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
         ),
     ),
     ReactionRoleGroup(
-        key="relationship",
-        title="Relationship",
-        description="Choose one relationship status.",
-        role_group=ROLE_GROUP_RELATIONSHIP,
-        multi_select=False,
-        options=(
-            ReactionRoleOption("relationship_taken", emoji_unicode="❤️"),
-            ReactionRoleOption("relationship_single", emoji_unicode="✨"),
-            ReactionRoleOption("relationship_complicated", emoji_unicode="🌀"),
-        ),
-    ),
-    ReactionRoleGroup(
         key="gryffindor_colors",
-        title="Gryffindor Colour Roles",
-        description="Choose one Gryffindor colour role. Only Gryffindors can use this menu.",
         role_group=ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR,
         multi_select=False,
+        banner_filename="gryffindor_colours.png",
         house_name="Gryffindor",
         options=(
             ReactionRoleOption("gryff_color_crimson", emoji_unicode="1️⃣"),
@@ -219,10 +227,9 @@ REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
     ),
     ReactionRoleGroup(
         key="hufflepuff_colors",
-        title="Hufflepuff Colour Roles",
-        description="Choose one Hufflepuff colour role. Only Hufflepuffs can use this menu.",
         role_group=ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF,
         multi_select=False,
+        banner_filename="hufflepuff_colours.png",
         house_name="Hufflepuff",
         options=(
             ReactionRoleOption("huff_color_gold", emoji_unicode="1️⃣"),
@@ -239,10 +246,9 @@ REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
     ),
     ReactionRoleGroup(
         key="ravenclaw_colors",
-        title="Ravenclaw Colour Roles",
-        description="Choose one Ravenclaw colour role. Only Ravenclaws can use this menu.",
         role_group=ROLE_GROUP_HOUSE_COLOR_RAVENCLAW,
         multi_select=False,
+        banner_filename="ravenclaw_colours.png",
         house_name="Ravenclaw",
         options=(
             ReactionRoleOption("raven_color_royal", emoji_unicode="1️⃣"),
@@ -259,10 +265,9 @@ REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
     ),
     ReactionRoleGroup(
         key="slytherin_colors",
-        title="Slytherin Colour Roles",
-        description="Choose one Slytherin colour role. Only Slytherins can use this menu.",
         role_group=ROLE_GROUP_HOUSE_COLOR_SLYTHERIN,
         multi_select=False,
+        banner_filename="slytherin_colours.png",
         house_name="Slytherin",
         options=(
             ReactionRoleOption("slyth_color_emerald", emoji_unicode="1️⃣"),

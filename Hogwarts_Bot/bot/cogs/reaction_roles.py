@@ -53,13 +53,19 @@ class ReactionRolesCog(commands.Cog):
                 result = await service.setup_channel(interaction.guild, channel)
         except discord.Forbidden:
             await interaction.followup.send(
-                "I could not set up the role channel. Make sure I can manage roles, read the channel, manage messages, and add reactions.",
+                "I could not set up the role channel. Make sure I can manage roles, read the channel, manage messages, attach files, and add reactions.",
                 ephemeral=True,
             )
             return
         except discord.HTTPException as exc:
             await interaction.followup.send(
                 f"Setup failed: {exc}",
+                ephemeral=True,
+            )
+            return
+        except FileNotFoundError as exc:
+            await interaction.followup.send(
+                f"Banner image missing: {exc}",
                 ephemeral=True,
             )
             return

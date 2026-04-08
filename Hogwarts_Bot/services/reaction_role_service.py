@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import datetime, timezone
+from pathlib import Path
 
 import discord
 
@@ -28,6 +29,7 @@ class ReactionRoleService:
         self.bot = bot
         self.reaction_repo = reaction_repo
         self.role_service = RoleService(guild_role_repo)
+        self.roles_image_dir = Path(__file__).resolve().parents[1] / "resources" / "roles"
 
     async def setup_channel(
         self,
@@ -42,7 +44,12 @@ class ReactionRoleService:
 
         posted = 0
         for group in get_reaction_role_groups():
-            message = await channel.send(embed=self.build_embed(guild, group.key))
+            file, embeds = self.build_message_payload(guild, group.key)
+            message = await channel.send(
+                file=file,
+                embeds=embeds,
+                allowed_mentions=discord.AllowedMentions.none(),
+            )
             self.reaction_repo.add_message_mapping(guild.id, group.key, channel.id, message.id)
 
             for option in group.options:
@@ -55,31 +62,22 @@ class ReactionRoleService:
 
         return {"deleted_messages": deleted, "posted_messages": posted}
 
-    def build_embed(self, guild: discord.Guild, group_key: str) -> discord.Embed:
+    def build_message_payload(self, guild: discord.Guild, group_key: str) -> tuple[discord.File, list[discord.Embed]]:
         group = get_reaction_role_group(group_key)
-        counts = self.reaction_repo.count_memberships_for_group(guild.id, group_key)
 
-        embed = discord.Embed(
-            title=group.title,
-            description=(
-                f"{group.description}\n\n"
-                f"**Selection mode:** {'Multiple roles allowed' if group.multi_select else 'Choose one only'}"
-            ),
+        banner_path = self.roles_image_dir / group.banner_filename
+        file = discord.File(banner_path, filename=group.banner_filename)
+
+        banner_embed = discord.Embed(color=0x2F3136)
+        banner_embed.set_image(url=f"attachment://{group.banner_filename}")
+
+        text_embed = discord.Embed(
+            description=self._build_description(guild, group),
             color=0x2F3136,
         )
+        text_embed.set_footer(text="Select multiple" if group.multi_select else "Select only one")
 
-        lines: list[str] = []
-        for option in group.options:
-            role_def = get_role_definition(option.role_key)
-            count = counts.get(option.role_key, 0)
-            emoji_text = self._emoji_for_display(option)
-            lines.append(f"{emoji_text} **{role_def.name}** — `{count}`")
-
-        embed.add_field(name="Options", value="\n".join(lines), inline=False)
-        embed.set_footer(
-            text="Selections persist when the menus are reprinted. The counts above are the saved counts."
-        )
-        return embed
+        return file, [banner_embed, text_embed]
 
     async def refresh_group_message(self, guild: discord.Guild, group_key: str) -> None:
         mapping = self.reaction_repo.get_message_mapping_for_group(guild.id, group_key)
@@ -95,7 +93,14 @@ class ReactionRoleService:
         except discord.HTTPException:
             return
 
-        await message.edit(embed=self.build_embed(guild, group_key))
+        _, embeds = self.build_message_payload(guild, group_key)
+        try:
+            await message.edit(
+                embeds=embeds,
+                allowed_mentions=discord.AllowedMentions.none(),
+            )
+        except discord.HTTPException:
+            return
 
     async def handle_reaction_add(self, payload: discord.RawReactionActionEvent) -> None:
         mapping = self.reaction_repo.get_message_mapping_by_message_id(payload.message_id)
@@ -133,6 +138,10 @@ class ReactionRoleService:
 
         role = self.role_service.get_role(guild, option.role_key)
         if role is None:
+            try:
+                await message.remove_reaction(self._emoji_for_reaction(option), member)
+            except discord.HTTPException:
+                pass
             return
 
         if not group.multi_select:
@@ -164,6 +173,11 @@ class ReactionRoleService:
             try:
                 await member.add_roles(role, reason="Reaction role selected")
             except discord.HTTPException:
+                self.reaction_repo.delete_membership(guild.id, member.id, group.key, option.role_key)
+                try:
+                    await message.remove_reaction(self._emoji_for_reaction(option), member)
+                except discord.HTTPException:
+                    pass
                 return
 
         await self.clear_invalid_house_color_roles(member)
@@ -276,6 +290,28 @@ class ReactionRoleService:
 
         return deleted
 
+    def _build_description(self, guild: discord.Guild, group: ReactionRoleGroup) -> str:
+        counts = self.reaction_repo.count_memberships_for_group(guild.id, group.key)
+        lines: list[str] = []
+
+        for option in group.options:
+            role_def = get_role_definition(option.role_key)
+            count = counts.get(option.role_key, 0)
+            emoji_text = self._emoji_for_display(option)
+
+            if group.house_name:
+                role = self.role_service.get_role(guild, option.role_key)
+                if role is not None:
+                    label = role.mention
+                else:
+                    label = role_def.name
+            else:
+                label = role_def.name
+
+            lines.append(f"{emoji_text} {label} — `{count}`")
+
+        return "\n".join(lines)
+
     def _emoji_for_display(self, option: ReactionRoleOption) -> str:
         if option.emoji_id and option.emoji_name:
             return f"<:{option.emoji_name}:{option.emoji_id}>"
@@ -310,9 +346,12 @@ class ReactionRoleService:
 
     def _member_house(self, member: discord.Member) -> str | None:
         role_ids = {role.id for role in member.roles}
+        role_names = {role.name for role in member.roles}
+
         for house_name, role_id in HOUSE_ROLE_IDS.items():
-            if role_id in role_ids:
+            if role_id in role_ids or house_name in role_names:
                 return house_name
+
         return None
 
     def _member_can_use_group(self, member: discord.Member, group: ReactionRoleGroup) -> bool:
