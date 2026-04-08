@@ -53,6 +53,20 @@ class Database:
             ).fetchall()
         }
 
+        if "guild_role_mappings" not in existing_tables:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS guild_role_mappings (
+                    guild_id INTEGER NOT NULL,
+                    role_key TEXT NOT NULL,
+                    role_id INTEGER NOT NULL,
+                    role_name TEXT NOT NULL,
+                    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (guild_id, role_key)
+                )
+                """
+            )
+
         if "user_chocolate_frog_cards" not in existing_tables:
             conn.execute(
                 """

@@ -16,6 +16,8 @@ from bot.cogs.help import HelpCog
 from bot.cogs.leveling import LevelingCog
 from bot.cogs.media import MediaCog
 from bot.cogs.duel import DuelCog
+from repositories.guild_role_repository import GuildRoleRepository
+from services.role_service import RoleService
 
 logging.basicConfig(level=logging.INFO)
 
@@ -35,6 +37,7 @@ class HogwartsBot(commands.Bot):
             command_prefix="!",
             intents=intents,
         )
+        self._startup_role_sync_done = False
 
     async def setup_hook(self) -> None:
         guild = discord.Object(id=settings.guild_id)
@@ -51,13 +54,40 @@ class HogwartsBot(commands.Bot):
         await self.add_cog(LevelingCog(self, database))
         await self.add_cog(MediaCog(self, database))
         await self.add_cog(DuelCog(self, database))
-        
+
         self.tree.copy_global_to(guild=guild)
         synced = await self.tree.sync(guild=guild)
         logging.info("Synced %s command(s) to guild %s", len(synced), settings.guild_id)
 
     async def on_ready(self) -> None:
         logging.info("Logged in as %s (%s)", self.user, self.user.id if self.user else "unknown")
+
+        if self._startup_role_sync_done:
+            return
+
+        guild = self.get_guild(settings.guild_id)
+        if guild is None:
+            logging.warning("Configured guild %s not found in cache yet.", settings.guild_id)
+            return
+
+        try:
+            with database.connect() as conn:
+                role_repo = GuildRoleRepository(conn)
+                role_service = RoleService(role_repo)
+                result = await role_service.sync_all_managed_roles(guild)
+
+            logging.info(
+                "Role sync complete. created=%s updated=%s found=%s failed=%s",
+                len(result["created"]),
+                len(result["updated"]),
+                len(result["found"]),
+                len(result["failed"]),
+            )
+        except Exception:
+            logging.exception("Startup role sync failed.")
+            return
+
+        self._startup_role_sync_done = True
 
 
 bot = HogwartsBot()

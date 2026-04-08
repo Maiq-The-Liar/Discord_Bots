@@ -6,13 +6,21 @@ from db.database import Database
 from domain.constants import (
     HOUSE_ROLE_IDS,
     ARENA_ROLE_ID,
-    PRONOUN_ROLE_IDS,
-    AGE_ROLE_IDS,
-    CONTINENT_ROLE_IDS,
-    PRONOUN_ROLE_BY_KEY,
-    AGE_ROLE_BY_KEY,
-    CONTINENT_ROLE_BY_KEY,
 )
+from domain.role_registry import (
+    AGE_CHOICE_TO_ROLE_KEY,
+    CONTINENT_CHOICE_TO_ROLE_KEY,
+    PRONOUN_CHOICE_TO_ROLE_KEY,
+    ROLE_GROUP_AGES,
+    ROLE_GROUP_CONTINENTS,
+    ROLE_GROUP_PRONOUNS,
+    ROLE_GROUP_ZODIAC,
+    ROLE_KEY_BIRTHDAY,
+    role_names_for_group,
+    zodiac_role_key_for_sign,
+)
+from repositories.guild_role_repository import GuildRoleRepository
+from services.role_service import RoleService
 from domain.role_context import MemberRoleContext
 from repositories.user_repository import UserRepository
 from repositories.inventory_repository import InventoryRepository
@@ -21,7 +29,6 @@ from repositories.frog_collection_repository import FrogCollectionRepository
 from repositories.role_snapshot_repository import RoleSnapshotRepository
 from services.profile_service import ProfileService
 from services.birthday_service import BirthdayService
-from domain.constants import ZODIAC_ROLE_IDS
 
 
 def resolve_member_roles(member: discord.Member) -> MemberRoleContext:
@@ -199,6 +206,9 @@ class ProfileCog(commands.Cog):
 
         with self.database.connect() as conn:
             user_repo = UserRepository(conn)
+            role_repo = GuildRoleRepository(conn)
+            role_service = RoleService(role_repo)
+
             user_repo.ensure_user(interaction.user.id)
 
             current_day, current_month = user_repo.get_birthday(interaction.user.id)
@@ -210,31 +220,47 @@ class ProfileCog(commands.Cog):
                 return
 
             user_repo.set_birthday(interaction.user.id, day, month)
+            zodiac_role = role_service.get_zodiac_role(
+                interaction.guild,
+                self.birthday_service.get_zodiac_sign(day, month),
+            )
 
-        zodiac_sign = self.birthday_service.get_zodiac_sign(day, month)
-        zodiac_role_id = ZODIAC_ROLE_IDS[zodiac_sign]
+        zodiac_role_names = role_names_for_group(ROLE_GROUP_ZODIAC)
+        roles_to_remove = [
+            role for role in interaction.user.roles
+            if role.name in zodiac_role_names
+        ]
 
-        zodiac_role_ids = set(ZODIAC_ROLE_IDS.values())
-        roles_to_remove = [role for role in interaction.user.roles if role.id in zodiac_role_ids]
         if roles_to_remove:
             try:
-                await interaction.user.remove_roles(*roles_to_remove, reason="Birthday set - refreshing zodiac role")
+                await interaction.user.remove_roles(
+                    *roles_to_remove,
+                    reason="Birthday set - refreshing zodiac role",
+                )
             except discord.HTTPException:
-                pass
+                await interaction.response.send_message(
+                    "Your birthday was saved, but I could not remove your old zodiac role.",
+                    ephemeral=True,
+                )
+                return
 
-        zodiac_role = interaction.guild.get_role(zodiac_role_id)
         if zodiac_role is not None:
             try:
-                await interaction.user.add_roles(zodiac_role, reason="Birthday set - zodiac role assigned")
+                await interaction.user.add_roles(
+                    zodiac_role,
+                    reason="Birthday set - zodiac role assigned",
+                )
             except discord.HTTPException:
-                pass
+                await interaction.response.send_message(
+                    "Your birthday was saved, but I could not assign your zodiac role.",
+                    ephemeral=True,
+                )
+                return
 
-        birthday_text = self.birthday_service.format_birthday(day, month)
-        zodiac_text = self.birthday_service.get_zodiac_display(zodiac_sign)
-
+        zodiac_sign = self.birthday_service.get_zodiac_sign(day, month)
         await interaction.response.send_message(
-            f"Your birthday has been set to **{birthday_text}**.\n"
-            f"Your zodiac sign is **{zodiac_text}**.",
+            f"Your birthday has been set to **{day:02d}/{month:02d}**.\n"
+            f"Your zodiac sign is **{zodiac_sign}**.",
             ephemeral=True,
         )
 
@@ -245,9 +271,12 @@ class ProfileCog(commands.Cog):
     @app_commands.describe(pronouns="Choose your pronouns")
     @app_commands.choices(
         pronouns=[
-            app_commands.Choice(name="he / him", value="he_him"),
-            app_commands.Choice(name="she / her", value="she_her"),
-            app_commands.Choice(name="they / them", value="they_them"),
+            app_commands.Choice(name="She/Her", value="she_her"),
+            app_commands.Choice(name="She/They", value="she_they"),
+            app_commands.Choice(name="He/Him", value="he_him"),
+            app_commands.Choice(name="He/They", value="he_they"),
+            app_commands.Choice(name="They/Them", value="they_them"),
+            app_commands.Choice(name="Ask Pronouns", value="ask_pronouns"),
         ]
     )
     async def set_pronouns(
@@ -268,17 +297,27 @@ class ProfileCog(commands.Cog):
             await interaction.response.send_message(error, ephemeral=True)
             return
 
-        new_role_id = PRONOUN_ROLE_BY_KEY[pronouns.value]
-        new_role = interaction.guild.get_role(new_role_id)
+        with self.database.connect() as conn:
+            role_repo = GuildRoleRepository(conn)
+            role_service = RoleService(role_repo)
+            new_role = role_service.get_role(
+                interaction.guild,
+                PRONOUN_CHOICE_TO_ROLE_KEY[pronouns.value],
+            )
 
         if new_role is None:
             await interaction.response.send_message(
-                "That pronoun role could not be found.",
+                "That pronoun role could not be found. Run `/update_roles` first.",
                 ephemeral=True,
             )
             return
 
-        roles_to_remove = [role for role in interaction.user.roles if role.id in PRONOUN_ROLE_IDS]
+        pronoun_role_names = role_names_for_group(ROLE_GROUP_PRONOUNS)
+        roles_to_remove = [
+            role for role in interaction.user.roles
+            if role.name in pronoun_role_names
+        ]
+
         if roles_to_remove:
             try:
                 await interaction.user.remove_roles(
@@ -308,7 +347,6 @@ class ProfileCog(commands.Cog):
             f"Your pronouns have been updated to **{new_role.name}**.",
             ephemeral=True,
         )
-
     @app_commands.command(
         name="set_age",
         description="Set your age range role.",
@@ -316,13 +354,13 @@ class ProfileCog(commands.Cog):
     @app_commands.describe(age_range="Choose your age range")
     @app_commands.choices(
         age_range=[
-            app_commands.Choice(name="18-24", value="18_24"),
-            app_commands.Choice(name="25-29", value="25_29"),
-            app_commands.Choice(name="30-34", value="30_34"),
-            app_commands.Choice(name="35-39", value="35_39"),
-            app_commands.Choice(name="40-44", value="40_44"),
-            app_commands.Choice(name="45+", value="45_plus"),
-            app_commands.Choice(name="n/a", value="na"),
+            app_commands.Choice(name="Below 21", value="below_21"),
+            app_commands.Choice(name="21-25", value="21_25"),
+            app_commands.Choice(name="26-30", value="26_30"),
+            app_commands.Choice(name="31-35", value="31_35"),
+            app_commands.Choice(name="36-40", value="36_40"),
+            app_commands.Choice(name="41-45", value="41_45"),
+            app_commands.Choice(name="46+", value="46_plus"),
         ]
     )
     async def set_age(
@@ -343,17 +381,27 @@ class ProfileCog(commands.Cog):
             await interaction.response.send_message(error, ephemeral=True)
             return
 
-        new_role_id = AGE_ROLE_BY_KEY[age_range.value]
-        new_role = interaction.guild.get_role(new_role_id)
+        with self.database.connect() as conn:
+            role_repo = GuildRoleRepository(conn)
+            role_service = RoleService(role_repo)
+            new_role = role_service.get_role(
+                interaction.guild,
+                AGE_CHOICE_TO_ROLE_KEY[age_range.value],
+            )
 
         if new_role is None:
             await interaction.response.send_message(
-                "That age role could not be found.",
+                "That age role could not be found. Run `/update_roles` first.",
                 ephemeral=True,
             )
             return
 
-        roles_to_remove = [role for role in interaction.user.roles if role.id in AGE_ROLE_IDS]
+        age_role_names = role_names_for_group(ROLE_GROUP_AGES)
+        roles_to_remove = [
+            role for role in interaction.user.roles
+            if role.name in age_role_names
+        ]
+
         if roles_to_remove:
             try:
                 await interaction.user.remove_roles(
@@ -384,6 +432,9 @@ class ProfileCog(commands.Cog):
             ephemeral=True,
         )
 
+
+
+
     @app_commands.command(
         name="set_continent",
         description="Set your continent role.",
@@ -391,12 +442,13 @@ class ProfileCog(commands.Cog):
     @app_commands.describe(continent="Choose your continent")
     @app_commands.choices(
         continent=[
+            app_commands.Choice(name="Africa", value="africa"),
+            app_commands.Choice(name="Antarctica", value="antarctica"),
+            app_commands.Choice(name="Asia", value="asia"),
+            app_commands.Choice(name="Australia & Oceania", value="australia_oceania"),
             app_commands.Choice(name="Europe", value="europe"),
             app_commands.Choice(name="North America", value="north_america"),
             app_commands.Choice(name="South America", value="south_america"),
-            app_commands.Choice(name="Asia", value="asia"),
-            app_commands.Choice(name="Australia & Oceania", value="australia_oceania"),
-            app_commands.Choice(name="Antarctica", value="antarctica"),
         ]
     )
     async def set_continent(
@@ -417,17 +469,27 @@ class ProfileCog(commands.Cog):
             await interaction.response.send_message(error, ephemeral=True)
             return
 
-        new_role_id = CONTINENT_ROLE_BY_KEY[continent.value]
-        new_role = interaction.guild.get_role(new_role_id)
+        with self.database.connect() as conn:
+            role_repo = GuildRoleRepository(conn)
+            role_service = RoleService(role_repo)
+            new_role = role_service.get_role(
+                interaction.guild,
+                CONTINENT_CHOICE_TO_ROLE_KEY[continent.value],
+            )
 
         if new_role is None:
             await interaction.response.send_message(
-                "That continent role could not be found.",
+                "That continent role could not be found. Run `/update_roles` first.",
                 ephemeral=True,
             )
             return
 
-        roles_to_remove = [role for role in interaction.user.roles if role.id in CONTINENT_ROLE_IDS]
+        continent_role_names = role_names_for_group(ROLE_GROUP_CONTINENTS)
+        roles_to_remove = [
+            role for role in interaction.user.roles
+            if role.name in continent_role_names
+        ]
+
         if roles_to_remove:
             try:
                 await interaction.user.remove_roles(

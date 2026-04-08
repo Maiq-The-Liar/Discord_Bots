@@ -57,6 +57,15 @@ CREATE TABLE IF NOT EXISTS bot_state (
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS guild_role_mappings (
+    guild_id INTEGER NOT NULL,
+    role_key TEXT NOT NULL,
+    role_id INTEGER NOT NULL,
+    role_name TEXT NOT NULL,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (guild_id, role_key)
+);
+
 CREATE TABLE IF NOT EXISTS user_owned_items (
     user_id INTEGER NOT NULL,
     item_key TEXT NOT NULL,

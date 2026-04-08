@@ -6,13 +6,17 @@ import discord
 from PIL import Image, ImageDraw, ImageFont
 
 from domain.constants import (
-    AGE_ROLE_IDS,
     HOUSE_COLORS,
     HOUSE_PROFILE_BANNERS,
     HOGWARTS_CREST_EMOJI,
-    PRONOUN_ROLE_IDS,
-    CONTINENT_ROLE_IDS,
 )
+from domain.role_registry import (
+    ROLE_GROUP_AGES,
+    ROLE_GROUP_CONTINENTS,
+    ROLE_GROUP_PRONOUNS,
+    role_names_for_group,
+)
+
 from domain.role_context import MemberRoleContext
 from repositories.user_repository import UserRepository
 from repositories.inventory_repository import InventoryRepository
@@ -77,20 +81,23 @@ class ProfileService:
         )
 
     def _resolve_continent_text(self, member: discord.Member) -> str:
+        valid_names = role_names_for_group(ROLE_GROUP_CONTINENTS)
         for role in member.roles:
-            if role.id in CONTINENT_ROLE_IDS:
+            if role.name in valid_names:
                 return role.name
         return "n/a"
 
     def _resolve_age_text(self, member: discord.Member) -> str:
+        valid_names = role_names_for_group(ROLE_GROUP_AGES)
         for role in member.roles:
-            if role.id in AGE_ROLE_IDS:
+            if role.name in valid_names:
                 return role.name
         return "n/a"
 
     def _resolve_pronouns_text(self, member: discord.Member) -> str:
+        valid_names = role_names_for_group(ROLE_GROUP_PRONOUNS)
         for role in member.roles:
-            if role.id in PRONOUN_ROLE_IDS:
+            if role.name in valid_names:
                 return role.name
         return "n/a"
 

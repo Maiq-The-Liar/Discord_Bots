@@ -11,6 +11,8 @@ from services.house_points_service import HousePointsService
 from services.house_cup_board_service import HouseCupBoardService
 from services.house_cup_service import HouseCupService
 from bot.cogs.profile import resolve_member_roles, validate_house_context
+from repositories.guild_role_repository import GuildRoleRepository
+from services.role_service import RoleService
 
 
 class AdminCog(commands.Cog):
@@ -22,6 +24,66 @@ class AdminCog(commands.Cog):
         return (
             isinstance(interaction.user, discord.Member)
             and interaction.user.guild_permissions.administrator
+        )
+
+    @app_commands.command(
+        name="update_roles",
+        description="Admin: create missing managed roles and refresh stored role mappings.",
+    )
+    async def update_roles(
+        self,
+        interaction: discord.Interaction,
+    ) -> None:
+        if not self.is_admin(interaction):
+            await interaction.response.send_message(
+                "You do not have permission to use this command.",
+                ephemeral=True,
+            )
+            return
+
+        if not interaction.guild:
+            await interaction.response.send_message(
+                "This command can only be used inside the server.",
+                ephemeral=True,
+            )
+            return
+
+        await interaction.response.defer(ephemeral=True)
+
+        try:
+            with self.database.connect() as conn:
+                role_repo = GuildRoleRepository(conn)
+                role_service = RoleService(role_repo)
+                result = await role_service.sync_all_managed_roles(interaction.guild)
+        except discord.Forbidden:
+            await interaction.followup.send(
+                "I could not sync roles. Make sure I have **Manage Roles** and that my bot role is above the roles I need to manage.",
+                ephemeral=True,
+            )
+            return
+        except discord.HTTPException as exc:
+            await interaction.followup.send(
+                f"Role sync failed: {exc}",
+                ephemeral=True,
+            )
+            return
+
+        lines = [
+            f"Created: **{len(result['created'])}**",
+            f"Updated: **{len(result['updated'])}**",
+            f"Already OK: **{len(result['found'])}**",
+            f"Failed: **{len(result['failed'])}**",
+        ]
+
+        if result["failed"]:
+            failed_preview = "\n".join(f"• {item}" for item in result["failed"][:15])
+            lines.append("")
+            lines.append("Failures:")
+            lines.append(failed_preview)
+
+        await interaction.followup.send(
+            "\n".join(lines),
+            ephemeral=True,
         )
 
     @app_commands.command(name="rewardmoney", description="Admin: give a user Sickles.")

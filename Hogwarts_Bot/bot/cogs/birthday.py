@@ -2,9 +2,14 @@ import asyncio
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
-
 from db.database import Database
-from domain.constants import BIRTHDAY_ROLE_ID, ZODIAC_ROLE_IDS
+from domain.role_registry import (
+    ROLE_GROUP_ZODIAC,
+    ROLE_KEY_BIRTHDAY,
+    role_names_for_group,
+)
+from repositories.guild_role_repository import GuildRoleRepository
+from services.role_service import RoleService
 from repositories.bot_state_repository import BotStateRepository
 from repositories.birthday_repository import BirthdayRepository
 from repositories.owned_item_repository import OwnedItemRepository
@@ -149,7 +154,11 @@ class BirthdayCog(commands.Cog):
                 birthday_user_ids = set(user_repo.get_users_with_birthday(today_day, today_month))
                 announcement_channel_id = bot_state_repo.get_value(self.ANNOUNCEMENT_CHANNEL_KEY)
 
-            birthday_role = guild.get_role(BIRTHDAY_ROLE_ID)
+            with self.database.connect() as conn:
+                role_repo = GuildRoleRepository(conn)
+                role_service = RoleService(role_repo)
+                birthday_role = role_service.get_role(guild, ROLE_KEY_BIRTHDAY)
+
             if birthday_role is not None:
                 for member in guild.members:
                     has_birthday_today = member.id in birthday_user_ids
@@ -253,8 +262,17 @@ class BirthdayCog(commands.Cog):
             )
             return
 
-        zodiac_role_ids = set(ZODIAC_ROLE_IDS.values())
-        roles_to_remove = [role for role in member.roles if role.id in zodiac_role_ids or role.id == BIRTHDAY_ROLE_ID]
+        with self.database.connect() as conn:
+            role_repo = GuildRoleRepository(conn)
+            role_service = RoleService(role_repo)
+            birthday_role = role_service.get_role(interaction.guild, ROLE_KEY_BIRTHDAY) if interaction.guild else None
+
+        zodiac_role_names = role_names_for_group(ROLE_GROUP_ZODIAC)
+        roles_to_remove = [
+            role
+            for role in member.roles
+            if role.name in zodiac_role_names or (birthday_role is not None and role.id == birthday_role.id)
+        ]
 
         if roles_to_remove:
             try:

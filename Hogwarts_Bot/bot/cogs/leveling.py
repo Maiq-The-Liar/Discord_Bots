@@ -2,9 +2,12 @@ import discord
 from discord.ext import commands
 
 from db.database import Database
-from domain.constants import HOUSE_COLORS, YEAR_LEVEL_ROLE_IDS
+from domain.constants import HOUSE_COLORS
+from domain.role_registry import ROLE_GROUP_YEARS
+from repositories.guild_role_repository import GuildRoleRepository
 from repositories.user_repository import UserRepository
 from services.leveling_service import LevelingService
+from services.role_service import RoleService
 from bot.cogs.profile import resolve_member_roles, validate_house_context
 
 
@@ -19,12 +22,21 @@ class LevelingCog(commands.Cog):
         member: discord.Member,
         new_level: int,
     ) -> None:
-        target_role_id = YEAR_LEVEL_ROLE_IDS.get(new_level)
-        if target_role_id is None:
+        with self.database.connect() as conn:
+            role_repo = GuildRoleRepository(conn)
+            role_service = RoleService(role_repo)
+
+            target_role = role_service.get_year_role(member.guild, new_level)
+            year_roles = role_service.get_roles_for_group(member.guild, ROLE_GROUP_YEARS)
+
+        if target_role is None:
             return
 
-        year_role_ids = set(YEAR_LEVEL_ROLE_IDS.values())
-        roles_to_remove = [role for role in member.roles if role.id in year_role_ids and role.id != target_role_id]
+        roles_to_remove = [
+            role
+            for role in member.roles
+            if role in year_roles and role.id != target_role.id
+        ]
 
         if roles_to_remove:
             try:
@@ -35,8 +47,7 @@ class LevelingCog(commands.Cog):
             except discord.HTTPException:
                 pass
 
-        target_role = member.guild.get_role(target_role_id)
-        if target_role is not None and target_role not in member.roles:
+        if target_role not in member.roles:
             try:
                 await member.add_roles(
                     target_role,
@@ -81,20 +92,14 @@ class LevelingCog(commands.Cog):
                 embed = discord.Embed(
                     title="📚 Level Up!",
                     description=(
-                        f"{message.author.mention} advanced to **Year {result['level']}**!"
+                        f"{message.author.mention} advanced to **{result['level']}th school year**!"
+                        if result["level"] not in {1, 2, 3}
+                        else f"{message.author.mention} advanced to **{result['level']}{'st' if result['level'] == 1 else 'nd' if result['level'] == 2 else 'rd'} school year**!"
                     ),
                     color=color,
                 )
-                embed.add_field(
-                    name="New Level",
-                    value=str(result["level"]),
-                    inline=True,
-                )
-                embed.add_field(
-                    name="XP Gained",
-                    value=str(result["xp_gained"]),
-                    inline=True,
-                )
+                embed.add_field(name="New Level", value=str(result["level"]), inline=True)
+                embed.add_field(name="XP Gained", value=str(result["xp_gained"]), inline=True)
 
                 await message.channel.send(embed=embed)
 

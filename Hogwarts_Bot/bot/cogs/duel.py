@@ -20,9 +20,10 @@ from repositories.user_repository import UserRepository
 from services.casual_quiz_service import CasualQuizService
 from services.house_cup_board_service import HouseCupBoardService
 from services.house_points_service import HousePointsService
+from domain.role_registry import ROLE_KEY_DUEL_PING, ROLE_KEY_DUELLING
+from repositories.guild_role_repository import GuildRoleRepository
+from services.role_service import RoleService
 
-DUEL_PING_ROLE_ID = 1489701585411117207
-DUELLING_ROLE_ID = 1489701423582150877
 
 START_IMAGE_URL = "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/00_quiz_gifs/duel.png?raw=true"
 LOBBY_IMAGE_URL = "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/00_quiz_gifs/waiting.gif?raw=true"
@@ -144,7 +145,11 @@ class DuelCog(commands.Cog):
 
         players_text = "\n".join(player_lines) if player_lines else "*No one joined yet.*"
 
-        ping_role = channel.guild.get_role(DUEL_PING_ROLE_ID)
+        with self.database.connect() as conn:
+            role_repo = GuildRoleRepository(conn)
+            role_service = RoleService(role_repo)
+            ping_role = role_service.get_role(channel.guild, ROLE_KEY_DUEL_PING)
+
         ping_text = ping_role.mention if ping_role else "A new duel lobby has opened!"
 
         embed = discord.Embed(
@@ -290,7 +295,12 @@ class DuelCog(commands.Cog):
         guild: discord.Guild,
         participant_ids: list[int],
     ) -> None:
-        role = guild.get_role(DUELLING_ROLE_ID)
+        
+        with self.database.connect() as conn:
+            role_repo = GuildRoleRepository(conn)
+            role_service = RoleService(role_repo)
+            role = role_service.get_role(guild, ROLE_KEY_DUELLING)
+
         if role is None:
             return
 
@@ -568,7 +578,11 @@ class DuelCog(commands.Cog):
         session.scores[interaction.user.id] = 0
         self.sessions[channel.id] = session
 
-        duel_role = interaction.guild.get_role(DUEL_PING_ROLE_ID)
+        with self.database.connect() as conn:
+            role_repo = GuildRoleRepository(conn)
+            role_service = RoleService(role_repo)
+            duel_role = role_service.get_role(interaction.guild, ROLE_KEY_DUEL_PING)
+            
         mention_text = duel_role.mention if duel_role else "A new duel lobby has opened!"
 
         lobby_message = await channel.send(
