@@ -5,6 +5,8 @@ from discord.ext import commands
 from db.database import Database
 from domain.constants import (
     HOUSE_ROLE_IDS,
+    HOUSE_ROLE_NAMES_BY_ID,
+    HOUSE_ROLE_ID_SET,
     ARENA_ROLE_ID,
 )
 from domain.role_registry import (
@@ -37,9 +39,9 @@ def resolve_member_roles(member: discord.Member) -> MemberRoleContext:
     role_names = [r.name for r in roles]
 
     house_roles = [
-        HOUSE_ROLE_IDS[r.id]
+        HOUSE_ROLE_NAMES_BY_ID[r.id]
         for r in roles
-        if r.id in HOUSE_ROLE_IDS
+        if r.id in HOUSE_ROLE_ID_SET
     ]
 
     current_house = house_roles[0] if len(house_roles) == 1 else None
