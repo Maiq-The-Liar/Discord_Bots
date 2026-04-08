@@ -1,6 +1,9 @@
 from pathlib import Path
 from io import BytesIO
+import re
 import unicodedata
+import urllib.error
+import urllib.request
 
 import discord
 from PIL import Image, ImageDraw, ImageFont
@@ -28,10 +31,6 @@ from services.birthday_service import BirthdayService
 
 
 class ProfileService:
-    # Adjustable banner text styling per house:
-    # fill = main text color
-    # stroke = outline color
-    # shadow = soft shadow color
     HOUSE_BANNER_TEXT_STYLES: dict[str, dict[str, tuple[int, int, int, int]]] = {
         "Gryffindor": {
             "fill": (214, 167, 86, 255),
@@ -55,6 +54,9 @@ class ProfileService:
         },
     }
 
+    CUSTOM_EMOJI_RE = re.compile(r"<a?:[A-Za-z0-9_~]{2,}:(\d+)>")
+    _EMOJI_CACHE: dict[str, Image.Image | None] = {}
+
     def __init__(
         self,
         user_repo: UserRepository,
@@ -72,6 +74,8 @@ class ProfileService:
         self.base_dir = base_dir
         self.resources_dir = base_dir / "resources"
         self.profile_banners_dir = self.resources_dir / "house_banners"
+        self.emoji_cache_dir = self.resources_dir / ".emoji_cache"
+        self.emoji_cache_dir.mkdir(parents=True, exist_ok=True)
 
         self.patronus_repo = PatronusRepository(
             str(base_dir / "resources" / "patronus.json")
@@ -133,21 +137,8 @@ class ProfileService:
             Path("/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf"),
         ]
 
-    def _get_emoji_font_candidates(self) -> list[Path]:
-        return [
-            Path("/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf"),
-            Path("/usr/share/fonts/noto/NotoColorEmoji.ttf"),
-            Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
-            Path("/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf"),
-        ]
-
-    def _load_font(
-        self,
-        size: int,
-        candidates: list[Path] | None = None,
-    ) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
-        font_candidates = candidates or self._get_font_candidates()
-        for candidate in font_candidates:
+    def _load_font(self, size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+        for candidate in self._get_font_candidates():
             if candidate.exists():
                 try:
                     return ImageFont.truetype(str(candidate), size=size)
@@ -181,185 +172,419 @@ class ProfileService:
         decomposed = unicodedata.normalize("NFKD", text)
         return "".join(ch for ch in decomposed if not unicodedata.combining(ch))
 
-    def _is_emoji_char(self, ch: str) -> bool:
+    def _is_variation_selector(self, ch: str) -> bool:
+        return 0xFE00 <= ord(ch) <= 0xFE0F
+
+    def _is_skin_tone_modifier(self, ch: str) -> bool:
+        return 0x1F3FB <= ord(ch) <= 0x1F3FF
+
+    def _is_regional_indicator(self, ch: str) -> bool:
+        return 0x1F1E6 <= ord(ch) <= 0x1F1FF
+
+    def _is_keycap_base(self, ch: str) -> bool:
+        return ch.isdigit() or ch in {"#", "*"}
+
+    def _is_emoji_base(self, ch: str) -> bool:
         code = ord(ch)
         return (
             0x1F300 <= code <= 0x1FAFF
             or 0x2600 <= code <= 0x27BF
-            or 0xFE00 <= code <= 0xFE0F
+            or 0x2300 <= code <= 0x23FF
+            or 0x2190 <= code <= 0x21FF
+            or 0x25A0 <= code <= 0x25FF
         )
 
-    def _split_banner_runs(self, text: str) -> list[tuple[str, str]]:
-        runs: list[tuple[str, str]] = []
+    def _emoji_to_codepoint_string(self, emoji: str) -> str:
+        codepoints: list[str] = []
+
+        for ch in emoji:
+            code = ord(ch)
+            if code == 0xFE0F:
+                continue
+            codepoints.append(f"{code:x}")
+
+        return "-".join(codepoints)
+
+    def _twemoji_cache_path(self, codepoint_string: str) -> Path:
+        return self.emoji_cache_dir / f"{codepoint_string}.png"
+
+    def _download_image(self, url: str) -> bytes | None:
+        req = urllib.request.Request(
+            url,
+            headers={
+                "User-Agent": "Mozilla/5.0 HogwartsBot/1.0",
+            },
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=6) as response:
+                return response.read()
+        except (urllib.error.URLError, TimeoutError, ValueError):
+            return None
+
+    def _load_image_from_bytes(self, data: bytes) -> Image.Image | None:
+        try:
+            image = Image.open(BytesIO(data)).convert("RGBA")
+            image.load()
+            return image
+        except Exception:
+            return None
+
+    def _get_twemoji_image(self, emoji: str) -> Image.Image | None:
+        codepoint_string = self._emoji_to_codepoint_string(emoji)
+        if not codepoint_string:
+            return None
+
+        cache_key = f"twemoji:{codepoint_string}"
+        if cache_key in self._EMOJI_CACHE:
+            cached = self._EMOJI_CACHE[cache_key]
+            return cached.copy() if cached is not None else None
+
+        cache_path = self._twemoji_cache_path(codepoint_string)
+        if cache_path.exists():
+            try:
+                image = Image.open(cache_path).convert("RGBA")
+                image.load()
+                self._EMOJI_CACHE[cache_key] = image.copy()
+                return image
+            except Exception:
+                pass
+
+        urls = [
+            f"https://cdn.jsdelivr.net/gh/twitter/twemoji@14/assets/72x72/{codepoint_string}.png",
+            f"https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/{codepoint_string}.png",
+        ]
+
+        for url in urls:
+            data = self._download_image(url)
+            if not data:
+                continue
+
+            image = self._load_image_from_bytes(data)
+            if image is None:
+                continue
+
+            try:
+                cache_path.write_bytes(data)
+            except Exception:
+                pass
+
+            self._EMOJI_CACHE[cache_key] = image.copy()
+            return image
+
+        self._EMOJI_CACHE[cache_key] = None
+        return None
+
+    def _get_custom_emoji_image(self, raw_emoji: str) -> Image.Image | None:
+        match = self.CUSTOM_EMOJI_RE.fullmatch(raw_emoji)
+        if not match:
+            return None
+
+        emoji_id = match.group(1)
+        animated = raw_emoji.startswith("<a:")
+        ext = "gif" if animated else "png"
+
+        cache_key = f"custom:{emoji_id}:{ext}"
+        if cache_key in self._EMOJI_CACHE:
+            cached = self._EMOJI_CACHE[cache_key]
+            return cached.copy() if cached is not None else None
+
+        cache_path = self.emoji_cache_dir / f"{emoji_id}.{ext}"
+        if cache_path.exists():
+            try:
+                image = Image.open(cache_path).convert("RGBA")
+                image.load()
+                self._EMOJI_CACHE[cache_key] = image.copy()
+                return image
+            except Exception:
+                pass
+
+        url = f"https://cdn.discordapp.com/emojis/{emoji_id}.{ext}?size=96&quality=lossless"
+        data = self._download_image(url)
+        if not data:
+            self._EMOJI_CACHE[cache_key] = None
+            return None
+
+        image = self._load_image_from_bytes(data)
+        if image is None:
+            self._EMOJI_CACHE[cache_key] = None
+            return None
+
+        try:
+            cache_path.write_bytes(data)
+        except Exception:
+            pass
+
+        self._EMOJI_CACHE[cache_key] = image.copy()
+        return image
+
+    def _extract_emoji_cluster(self, text: str, start: int) -> tuple[str | None, int]:
+        substring = text[start:]
+
+        custom_match = self.CUSTOM_EMOJI_RE.match(substring)
+        if custom_match:
+            raw = custom_match.group(0)
+            return raw, start + len(raw)
+
+        ch = text[start]
+
+        if self._is_regional_indicator(ch):
+            end = start + 1
+            if end < len(text) and self._is_regional_indicator(text[end]):
+                end += 1
+            return text[start:end], end
+
+        if self._is_keycap_base(ch):
+            end = start + 1
+            if end < len(text) and ord(text[end]) == 0xFE0F:
+                end += 1
+            if end < len(text) and ord(text[end]) == 0x20E3:
+                end += 1
+                return text[start:end], end
+
+        if not self._is_emoji_base(ch):
+            return None, start
+
+        end = start + 1
+
+        while end < len(text) and (
+            self._is_variation_selector(text[end]) or self._is_skin_tone_modifier(text[end])
+        ):
+            end += 1
+
+        while end < len(text) and ord(text[end]) == 0x200D:
+            next_pos = end + 1
+            if next_pos >= len(text):
+                break
+
+            if not self._is_emoji_base(text[next_pos]) and not self._is_regional_indicator(text[next_pos]):
+                break
+
+            end = next_pos + 1
+
+            while end < len(text) and (
+                self._is_variation_selector(text[end]) or self._is_skin_tone_modifier(text[end])
+            ):
+                end += 1
+
+        return text[start:end], end
+
+    def _tokenize_banner_text(self, text: str) -> list[dict]:
+        tokens: list[dict] = []
         buffer: list[str] = []
-        current_kind: str | None = None
+        i = 0
 
-        for ch in text:
-            kind = "emoji" if self._is_emoji_char(ch) else "text"
+        def flush_text_buffer() -> None:
+            nonlocal buffer
+            if not buffer:
+                return
+            raw_text = "".join(buffer)
+            normalized = self._normalize_banner_text(raw_text)
+            if normalized:
+                tokens.append(
+                    {
+                        "kind": "text",
+                        "raw": raw_text,
+                        "value": normalized,
+                    }
+                )
+            buffer = []
 
-            if current_kind is None:
-                current_kind = kind
+        while i < len(text):
+            emoji, next_i = self._extract_emoji_cluster(text, i)
+            if emoji is not None and next_i > i:
+                flush_text_buffer()
 
-            if kind != current_kind:
-                run_text = "".join(buffer)
-                if current_kind == "text":
-                    run_text = self._normalize_banner_text(run_text)
-                if run_text:
-                    runs.append((run_text, current_kind))
-                buffer = [ch]
-                current_kind = kind
-            else:
-                buffer.append(ch)
+                kind = "custom_emoji" if self.CUSTOM_EMOJI_RE.fullmatch(emoji) else "emoji"
+                tokens.append(
+                    {
+                        "kind": kind,
+                        "raw": emoji,
+                        "value": emoji,
+                    }
+                )
+                i = next_i
+                continue
 
-        if buffer:
-            run_text = "".join(buffer)
-            if current_kind == "text":
-                run_text = self._normalize_banner_text(run_text)
-            if run_text:
-                runs.append((run_text, current_kind))
+            buffer.append(text[i])
+            i += 1
 
-        return runs
+        flush_text_buffer()
+        return tokens
 
-    def _measure_text_runs(
+    def _measure_banner_tokens(
         self,
         draw: ImageDraw.ImageDraw,
-        runs: list[tuple[str, str]],
+        tokens: list[dict],
         text_font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
-        emoji_font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
         stroke_width: int,
+        emoji_size: int,
+        emoji_gap: int,
     ) -> tuple[int, int]:
         total_width = 0
         max_height = 0
 
-        for run_text, kind in runs:
-            font = emoji_font if kind == "emoji" else text_font
-            current_stroke = 0 if kind == "emoji" else stroke_width
-
-            try:
+        for idx, token in enumerate(tokens):
+            if token["kind"] == "text":
                 bbox = draw.textbbox(
                     (0, 0),
-                    run_text,
-                    font=font,
-                    stroke_width=current_stroke,
-                    embedded_color=(kind == "emoji"),
+                    token["value"],
+                    font=text_font,
+                    stroke_width=stroke_width,
                 )
-            except TypeError:
-                bbox = draw.textbbox(
-                    (0, 0),
-                    run_text,
-                    font=font,
-                    stroke_width=current_stroke,
-                )
-
-            width = bbox[2] - bbox[0]
-            height = bbox[3] - bbox[1]
+                width = bbox[2] - bbox[0]
+                height = bbox[3] - bbox[1]
+            else:
+                width = emoji_size
+                height = emoji_size
 
             total_width += width
             max_height = max(max_height, height)
 
+            if idx < len(tokens) - 1:
+                total_width += emoji_gap
+
         return total_width, max_height
 
-    def _fit_text_font(
+    def _fit_banner_layout(
         self,
         draw: ImageDraw.ImageDraw,
-        runs: list[tuple[str, str]],
+        tokens: list[dict],
         max_width: int,
         max_height: int,
         max_font_size: int = 110,
         min_font_size: int = 28,
-    ) -> tuple[
-        ImageFont.FreeTypeFont | ImageFont.ImageFont,
-        ImageFont.FreeTypeFont | ImageFont.ImageFont,
-    ]:
+    ) -> tuple[ImageFont.FreeTypeFont | ImageFont.ImageFont, int, int, int]:
         for size in range(max_font_size, min_font_size - 1, -2):
-            text_font = self._load_font(size, self._get_font_candidates())
-            emoji_font = self._load_font(size, self._get_emoji_font_candidates())
+            font = self._load_font(size)
             stroke_width = max(2, size // 18)
+            emoji_size = max(20, int(size * 1.05))
+            emoji_gap = max(2, int(size * 0.08))
 
-            width, height = self._measure_text_runs(
+            width, height = self._measure_banner_tokens(
                 draw=draw,
-                runs=runs,
-                text_font=text_font,
-                emoji_font=emoji_font,
+                tokens=tokens,
+                text_font=font,
                 stroke_width=stroke_width,
+                emoji_size=emoji_size,
+                emoji_gap=emoji_gap,
             )
-            if width <= max_width and height <= max_height:
-                return text_font, emoji_font
 
+            if width <= max_width and height <= max_height:
+                return font, stroke_width, emoji_size, emoji_gap
+
+        fallback_size = min_font_size
         return (
-            self._load_font(min_font_size, self._get_font_candidates()),
-            self._load_font(min_font_size, self._get_emoji_font_candidates()),
+            self._load_font(fallback_size),
+            max(2, fallback_size // 18),
+            max(20, int(fallback_size * 1.05)),
+            max(2, int(fallback_size * 0.08)),
         )
 
-    def _draw_text_runs(
+    def _resize_emoji_image(self, image: Image.Image, emoji_size: int) -> Image.Image:
+        src_w, src_h = image.size
+        if src_w <= 0 or src_h <= 0:
+            return image
+
+        scale = min(emoji_size / src_w, emoji_size / src_h)
+        new_w = max(1, int(src_w * scale))
+        new_h = max(1, int(src_h * scale))
+        return image.resize((new_w, new_h), Image.LANCZOS)
+
+    def _get_token_image(self, token: dict) -> Image.Image | None:
+        if token["kind"] == "emoji":
+            return self._get_twemoji_image(token["value"])
+        if token["kind"] == "custom_emoji":
+            return self._get_custom_emoji_image(token["value"])
+        return None
+
+    def _draw_banner_tokens(
         self,
+        image: Image.Image,
         draw: ImageDraw.ImageDraw,
         x: float,
         y: float,
-        runs: list[tuple[str, str]],
+        tokens: list[dict],
         text_font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
-        emoji_font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
         style: dict[str, tuple[int, int, int, int]],
         stroke_width: int,
         shadow_offset: int,
+        emoji_size: int,
+        emoji_gap: int,
     ) -> None:
         current_x = x
 
-        for run_text, kind in runs:
-            font = emoji_font if kind == "emoji" else text_font
-            current_stroke = 0 if kind == "emoji" else stroke_width
+        font_bbox = draw.textbbox(
+            (0, 0),
+            "Ag",
+            font=text_font,
+            stroke_width=stroke_width,
+        )
+        text_height = font_bbox[3] - font_bbox[1]
 
-            try:
+        for idx, token in enumerate(tokens):
+            if token["kind"] == "text":
                 bbox = draw.textbbox(
                     (0, 0),
-                    run_text,
-                    font=font,
-                    stroke_width=current_stroke,
-                    embedded_color=(kind == "emoji"),
+                    token["value"],
+                    font=text_font,
+                    stroke_width=stroke_width,
                 )
-            except TypeError:
-                bbox = draw.textbbox(
-                    (0, 0),
-                    run_text,
-                    font=font,
-                    stroke_width=current_stroke,
-                )
+                token_width = bbox[2] - bbox[0]
 
-            run_width = bbox[2] - bbox[0]
-
-            if kind == "text":
                 draw.text(
                     (current_x + shadow_offset, y + shadow_offset),
-                    run_text,
-                    font=font,
+                    token["value"],
+                    font=text_font,
                     fill=style["shadow"],
                     stroke_width=0,
                 )
                 draw.text(
                     (current_x, y),
-                    run_text,
-                    font=font,
+                    token["value"],
+                    font=text_font,
                     fill=style["fill"],
                     stroke_width=stroke_width,
                     stroke_fill=style["stroke"],
                 )
             else:
-                try:
-                    draw.text(
-                        (current_x, y),
-                        run_text,
-                        font=font,
-                        embedded_color=True,
+                token_width = emoji_size
+                emoji_img = self._get_token_image(token)
+
+                if emoji_img is not None:
+                    resized = self._resize_emoji_image(emoji_img, emoji_size)
+                    paste_x = int(round(current_x + (emoji_size - resized.width) / 2))
+                    paste_y = int(round(y + (text_height - resized.height) / 2 + stroke_width * 0.15))
+                    image.alpha_composite(resized, (paste_x, paste_y))
+                else:
+                    fallback = "□"
+                    bbox = draw.textbbox(
+                        (0, 0),
+                        fallback,
+                        font=text_font,
+                        stroke_width=stroke_width,
                     )
-                except TypeError:
+                    fallback_width = bbox[2] - bbox[0]
+                    fallback_x = current_x + (emoji_size - fallback_width) / 2
+
                     draw.text(
-                        (current_x, y),
-                        run_text,
-                        font=font,
+                        (fallback_x + shadow_offset, y + shadow_offset),
+                        fallback,
+                        font=text_font,
+                        fill=style["shadow"],
+                        stroke_width=0,
+                    )
+                    draw.text(
+                        (fallback_x, y),
+                        fallback,
+                        font=text_font,
                         fill=style["fill"],
+                        stroke_width=stroke_width,
+                        stroke_fill=style["stroke"],
                     )
 
-            current_x += run_width
+            current_x += token_width
+            if idx < len(tokens) - 1:
+                current_x += emoji_gap
 
     def _render_profile_banner(
         self,
@@ -383,15 +608,13 @@ class ProfileService:
         )
 
         raw_text = display_name.strip() if display_name.strip() else "Unknown Wizard"
-        runs = self._split_banner_runs(raw_text)
+        tokens = self._tokenize_banner_text(raw_text)
 
-        if not runs:
-            runs = [("Unknown Wizard", "text")]
+        if not tokens:
+            tokens = [{"kind": "text", "raw": "Unknown Wizard", "value": "Unknown Wizard"}]
 
         width, height = image.size
 
-        # Central empty panel area where the username should sit.
-        # Tuned for the new banner shapes.
         text_area_left = int(width * 0.14)
         text_area_right = int(width * 0.86)
         text_area_top = int(height * 0.28)
@@ -400,41 +623,42 @@ class ProfileService:
         max_text_width = text_area_right - text_area_left
         max_text_height = text_area_bottom - text_area_top
 
-        text_font, emoji_font = self._fit_text_font(
+        font, stroke_width, emoji_size, emoji_gap = self._fit_banner_layout(
             draw=draw,
-            runs=runs,
+            tokens=tokens,
             max_width=max_text_width,
             max_height=max_text_height,
             max_font_size=min(200, int(height * 0.27)),
             min_font_size=30,
         )
 
-        approx_size = getattr(text_font, "size", 48)
-        stroke_width = max(2, approx_size // 18)
-
-        text_width, text_height = self._measure_text_runs(
+        total_width, total_height = self._measure_banner_tokens(
             draw=draw,
-            runs=runs,
-            text_font=text_font,
-            emoji_font=emoji_font,
+            tokens=tokens,
+            text_font=font,
             stroke_width=stroke_width,
+            emoji_size=emoji_size,
+            emoji_gap=emoji_gap,
         )
 
-        x = (width - text_width) / 2
-        y = ((text_area_top + text_area_bottom) / 2 - text_height / 2) + 75
-
+        approx_size = getattr(font, "size", 48)
         shadow_offset = max(2, approx_size // 20)
 
-        self._draw_text_runs(
+        x = (width - total_width) / 2
+        y = ((text_area_top + text_area_bottom) / 2 - total_height / 2) + 75
+
+        self._draw_banner_tokens(
+            image=image,
             draw=draw,
             x=x,
             y=y,
-            runs=runs,
-            text_font=text_font,
-            emoji_font=emoji_font,
+            tokens=tokens,
+            text_font=font,
             style=style,
             stroke_width=stroke_width,
             shadow_offset=shadow_offset,
+            emoji_size=emoji_size,
+            emoji_gap=emoji_gap,
         )
 
         output = BytesIO()
