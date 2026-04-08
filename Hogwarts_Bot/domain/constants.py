@@ -3,11 +3,11 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 RESOURCES_DIR = BASE_DIR / "resources"
 
-HOUSE_ROLE_IDS: dict[int, str] = {
-    1079764344717463579: "Gryffindor",
-    1079764344717463577: "Hufflepuff",
-    1079764344717463576: "Ravenclaw",
-    1079764344717463578: "Slytherin",
+HOUSE_ROLE_IDS = {
+    "Gryffindor": 1079764344717463579,
+    "Hufflepuff": 1079764344717463577,
+    "Ravenclaw": 1079764344717463576,
+    "Slytherin": 1079764344717463578,
 }
 
 YEAR_LEVEL_ROLE_IDS: dict[int, int] = {
