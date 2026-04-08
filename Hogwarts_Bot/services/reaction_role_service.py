@@ -48,7 +48,7 @@ class ReactionRoleService:
             message = await channel.send(
                 file=file,
                 embeds=embeds,
-                allowed_mentions=discord.AllowedMentions.none(),
+                allowed_mentions=discord.AllowedMentions(roles=True, users=False, everyone=False),
             )
             self.reaction_repo.add_message_mapping(guild.id, group.key, channel.id, message.id)
 
@@ -97,7 +97,7 @@ class ReactionRoleService:
         try:
             await message.edit(
                 embeds=embeds,
-                allowed_mentions=discord.AllowedMentions.none(),
+                allowed_mentions=discord.AllowedMentions(roles=True, users=False, everyone=False),
             )
         except discord.HTTPException:
             return
@@ -301,10 +301,7 @@ class ReactionRoleService:
 
             if group.house_name:
                 role = self.role_service.get_role(guild, option.role_key)
-                if role is not None:
-                    label = role.mention
-                else:
-                    label = role_def.name
+                label = role.mention if role is not None else role_def.name
             else:
                 label = role_def.name
 
@@ -314,12 +311,17 @@ class ReactionRoleService:
 
     def _emoji_for_display(self, option: ReactionRoleOption) -> str:
         if option.emoji_id and option.emoji_name:
-            return f"<:{option.emoji_name}:{option.emoji_id}>"
+            prefix = "a" if option.emoji_animated else ""
+            return f"<{prefix}:{option.emoji_name}:{option.emoji_id}>"
         return option.emoji_unicode or "•"
 
     def _emoji_for_reaction(self, option: ReactionRoleOption):
         if option.emoji_id and option.emoji_name:
-            return discord.PartialEmoji(name=option.emoji_name, id=option.emoji_id)
+            return discord.PartialEmoji(
+                name=option.emoji_name,
+                id=option.emoji_id,
+                animated=option.emoji_animated,
+            )
         return option.emoji_unicode or "•"
 
     def _match_option(
@@ -346,10 +348,14 @@ class ReactionRoleService:
 
     def _member_house(self, member: discord.Member) -> str | None:
         role_ids = {role.id for role in member.roles}
-        role_names = {role.name for role in member.roles}
+        role_names_lower = {role.name.strip().lower() for role in member.roles}
 
         for house_name, role_id in HOUSE_ROLE_IDS.items():
-            if role_id in role_ids or house_name in role_names:
+            if role_id in role_ids:
+                return house_name
+
+        for house_name in HOUSE_ROLE_IDS.keys():
+            if house_name.strip().lower() in role_names_lower:
                 return house_name
 
         return None
@@ -357,4 +363,9 @@ class ReactionRoleService:
     def _member_can_use_group(self, member: discord.Member, group: ReactionRoleGroup) -> bool:
         if group.house_name is None:
             return True
-        return self._member_house(member) == group.house_name
+
+        member_house = self._member_house(member)
+        if member_house is None:
+            return False
+
+        return member_house.strip().lower() == group.house_name.strip().lower()

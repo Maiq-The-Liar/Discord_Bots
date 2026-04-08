@@ -27,6 +27,7 @@ class ReactionRoleOption:
     emoji_name: str | None = None
     emoji_id: int | None = None
     emoji_unicode: str | None = None
+    emoji_animated: bool = False
 
 
 @dataclass(frozen=True)
@@ -46,15 +47,16 @@ AGE_VERIFY_EMOJIS = {
     "greenverify": 1491468987228491957,
     "blueverify": 1491468956207284264,
     "purpleverify": 1491468937718665358,
+    "blackverified": 1491536921170804878,
 }
 
 CONTINENT_EMOJIS = {
     "europe": 1491428638107635792,
     "asia": 1491428636040105994,
-    "southamerica": 1491428634265911428,
-    "africa": 1491428632202055843,
-    "oceania": 1491428629995852026,
     "northamerica": 1491428628032913531,
+    "africa": 1491428632202055843,
+    "southamerica": 1491428634265911428,
+    "oceania": 1491428629995852026,
     "antarctica": 1491428626288214056,
 }
 
@@ -99,12 +101,12 @@ REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
         multi_select=False,
         banner_filename="select_pronouns.png",
         options=(
-            ReactionRoleOption("pronouns_she_her", "she_her", PRONOUN_EMOJIS["she_her"]),
-            ReactionRoleOption("pronouns_she_they", "shethem", PRONOUN_EMOJIS["shethem"]),
-            ReactionRoleOption("pronouns_he_him", "he_him", PRONOUN_EMOJIS["he_him"]),
-            ReactionRoleOption("pronouns_he_they", "hethem", PRONOUN_EMOJIS["hethem"]),
-            ReactionRoleOption("pronouns_they_them", "they_them", PRONOUN_EMOJIS["they_them"]),
-            ReactionRoleOption("pronouns_ask", "ask", PRONOUN_EMOJIS["ask"]),
+            ReactionRoleOption("pronouns_she_her", "she_her", PRONOUN_EMOJIS["she_her"], emoji_animated=True),
+            ReactionRoleOption("pronouns_she_they", "shethem", PRONOUN_EMOJIS["shethem"], emoji_animated=True),
+            ReactionRoleOption("pronouns_he_him", "he_him", PRONOUN_EMOJIS["he_him"], emoji_animated=True),
+            ReactionRoleOption("pronouns_he_they", "hethem", PRONOUN_EMOJIS["hethem"], emoji_animated=True),
+            ReactionRoleOption("pronouns_they_them", "they_them", PRONOUN_EMOJIS["they_them"], emoji_animated=True),
+            ReactionRoleOption("pronouns_ask", "ask", PRONOUN_EMOJIS["ask"], emoji_animated=True),
         ),
     ),
     ReactionRoleGroup(
@@ -166,7 +168,7 @@ REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
             ReactionRoleOption("age_31_35", "greenverify", AGE_VERIFY_EMOJIS["greenverify"]),
             ReactionRoleOption("age_36_40", "blueverify", AGE_VERIFY_EMOJIS["blueverify"]),
             ReactionRoleOption("age_41_45", "purpleverify", AGE_VERIFY_EMOJIS["purpleverify"]),
-            ReactionRoleOption("age_46_plus", emoji_unicode="✅"),
+            ReactionRoleOption("age_46_plus", "blackverified", AGE_VERIFY_EMOJIS["blackverified"]),
         ),
     ),
     ReactionRoleGroup(
@@ -175,13 +177,13 @@ REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
         multi_select=False,
         banner_filename="select_location.png",
         options=(
-            ReactionRoleOption("continent_africa", "africa", CONTINENT_EMOJIS["africa"]),
-            ReactionRoleOption("continent_antarctica", "antarctica", CONTINENT_EMOJIS["antarctica"]),
-            ReactionRoleOption("continent_asia", "asia", CONTINENT_EMOJIS["asia"]),
-            ReactionRoleOption("continent_australia_oceania", "oceania", CONTINENT_EMOJIS["oceania"]),
             ReactionRoleOption("continent_europe", "europe", CONTINENT_EMOJIS["europe"]),
+            ReactionRoleOption("continent_asia", "asia", CONTINENT_EMOJIS["asia"]),
             ReactionRoleOption("continent_north_america", "northamerica", CONTINENT_EMOJIS["northamerica"]),
+            ReactionRoleOption("continent_africa", "africa", CONTINENT_EMOJIS["africa"]),
             ReactionRoleOption("continent_south_america", "southamerica", CONTINENT_EMOJIS["southamerica"]),
+            ReactionRoleOption("continent_australia_oceania", "oceania", CONTINENT_EMOJIS["oceania"]),
+            ReactionRoleOption("continent_antarctica", "antarctica", CONTINENT_EMOJIS["antarctica"]),
         ),
     ),
     ReactionRoleGroup(
