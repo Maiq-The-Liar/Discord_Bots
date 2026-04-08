@@ -182,3 +182,42 @@ class Database:
                 )
                 """
             )
+
+        if "reaction_role_channels" not in existing_tables:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS reaction_role_channels (
+                    guild_id INTEGER PRIMARY KEY,
+                    channel_id INTEGER NOT NULL,
+                    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+                """
+            )
+
+        if "reaction_role_messages" not in existing_tables:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS reaction_role_messages (
+                    guild_id INTEGER NOT NULL,
+                    group_key TEXT NOT NULL,
+                    channel_id INTEGER NOT NULL,
+                    message_id INTEGER NOT NULL,
+                    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (guild_id, group_key)
+                )
+                """
+            )
+
+        if "reaction_role_memberships" not in existing_tables:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS reaction_role_memberships (
+                    guild_id INTEGER NOT NULL,
+                    user_id INTEGER NOT NULL,
+                    group_key TEXT NOT NULL,
+                    role_key TEXT NOT NULL,
+                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (guild_id, user_id, group_key, role_key)
+                )
+                """
+            )

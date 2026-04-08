@@ -15,21 +15,26 @@ class ManagedRoleDefinition:
 
 ROLE_GROUP_YEARS = "years"
 ROLE_GROUP_ZODIAC = "zodiac"
-ROLE_GROUP_PRONOUNS = "pronouns"
+ROLE_GROUP_SYSTEM = "system"
+
 ROLE_GROUP_AGES = "ages"
+ROLE_GROUP_PRONOUNS = "pronouns"
+ROLE_GROUP_GENDER_IDENTITY = "gender_identity"
 ROLE_GROUP_CONTINENTS = "continents"
 ROLE_GROUP_SEXUALITY = "sexuality"
 ROLE_GROUP_PINGS = "pings"
 ROLE_GROUP_DM = "dm"
 ROLE_GROUP_RELATIONSHIP = "relationship"
+
 ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR = "house_colors_gryffindor"
 ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF = "house_colors_hufflepuff"
 ROLE_GROUP_HOUSE_COLOR_RAVENCLAW = "house_colors_ravenclaw"
 ROLE_GROUP_HOUSE_COLOR_SLYTHERIN = "house_colors_slytherin"
-ROLE_GROUP_SYSTEM = "system"
 
 ROLE_KEY_BIRTHDAY = "birthday"
 ROLE_KEY_DUEL_PING = "duel_ping"
+ROLE_KEY_EVENT_PING = "event_ping"
+ROLE_KEY_CHAT_REVIVE = "chat_revive"
 ROLE_KEY_DUELLING = "duelling"
 
 YEAR_ROLE_KEYS_BY_LEVEL: dict[int, str] = {
@@ -67,40 +72,11 @@ ZODIAC_ROLE_KEYS_BY_SIGN: dict[str, str] = {
     "Pisces": "zodiac_pisces",
 }
 
-PRONOUN_CHOICE_TO_ROLE_KEY: dict[str, str] = {
-    "she_her": "pronouns_she_her",
-    "she_they": "pronouns_she_they",
-    "he_him": "pronouns_he_him",
-    "he_they": "pronouns_he_they",
-    "they_them": "pronouns_they_them",
-    "ask_pronouns": "pronouns_ask",
-}
-
-AGE_CHOICE_TO_ROLE_KEY: dict[str, str] = {
-    "below_21": "age_below_21",
-    "21_25": "age_21_25",
-    "26_30": "age_26_30",
-    "31_35": "age_31_35",
-    "36_40": "age_36_40",
-    "41_45": "age_41_45",
-    "46_plus": "age_46_plus",
-}
-
-CONTINENT_CHOICE_TO_ROLE_KEY: dict[str, str] = {
-    "africa": "continent_africa",
-    "antarctica": "continent_antarctica",
-    "asia": "continent_asia",
-    "australia_oceania": "continent_australia_oceania",
-    "europe": "continent_europe",
-    "north_america": "continent_north_america",
-    "south_america": "continent_south_america",
-}
-
 
 def _build_role_definitions() -> list[ManagedRoleDefinition]:
     defs: list[ManagedRoleDefinition] = []
 
-    # System-managed roles
+    # System / auto-managed
     defs.extend(
         [
             ManagedRoleDefinition(
@@ -132,29 +108,15 @@ def _build_role_definitions() -> list[ManagedRoleDefinition]:
 
     defs.extend(
         [
-            ManagedRoleDefinition(
-                key=ROLE_KEY_BIRTHDAY,
-                name="Birthday",
-                color=0xFF69B4,
-                group=ROLE_GROUP_SYSTEM,
-            ),
-            ManagedRoleDefinition(
-                key=ROLE_KEY_DUEL_PING,
-                name="Duel Ping",
-                color=0xB22222,
-                group=ROLE_GROUP_PINGS,
-                mentionable=True,
-            ),
-            ManagedRoleDefinition(
-                key=ROLE_KEY_DUELLING,
-                name="Duelling",
-                color=0x8B0000,
-                group=ROLE_GROUP_SYSTEM,
-            ),
+            ManagedRoleDefinition(ROLE_KEY_BIRTHDAY, "Birthday", 0xFF69B4, ROLE_GROUP_SYSTEM),
+            ManagedRoleDefinition(ROLE_KEY_DUEL_PING, "Arena Ping", 0xB22222, ROLE_GROUP_PINGS, mentionable=True),
+            ManagedRoleDefinition(ROLE_KEY_EVENT_PING, "Event Ping", 0x6A4C93, ROLE_GROUP_PINGS, mentionable=True),
+            ManagedRoleDefinition(ROLE_KEY_CHAT_REVIVE, "Chat Revive", 0x4D908E, ROLE_GROUP_PINGS, mentionable=True),
+            ManagedRoleDefinition(ROLE_KEY_DUELLING, "Duelling", 0x8B0000, ROLE_GROUP_SYSTEM),
         ]
     )
 
-    # Future reaction-role groups
+    # Reaction role groups
     defs.extend(
         [
             ManagedRoleDefinition("age_below_21", "Below 21", 0xA8DADC, ROLE_GROUP_AGES),
@@ -180,6 +142,18 @@ def _build_role_definitions() -> list[ManagedRoleDefinition]:
 
     defs.extend(
         [
+            ManagedRoleDefinition("gender_male", "Male", 0x7B8CFF, ROLE_GROUP_GENDER_IDENTITY),
+            ManagedRoleDefinition("gender_female", "Female", 0xFF73E6, ROLE_GROUP_GENDER_IDENTITY),
+            ManagedRoleDefinition("gender_transgender", "Transgender", 0xFF3B30, ROLE_GROUP_GENDER_IDENTITY),
+            ManagedRoleDefinition("gender_bigender", "Bigender", 0xB65DFF, ROLE_GROUP_GENDER_IDENTITY),
+            ManagedRoleDefinition("gender_genderfluid", "Genderfluid", 0x00D84A, ROLE_GROUP_GENDER_IDENTITY),
+            ManagedRoleDefinition("gender_demigender", "Demigender", 0x11C5D9, ROLE_GROUP_GENDER_IDENTITY),
+            ManagedRoleDefinition("gender_nonbinary", "Nonbinary", 0xF2D200, ROLE_GROUP_GENDER_IDENTITY),
+        ]
+    )
+
+    defs.extend(
+        [
             ManagedRoleDefinition("continent_africa", "Africa", 0xF4A261, ROLE_GROUP_CONTINENTS),
             ManagedRoleDefinition("continent_antarctica", "Antarctica", 0xD9EDFF, ROLE_GROUP_CONTINENTS),
             ManagedRoleDefinition("continent_asia", "Asia", 0xE76F51, ROLE_GROUP_CONTINENTS),
@@ -200,18 +174,11 @@ def _build_role_definitions() -> list[ManagedRoleDefinition]:
             ManagedRoleDefinition("sexuality_asexual", "Asexual", 0x6C757D, ROLE_GROUP_SEXUALITY),
             ManagedRoleDefinition("sexuality_aromantic", "Aromantic", 0x588157, ROLE_GROUP_SEXUALITY),
             ManagedRoleDefinition("sexuality_demisexual", "Demisexual", 0x495057, ROLE_GROUP_SEXUALITY),
-            ManagedRoleDefinition("sexuality_demi_romantic", "Demi-Romantic", 0x7F5539, ROLE_GROUP_SEXUALITY),
+            ManagedRoleDefinition("sexuality_demiromantic", "Demiromantic", 0x7F5539, ROLE_GROUP_SEXUALITY),
             ManagedRoleDefinition("sexuality_heterosexual", "Heterosexual", 0x457B9D, ROLE_GROUP_SEXUALITY),
             ManagedRoleDefinition("sexuality_abrosexual", "Abrosexual", 0x52B788, ROLE_GROUP_SEXUALITY),
             ManagedRoleDefinition("sexuality_polyamorous", "Polyamorous", 0xE63946, ROLE_GROUP_SEXUALITY),
             ManagedRoleDefinition("sexuality_questioning", "Questioning", 0xADB5BD, ROLE_GROUP_SEXUALITY),
-        ]
-    )
-
-    defs.extend(
-        [
-            ManagedRoleDefinition("ping_event", "Event Ping", 0x6A4C93, ROLE_GROUP_PINGS, mentionable=True),
-            ManagedRoleDefinition("ping_chat_revive", "Chat Revive", 0x4D908E, ROLE_GROUP_PINGS, mentionable=True),
         ]
     )
 

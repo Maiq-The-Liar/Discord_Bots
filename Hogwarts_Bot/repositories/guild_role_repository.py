@@ -35,14 +35,3 @@ class GuildRoleRepository:
             (guild_id, role_key, role_id, role_name),
         )
         self.conn.commit()
-
-    def list_mappings_for_guild(self, guild_id: int) -> list[sqlite3.Row]:
-        return self.conn.execute(
-            """
-            SELECT guild_id, role_key, role_id, role_name, updated_at
-            FROM guild_role_mappings
-            WHERE guild_id = ?
-            ORDER BY role_key
-            """,
-            (guild_id,),
-        ).fetchall()

@@ -79,11 +79,7 @@ class RoleService:
         self.role_repo.upsert_mapping(guild.id, role_key, role.id, role.name)
         return role, "found"
 
-    def get_role(
-        self,
-        guild: discord.Guild,
-        role_key: str,
-    ) -> discord.Role | None:
+    def get_role(self, guild: discord.Guild, role_key: str) -> discord.Role | None:
         mapping = self.role_repo.get_mapping(guild.id, role_key)
         if mapping is not None:
             mapped_role = guild.get_role(int(mapping["role_id"]))
@@ -91,20 +87,15 @@ class RoleService:
                 return mapped_role
 
         role_def = ROLE_DEFINITION_BY_KEY[role_key]
-        matching_roles = [role for role in guild.roles if role.name == role_def.name]
-
-        if matching_roles:
-            chosen = sorted(matching_roles, key=lambda r: r.id)[0]
+        matches = [role for role in guild.roles if role.name == role_def.name]
+        if matches:
+            chosen = sorted(matches, key=lambda r: r.id)[0]
             self.role_repo.upsert_mapping(guild.id, role_key, chosen.id, chosen.name)
             return chosen
 
         return None
 
-    def get_roles_for_group(
-        self,
-        guild: discord.Guild,
-        group: str,
-    ) -> list[discord.Role]:
+    def get_roles_for_group(self, guild: discord.Guild, group: str) -> list[discord.Role]:
         roles: list[discord.Role] = []
         for role_key in role_keys_for_group(group):
             role = self.get_role(guild, role_key)
@@ -112,24 +103,13 @@ class RoleService:
                 roles.append(role)
         return roles
 
-    def get_year_role(
-        self,
-        guild: discord.Guild,
-        level: int,
-    ) -> discord.Role | None:
+    def get_year_role(self, guild: discord.Guild, level: int) -> discord.Role | None:
         return self.get_role(guild, year_role_key_for_level(level))
 
-    def get_zodiac_role(
-        self,
-        guild: discord.Guild,
-        sign: str,
-    ) -> discord.Role | None:
+    def get_zodiac_role(self, guild: discord.Guild, sign: str) -> discord.Role | None:
         return self.get_role(guild, zodiac_role_key_for_sign(sign))
 
-    async def cleanup_duplicate_managed_roles(
-        self,
-        guild: discord.Guild,
-    ) -> dict[str, list[str]]:
+    async def cleanup_duplicate_managed_roles(self, guild: discord.Guild) -> dict[str, list[str]]:
         managed_defs = get_all_managed_role_definitions()
         managed_by_name = {role_def.name: role_def for role_def in managed_defs}
 
@@ -140,7 +120,6 @@ class RoleService:
 
         deleted: list[str] = []
         failed: list[str] = []
-        kept: list[str] = []
 
         for role_name, roles in roles_by_name.items():
             if len(roles) <= 1:
@@ -152,7 +131,6 @@ class RoleService:
 
             role_def = managed_by_name[role_name]
             self.role_repo.upsert_mapping(guild.id, role_def.key, keep_role.id, keep_role.name)
-            kept.append(f"{role_name} → kept {keep_role.id}")
 
             for extra in extras:
                 try:
@@ -163,11 +141,7 @@ class RoleService:
                 except discord.HTTPException as exc:
                     failed.append(f"{role_name} → could not delete {extra.id} ({exc})")
 
-        return {
-            "kept": kept,
-            "deleted": deleted,
-            "failed": failed,
-        }
+        return {"deleted": deleted, "failed": failed}
 
     def _needs_edit(self, role: discord.Role, role_def) -> bool:
         return any(

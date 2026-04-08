@@ -146,3 +146,36 @@ CREATE TABLE IF NOT EXISTS media_vote_cooldowns (
     voter_user_id INTEGER PRIMARY KEY,
     last_vote_at TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS guild_role_mappings (
+    guild_id INTEGER NOT NULL,
+    role_key TEXT NOT NULL,
+    role_id INTEGER NOT NULL,
+    role_name TEXT NOT NULL,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (guild_id, role_key)
+);
+
+CREATE TABLE IF NOT EXISTS reaction_role_channels (
+    guild_id INTEGER PRIMARY KEY,
+    channel_id INTEGER NOT NULL,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS reaction_role_messages (
+    guild_id INTEGER NOT NULL,
+    group_key TEXT NOT NULL,
+    channel_id INTEGER NOT NULL,
+    message_id INTEGER NOT NULL,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (guild_id, group_key)
+);
+
+CREATE TABLE IF NOT EXISTS reaction_role_memberships (
+    guild_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    group_key TEXT NOT NULL,
+    role_key TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (guild_id, user_id, group_key, role_key)
+);
