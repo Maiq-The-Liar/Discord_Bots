@@ -7,6 +7,23 @@ class MediaService:
     POST_DURATION_HOURS = 2
     POINTS_PER_VOTE = 3
 
+    SUPPORTED_IMAGE_TYPES = {
+        "image/png",
+        "image/jpeg",
+        "image/jpg",
+        "image/webp",
+    }
+
+    SUPPORTED_VIDEO_TYPES = {
+        "video/mp4",
+        "video/quicktime",   # .mov
+        "video/webm",
+        "video/x-matroska",  # .mkv (sometimes)
+    }
+
+    SUPPORTED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
+    SUPPORTED_VIDEO_EXTENSIONS = {".mp4", ".mov", ".webm", ".mkv"}
+
     def now(self) -> datetime:
         return datetime.now(timezone.utc)
 
@@ -16,17 +33,20 @@ class MediaService:
     def calculate_closes_at_iso(self) -> str:
         return (self.now() + timedelta(hours=self.POST_DURATION_HOURS)).isoformat()
 
-    def is_supported_image(self, filename: str | None, content_type: str | None) -> bool:
+    def is_supported_media(self, filename: str | None, content_type: str | None) -> bool:
         if content_type:
             lowered = content_type.lower()
-            if lowered in {"image/png", "image/jpeg", "image/jpg"}:
+            if lowered in self.SUPPORTED_IMAGE_TYPES or lowered in self.SUPPORTED_VIDEO_TYPES:
                 return True
 
         if not filename:
             return False
 
         lowered_name = filename.lower()
-        return lowered_name.endswith(".png") or lowered_name.endswith(".jpg") or lowered_name.endswith(".jpeg")
+        return any(lowered_name.endswith(ext) for ext in (
+            *self.SUPPORTED_IMAGE_EXTENSIONS,
+            *self.SUPPORTED_VIDEO_EXTENSIONS,
+        ))
 
     def calculate_vote_window_start_iso(self) -> str:
         return (self.now() - timedelta(minutes=self.VOTE_WINDOW_MINUTES)).isoformat()
