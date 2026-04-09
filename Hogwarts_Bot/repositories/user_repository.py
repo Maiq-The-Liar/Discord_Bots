@@ -171,6 +171,9 @@ class UserRepository:
 
         return [int(row["user_id"]) for row in rows]
 
+    # -----------------------------
+    # Legacy XP compatibility
+    # -----------------------------
     def set_xp_and_level(
         self,
         user_id: int,
@@ -205,3 +208,71 @@ class UserRepository:
             return 0, 1, None
 
         return int(row["xp"]), int(row["level"]), row["last_xp_at"]
+
+    # -----------------------------
+    # New year tracking
+    # -----------------------------
+    def get_year_tracking(self, user_id: int) -> sqlite3.Row:
+        row = self.conn.execute(
+            """
+            SELECT
+                user_id,
+                xp,
+                level,
+                year_start_at,
+                last_year_message_at,
+                year_initialized_at
+            FROM users
+            WHERE user_id = ?
+            """,
+            (user_id,),
+        ).fetchone()
+
+        if row is None:
+            raise ValueError(f"User {user_id} not found.")
+
+        return row
+
+    def set_year_tracking(
+        self,
+        user_id: int,
+        year_start_at: str | None,
+        last_year_message_at: str | None,
+        year_initialized_at: str | None,
+        level: int,
+        xp: int = 0,
+    ) -> None:
+        self.conn.execute(
+            """
+            UPDATE users
+            SET xp = ?,
+                level = ?,
+                year_start_at = ?,
+                last_year_message_at = ?,
+                year_initialized_at = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = ?
+            """,
+            (
+                xp,
+                level,
+                year_start_at,
+                last_year_message_at,
+                year_initialized_at,
+                user_id,
+            ),
+        )
+        self.conn.commit()
+
+    def set_level_only(self, user_id: int, level: int, xp: int = 0) -> None:
+        self.conn.execute(
+            """
+            UPDATE users
+            SET xp = ?,
+                level = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = ?
+            """,
+            (xp, level, user_id),
+        )
+        self.conn.commit()
