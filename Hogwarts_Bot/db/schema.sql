@@ -12,6 +12,9 @@ CREATE TABLE IF NOT EXISTS users (
     xp INTEGER NOT NULL DEFAULT 0,
     level INTEGER NOT NULL DEFAULT 1,
     last_xp_at TEXT NULL,
+    year_start_at TEXT NULL,
+    last_year_message_at TEXT NULL,
+    year_initialized_at TEXT NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

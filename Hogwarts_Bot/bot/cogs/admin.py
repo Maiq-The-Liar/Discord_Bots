@@ -13,6 +13,7 @@ from services.house_cup_service import HouseCupService
 from bot.cogs.profile import resolve_member_roles, validate_house_context
 from repositories.guild_role_repository import GuildRoleRepository
 from services.role_service import RoleService
+from services.leveling_service import LevelingService
 
 
 class AdminCog(commands.Cog):
@@ -98,7 +99,7 @@ class AdminCog(commands.Cog):
 
     @app_commands.command(
         name="update_roles",
-        description="Admin: create missing managed roles and refresh stored role mappings.",
+        description="Admin: create missing managed roles, refresh stored role mappings, and repair school year roles.",
     )
     async def update_roles(
         self,
@@ -138,11 +139,48 @@ class AdminCog(commands.Cog):
             )
             return
 
+        repaired = 0
+        repair_failed = 0
+
+        with self.database.connect() as conn:
+            role_repo = GuildRoleRepository(conn)
+            role_service = RoleService(role_repo)
+            user_repo = UserRepository(conn)
+            leveling_service = LevelingService(user_repo)
+            year_roles = role_service.get_roles_for_group(interaction.guild, "years")
+
+            for member in interaction.guild.members:
+                if member.bot:
+                    continue
+
+                leveling_service.ensure_initialized(member.id, member.joined_at)
+                refreshed = leveling_service.refresh_user_level(member.id)
+                target_role = role_service.get_year_role(interaction.guild, refreshed["level"])
+                if target_role is None:
+                    repair_failed += 1
+                    continue
+
+                roles_to_remove = [
+                    role for role in member.roles
+                    if role in year_roles and role.id != target_role.id
+                ]
+
+                try:
+                    if roles_to_remove:
+                        await member.remove_roles(*roles_to_remove, reason="Refreshing school year role")
+                    if target_role not in member.roles:
+                        await member.add_roles(target_role, reason="Assigning school year role")
+                    repaired += 1
+                except discord.HTTPException:
+                    repair_failed += 1
+
         lines = [
             f"Created: **{len(result['created'])}**",
             f"Updated: **{len(result['updated'])}**",
             f"Already OK: **{len(result['found'])}**",
             f"Failed: **{len(result['failed'])}**",
+            f"Year roles repaired: **{repaired}**",
+            f"Year role repair failures: **{repair_failed}**",
         ]
 
         if result["failed"]:

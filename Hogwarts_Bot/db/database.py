@@ -46,6 +46,15 @@ class Database:
         if "last_xp_at" not in user_columns:
             conn.execute("ALTER TABLE users ADD COLUMN last_xp_at TEXT NULL")
 
+        if "year_start_at" not in user_columns:
+            conn.execute("ALTER TABLE users ADD COLUMN year_start_at TEXT NULL")
+
+        if "last_year_message_at" not in user_columns:
+            conn.execute("ALTER TABLE users ADD COLUMN last_year_message_at TEXT NULL")
+
+        if "year_initialized_at" not in user_columns:
+            conn.execute("ALTER TABLE users ADD COLUMN year_initialized_at TEXT NULL")
+
         existing_tables = {
             row["name"]
             for row in conn.execute(

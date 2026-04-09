@@ -743,13 +743,19 @@ class ProfileService:
         total_possible_frogs = self.chocolate_frog_repo.get_total_count()
 
         current_level = int(user_row["level"])
-        current_xp = int(user_row["xp"])
-
+        year_start_at = user_row["year_start_at"]
         if current_level >= 7:
-            xp_progress_text = "MAX"
+            progress_text = "7th Year reached"
+        elif year_start_at:
+            from datetime import datetime
+            from services.leveling_service import LevelingService
+            level_service = LevelingService(self.user_repo)
+            progress_text = level_service.progress_to_next_year(
+                datetime.fromisoformat(year_start_at),
+                current_level,
+            )
         else:
-            needed_xp = 5 * (current_level ** 2) + 50 * current_level + 100
-            xp_progress_text = f"{current_xp} / {needed_xp}"
+            progress_text = "Not initialized"
 
         files: list[discord.File] = []
 
