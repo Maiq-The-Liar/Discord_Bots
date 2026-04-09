@@ -62,13 +62,10 @@ BEANS_DIR = resolve_beans_dir()
 # SETTINGS
 # =========================================================
 MAX_PARTICIPANTS = 5
-EVENT_DURATION_SECONDS = 20 * 60  # 20 minutes
+EVENT_DURATION_SECONDS = 20 * 60
 
-# Dobby starts becoming possible after 5h and reaches 100% by 7h
 MIN_SPAWN_SECONDS = 5 * 60 * 60
 MAX_SPAWN_SECONDS = 7 * 60 * 60
-
-# Supervisor checks once every minute
 SPAWN_CHECK_INTERVAL_SECONDS = 60
 
 EVENT_TITLE = "\"Would Master kindly give Dobby another sock?\""
@@ -363,22 +360,6 @@ def remove_bean(user_id: int) -> bool:
     return True
 
 
-def get_user_tasted_flavours(user_id: int) -> set[str]:
-    uid = str(user_id)
-
-    with get_db_connection() as conn:
-        rows = conn.execute(
-            """
-            SELECT flavour
-            FROM tasted_flavours
-            WHERE user_id = ?
-            """,
-            (uid,),
-        ).fetchall()
-
-    return {str(row["flavour"]) for row in rows}
-
-
 def add_tasted_flavour(user_id: int, flavour: str) -> tuple[bool, int]:
     uid = str(user_id)
 
@@ -597,10 +578,27 @@ def compute_spawn_probability(elapsed_seconds: int | None) -> float:
     progressed = elapsed_seconds - MIN_SPAWN_SECONDS
     return progressed / window
 
+
+def safe_partial_or_fallback(
+    bot: commands.Bot,
+    emoji_str: str,
+) -> discord.PartialEmoji | str:
+    parsed = discord.PartialEmoji.from_str(emoji_str)
+
+    if parsed.id is None:
+        return emoji_str
+
+    real_emoji = bot.get_emoji(parsed.id)
+    if real_emoji is not None:
+        return real_emoji
+
+    return "🧦"
+
 # =========================================================
 # EVENT STATE
 # =========================================================
 active_events: dict[int, "DobbyEvent"] = {}
+spawn_lock = asyncio.Lock()
 
 # =========================================================
 # EVENT CLASS
@@ -620,6 +618,7 @@ class DobbyEvent:
         self.message: discord.Message | None = None
         self.view: "DobbyView | None" = None
         self.end_task: asyncio.Task | None = None
+        self._event_lock = asyncio.Lock()
 
     def _create_assignment(self) -> dict[str, int]:
         ranks = [1, 2, 3, 4, 5]
@@ -704,11 +703,16 @@ class DobbyEvent:
         self.end_task = asyncio.create_task(self._auto_end())
 
     async def refresh_message(self) -> None:
-        if self.message and self.view and self.active:
-            try:
-                await self.message.edit(embed=self.build_embed(), view=self.view)
-            except discord.HTTPException:
-                log.exception("Failed to refresh Dobby message in channel=%s", self.channel_id)
+        if not self.active or self.message is None or self.view is None:
+            return
+
+        try:
+            await self.message.edit(embed=self.build_embed(), view=self.view)
+        except discord.NotFound:
+            log.warning("Dobby message vanished in channel=%s. Ending event.", self.channel_id)
+            await self.end(reason="message_deleted")
+        except discord.HTTPException:
+            log.exception("Failed to refresh Dobby message in channel=%s", self.channel_id)
 
     async def _auto_end(self) -> None:
         try:
@@ -721,40 +725,43 @@ class DobbyEvent:
             log.exception("Unexpected error in _auto_end for channel=%s", self.channel_id)
 
     async def end(self, reason: str = "unknown") -> None:
-        if not self.active:
-            return
+        async with self._event_lock:
+            if not self.active:
+                return
 
-        log.info(
-            "Ending Dobby event: channel=%s message=%s reason=%s participants=%s",
-            self.channel_id,
-            self.message.id if self.message else "unknown",
-            reason,
-            self.participant_count(),
-        )
+            log.info(
+                "Ending Dobby event: channel=%s message=%s reason=%s participants=%s",
+                self.channel_id,
+                self.message.id if self.message else "unknown",
+                reason,
+                self.participant_count(),
+            )
 
-        self.active = False
+            self.active = False
 
-        if self.view:
-            for child in self.view.children:
-                if isinstance(child, discord.ui.Button):
-                    child.disabled = True
+            if self.view:
+                for child in self.view.children:
+                    if isinstance(child, discord.ui.Button):
+                        child.disabled = True
 
-        if self.end_task and not self.end_task.done():
-            self.end_task.cancel()
+            if self.end_task and not self.end_task.done():
+                self.end_task.cancel()
 
-        active_events.pop(self.channel_id, None)
+            active_events.pop(self.channel_id, None)
 
-        if self.message:
-            try:
-                missed_embed = discord.Embed(
-                    title=EVENT_TITLE,
-                    description=DOBBY_MISSED_DESCRIPTION,
-                    color=discord.Color.dark_grey(),
-                )
-                missed_embed.set_footer(text="Dobby has already left.")
-                await self.message.edit(embed=missed_embed, view=self.view)
-            except discord.HTTPException:
-                log.exception("Failed to edit finished Dobby message in channel=%s", self.channel_id)
+            if self.message:
+                try:
+                    missed_embed = discord.Embed(
+                        title=EVENT_TITLE,
+                        description=DOBBY_MISSED_DESCRIPTION,
+                        color=discord.Color.dark_grey(),
+                    )
+                    missed_embed.set_footer(text="Dobby has already left.")
+                    await self.message.edit(embed=missed_embed, view=self.view)
+                except discord.NotFound:
+                    pass
+                except discord.HTTPException:
+                    log.exception("Failed to edit finished Dobby message in channel=%s", self.channel_id)
 
 # =========================================================
 # BUTTON VIEW
@@ -763,17 +770,17 @@ class SockButton(discord.ui.Button["DobbyView"]):
     def __init__(self, sock_emoji: str, index: int):
         super().__init__(
             style=discord.ButtonStyle.secondary,
-            emoji=discord.PartialEmoji.from_str(sock_emoji),
+            emoji=safe_partial_or_fallback(bot, sock_emoji),
             custom_id=f"dobby_button_sock_{index}",
         )
         self.sock_emoji = sock_emoji
 
     async def callback(self, interaction: discord.Interaction) -> None:
         if self.view is None:
-            await interaction.response.send_message(
-                "This button is not available right now.",
-                ephemeral=True,
-            )
+            if interaction.response.is_done():
+                await interaction.followup.send("This button is not available right now.", ephemeral=True)
+            else:
+                await interaction.response.send_message("This button is not available right now.", ephemeral=True)
             return
 
         await self.view.handle_press(interaction, self.sock_emoji)
@@ -783,40 +790,45 @@ class DobbyView(discord.ui.View):
     def __init__(self, event: DobbyEvent):
         super().__init__(timeout=None)
         self.event = event
+        self._press_lock = asyncio.Lock()
 
         for index, sock_emoji in enumerate(event.socks, start=1):
             self.add_item(SockButton(sock_emoji, index))
 
     async def handle_press(self, interaction: discord.Interaction, sock_emoji: str) -> None:
-        if not self.event.active:
-            await interaction.response.send_message(
-                "Too late — Dobby has already left.",
+        if not interaction.response.is_done():
+            await interaction.response.defer(ephemeral=True)
+
+        async with self._press_lock:
+            if not self.event.active:
+                await interaction.followup.send(
+                    "Too late — Dobby has already left.",
+                    ephemeral=True,
+                )
+                return
+
+            if self.event.has_participated(interaction.user.id):
+                await interaction.followup.send(
+                    "You already interacted with this Dobby event.",
+                    ephemeral=True,
+                )
+                return
+
+            rank, reward = self.event.add_participant(interaction.user, sock_emoji)
+            total = get_bean_count(interaction.user.id)
+            bean_word = "Bean" if reward == 1 else "Beans"
+
+            await self.event.refresh_message()
+
+            await interaction.followup.send(
+                f"{DOBBY_RESPONSE_BY_RANK[rank]}\n\n"
+                f"You received **{reward} Bertie Bott’s Every Flavoured {bean_word}**.\n"
+                f"You now have **{total} Bertie Bott’s Every Flavoured Beans**.",
                 ephemeral=True,
             )
-            return
 
-        if self.event.has_participated(interaction.user.id):
-            await interaction.response.send_message(
-                "You already interacted with this Dobby event.",
-                ephemeral=True,
-            )
-            return
-
-        rank, reward = self.event.add_participant(interaction.user, sock_emoji)
-        total = get_bean_count(interaction.user.id)
-        bean_word = "Bean" if reward == 1 else "Beans"
-
-        await self.event.refresh_message()
-
-        await interaction.response.send_message(
-            f"{DOBBY_RESPONSE_BY_RANK[rank]}\n\n"
-            f"You received **{reward} Bertie Bott’s Every Flavoured {bean_word}**.\n"
-            f"You now have **{total} Bertie Bott’s Every Flavoured Beans**.",
-            ephemeral=True,
-        )
-
-        if self.event.participant_count() >= MAX_PARTICIPANTS:
-            await self.event.end(reason="max_participants")
+            if self.event.participant_count() >= MAX_PARTICIPANTS:
+                await self.event.end(reason="max_participants")
 
 # =========================================================
 # BOT CLASS
@@ -839,9 +851,47 @@ def get_single_guild() -> discord.Guild | None:
     return bot.get_guild(GUILD_ID)
 
 
+def validate_sock_emoji_pool() -> None:
+    unavailable: list[str] = []
+
+    for emoji_str in SOCK_EMOJI_POOL:
+        parsed = discord.PartialEmoji.from_str(emoji_str)
+        if parsed.id is not None and bot.get_emoji(parsed.id) is None:
+            unavailable.append(emoji_str)
+
+    if unavailable:
+        log.warning(
+            "Some sock emojis are not available to the bot and will fall back to 🧦: %s",
+            unavailable,
+        )
+
+
+def prune_stale_active_events() -> None:
+    stale_channel_ids: list[int] = []
+
+    for channel_id, event in active_events.items():
+        if not event.active:
+            stale_channel_ids.append(channel_id)
+            continue
+
+        if event.message is None:
+            stale_channel_ids.append(channel_id)
+            continue
+
+    for channel_id in stale_channel_ids:
+        active_events.pop(channel_id, None)
+
+    if stale_channel_ids:
+        log.warning("Pruned stale active events: %s", stale_channel_ids)
+
+
 def get_valid_allowed_channels() -> list[discord.TextChannel]:
     guild = get_single_guild()
     if guild is None:
+        return []
+
+    me = guild.me
+    if me is None:
         return []
 
     channels: list[discord.TextChannel] = []
@@ -852,10 +902,8 @@ def get_valid_allowed_channels() -> list[discord.TextChannel]:
             continue
         if channel.id in active_events:
             continue
-        if guild.me is None:
-            continue
 
-        perms = channel.permissions_for(guild.me)
+        perms = channel.permissions_for(me)
         if not perms.view_channel or not perms.send_messages:
             continue
 
@@ -865,22 +913,31 @@ def get_valid_allowed_channels() -> list[discord.TextChannel]:
 
 
 async def start_dobby_event(channel: discord.TextChannel) -> tuple[bool, str]:
-    state = get_dobby_state()
+    async with spawn_lock:
+        state = get_dobby_state()
 
-    if not state["enabled"]:
-        return False, "Dobby is currently not started."
+        if not state["enabled"]:
+            return False, "Dobby is currently not started."
 
-    if channel.id not in get_allowed_channels():
-        return False, "This channel is not allowed for Dobby."
+        if channel.id not in get_allowed_channels():
+            return False, "This channel is not allowed for Dobby."
 
-    if channel.id in active_events:
-        return False, "A Dobby event is already active in this channel."
+        prune_stale_active_events()
 
-    event = DobbyEvent(channel)
-    active_events[channel.id] = event
-    await event.send()
-    register_dobby_spawn(channel.id)
-    return True, "Dobby has appeared."
+        if active_events:
+            return False, "Another Dobby event is already active."
+
+        event = DobbyEvent(channel)
+        active_events[channel.id] = event
+
+        try:
+            await event.send()
+            register_dobby_spawn(channel.id)
+            return True, "Dobby has appeared."
+        except Exception:
+            active_events.pop(channel.id, None)
+            log.exception("Failed to send Dobby event in channel=%s", channel.id)
+            return False, "Dobby failed to appear because the event message could not be sent."
 
 
 async def end_all_active_events(reason: str) -> int:
@@ -897,52 +954,50 @@ async def dobby_supervisor() -> None:
     await bot.wait_until_ready()
 
     try:
-        state = get_dobby_state()
+        async with spawn_lock:
+            state = get_dobby_state()
 
-        if not state["enabled"]:
-            return
+            if not state["enabled"]:
+                return
 
-        if active_events:
-            return
+            prune_stale_active_events()
 
-        valid_channels = get_valid_allowed_channels()
-        if not valid_channels:
-            return
+            if active_events:
+                return
 
-        now = utc_now_ts()
-        clock_reset_ts = state["clock_reset_ts"]
+            valid_channels = get_valid_allowed_channels()
+            if not valid_channels:
+                return
 
-        if clock_reset_ts is None:
-            reset_dobby_clock()
-            return
+            now = utc_now_ts()
+            clock_reset_ts = state["clock_reset_ts"]
 
-        elapsed = now - clock_reset_ts
-        probability = compute_spawn_probability(elapsed)
+            if clock_reset_ts is None:
+                reset_dobby_clock()
+                return
 
-        log.info(
-            "Dobby supervisor tick | enabled=%s | allowed=%s | elapsed=%s | probability=%.4f",
-            state["enabled"],
-            len(valid_channels),
-            elapsed,
-            probability,
-        )
+            elapsed = now - clock_reset_ts
+            probability = compute_spawn_probability(elapsed)
 
-        if probability <= 0.0:
-            return
+            log.info(
+                "Dobby supervisor tick | enabled=%s | allowed=%s | elapsed=%s | probability=%.4f",
+                state["enabled"],
+                len(valid_channels),
+                elapsed,
+                probability,
+            )
 
-        roll = random.random()
-        if roll > probability:
-            return
+            if probability <= 0.0:
+                return
 
-        channel = random.choice(valid_channels)
+            should_spawn = probability >= 1.0 or (random.random() <= probability)
+            if not should_spawn:
+                return
 
-        try:
-            ok, message = await start_dobby_event(channel)
-            log.info("Spawn attempt in #%s: %s", channel.name, message)
-            if not ok:
-                log.warning("Spawn failed in #%s: %s", channel.name, message)
-        except Exception:
-            log.exception("Failed to start Dobby event.")
+            channel = random.choice(valid_channels)
+
+        ok, message = await start_dobby_event(channel)
+        log.info("Spawn attempt in #%s: %s", channel.name, message)
 
     except Exception:
         log.exception("Unexpected error in dobby_supervisor.")
@@ -1213,6 +1268,8 @@ async def dobby_unpingme(
 @GUILD_ONLY
 @admin_only()
 async def dobby_stats(interaction: discord.Interaction) -> None:
+    prune_stale_active_events()
+
     state = get_dobby_state()
     allowed_ids = sorted(get_allowed_channels())
     guild = interaction.guild
@@ -1377,6 +1434,8 @@ async def on_ready() -> None:
     log.info("Logged in as %s (%s)", bot.user, bot.user.id if bot.user else "unknown")
     log.info("Dobby supervisor running: %s", dobby_supervisor.is_running())
     log.info("Beans folder resolved to: %s", BEANS_DIR)
+    validate_sock_emoji_pool()
+    prune_stale_active_events()
 
 # =========================================================
 # MAIN
