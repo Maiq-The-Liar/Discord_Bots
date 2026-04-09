@@ -538,14 +538,35 @@ class ProfileService:
                     fill=style["shadow"],
                     stroke_width=0,
                 )
+
+                outline_offsets = [
+                    (-stroke_width, 0),
+                    (stroke_width, 0),
+                    (0, -stroke_width),
+                    (0, stroke_width),
+                    (-stroke_width, -stroke_width),
+                    (-stroke_width, stroke_width),
+                    (stroke_width, -stroke_width),
+                    (stroke_width, stroke_width),
+                ]
+
+                for dx, dy in outline_offsets:
+                    draw.text(
+                        (current_x + dx, y + dy),
+                        token["value"],
+                        font=text_font,
+                        fill=style["stroke"],
+                        stroke_width=0,
+                    )
+
                 draw.text(
                     (current_x, y),
                     token["value"],
                     font=text_font,
                     fill=style["fill"],
-                    stroke_width=stroke_width,
-                    stroke_fill=style["stroke"],
+                    stroke_width=0,
                 )
+                
             else:
                 token_width = emoji_size
                 emoji_img = self._get_token_image(token)
