@@ -155,7 +155,7 @@ class MediaCog(commands.Cog):
 
         valid_attachment = None
         for attachment in message.attachments:
-            if self.media_service.is_supported_image(attachment.filename, attachment.content_type):
+            if self.media_service.is_supported_media(attachment.filename, attachment.content_type):
                 valid_attachment = attachment
                 break
 
