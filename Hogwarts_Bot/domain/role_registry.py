@@ -250,10 +250,10 @@ def _build_role_definitions() -> list[ManagedRoleDefinition]:
 
     defs.extend(
         [
-            ManagedRoleDefinition(ROLE_KEY_HOUSE_GRYFFINDOR, "Gryffindor", 0x740001, ROLE_GROUP_HOUSE, hoist=False),
-            ManagedRoleDefinition(ROLE_KEY_HOUSE_HUFFLEPUFF, "Hufflepuff", 0xECB939, ROLE_GROUP_HOUSE, hoist=False),
-            ManagedRoleDefinition(ROLE_KEY_HOUSE_RAVENCLAW, "Ravenclaw", 0x0E1A40, ROLE_GROUP_HOUSE, hoist=False),
-            ManagedRoleDefinition(ROLE_KEY_HOUSE_SLYTHERIN, "Slytherin", 0x1A472A, ROLE_GROUP_HOUSE, hoist=False),
+            ManagedRoleDefinition(ROLE_KEY_HOUSE_GRYFFINDOR, "Gryffindor", 0xD02126, ROLE_GROUP_HOUSE, hoist=True),
+            ManagedRoleDefinition(ROLE_KEY_HOUSE_HUFFLEPUFF, "Hufflepuff", 0xE0B426, ROLE_GROUP_HOUSE, hoist=True),
+            ManagedRoleDefinition(ROLE_KEY_HOUSE_RAVENCLAW, "Ravenclaw", 0x0178A3, ROLE_GROUP_HOUSE, hoist=True),
+            ManagedRoleDefinition(ROLE_KEY_HOUSE_SLYTHERIN, "Slytherin", 0x29A24B, ROLE_GROUP_HOUSE, hoist=True),
         ]
     )
 

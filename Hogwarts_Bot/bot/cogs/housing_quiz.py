@@ -18,19 +18,19 @@ HOUSE_ORDER = ["Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin"]
 
 HOUSE_STYLES = {
     "Gryffindor": {
-        "color": discord.Color.red(),
+        "color": discord.Color(0xD02126),
         "thumbnail": "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Gryffindor_Crest.png?raw=true",
     },
     "Hufflepuff": {
-        "color": discord.Color.gold(),
+        "color": discord.Color(0xE0B426),
         "thumbnail": "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Huflepuff_Crest.png?raw=true",
     },
     "Ravenclaw": {
-        "color": discord.Color.blue(),
+        "color": discord.Color(0x0178A3),
         "thumbnail": "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Ravenclaw_Crest.png?raw=true",
     },
     "Slytherin": {
-        "color": discord.Color.green(),
+        "color": discord.Color(0x29A24B),
         "thumbnail": "https://github.com/Maiq-The-Liar/General-Gifs/blob/main/Slitherin_Crest.png?raw=true",
     },
 }
