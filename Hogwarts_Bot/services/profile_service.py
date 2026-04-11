@@ -795,13 +795,13 @@ class ProfileService:
             ),
             inline=True,
         )
-
+        
         profile_embed.add_field(
             name="🏰 __Hogwarts Progress__",
             value=(
                 f"**Monthly Points:** {monthly_points}\n"
                 f"**Total Points:** {user_row['lifetime_house_points']}\n"
-                f"**XP:** {xp_progress_text}"
+                f"**XP:** {progress_text}"
             ),
             inline=False,
         )
