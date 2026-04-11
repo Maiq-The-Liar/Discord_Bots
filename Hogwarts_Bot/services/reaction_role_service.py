@@ -6,14 +6,13 @@ from pathlib import Path
 
 import discord
 
-from domain.constants import HOUSE_ROLE_IDS
+from domain.role_registry import HOUSE_NAMES, get_role_definition
 from domain.reaction_role_registry import (
     ReactionRoleGroup,
     ReactionRoleOption,
     get_reaction_role_group,
     get_reaction_role_groups,
 )
-from domain.role_registry import get_role_definition
 from repositories.guild_role_repository import GuildRoleRepository
 from repositories.reaction_role_repository import ReactionRoleRepository
 from services.role_service import RoleService
@@ -359,14 +358,9 @@ class ReactionRoleService:
         return None
 
     def _member_house(self, member: discord.Member) -> str | None:
-        role_ids = {role.id for role in member.roles}
         role_names_lower = {role.name.strip().lower() for role in member.roles}
 
-        for house_name, role_id in HOUSE_ROLE_IDS.items():
-            if role_id in role_ids:
-                return house_name
-
-        for house_name in HOUSE_ROLE_IDS.keys():
+        for house_name in HOUSE_NAMES:
             if house_name.strip().lower() in role_names_lower:
                 return house_name
 

@@ -26,10 +26,33 @@ ROLE_GROUP_PINGS = "pings"
 ROLE_GROUP_DM = "dm"
 ROLE_GROUP_RELATIONSHIP = "relationship"
 
+ROLE_GROUP_HOUSE = "house"
 ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR = "house_colors_gryffindor"
 ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF = "house_colors_hufflepuff"
 ROLE_GROUP_HOUSE_COLOR_RAVENCLAW = "house_colors_ravenclaw"
 ROLE_GROUP_HOUSE_COLOR_SLYTHERIN = "house_colors_slytherin"
+
+ROLE_KEY_HOUSE_GRYFFINDOR = "house_gryffindor"
+ROLE_KEY_HOUSE_HUFFLEPUFF = "house_hufflepuff"
+ROLE_KEY_HOUSE_RAVENCLAW = "house_ravenclaw"
+ROLE_KEY_HOUSE_SLYTHERIN = "house_slytherin"
+
+HOUSE_NAMES = ["Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin"]
+HOUSE_ROLE_KEYS_BY_NAME: dict[str, str] = {
+    "Gryffindor": ROLE_KEY_HOUSE_GRYFFINDOR,
+    "Hufflepuff": ROLE_KEY_HOUSE_HUFFLEPUFF,
+    "Ravenclaw": ROLE_KEY_HOUSE_RAVENCLAW,
+    "Slytherin": ROLE_KEY_HOUSE_SLYTHERIN,
+}
+HOUSE_ROLE_NAMES_BY_KEY: dict[str, str] = {
+    value: key for key, value in HOUSE_ROLE_KEYS_BY_NAME.items()
+}
+HOUSE_COLOR_GROUP_BY_NAME: dict[str, str] = {
+    "Gryffindor": ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR,
+    "Hufflepuff": ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF,
+    "Ravenclaw": ROLE_GROUP_HOUSE_COLOR_RAVENCLAW,
+    "Slytherin": ROLE_GROUP_HOUSE_COLOR_SLYTHERIN,
+}
 
 ROLE_KEY_BIRTHDAY = "birthday"
 ROLE_KEY_DUEL_PING = "duel_ping"
@@ -227,6 +250,15 @@ def _build_role_definitions() -> list[ManagedRoleDefinition]:
 
     defs.extend(
         [
+            ManagedRoleDefinition(ROLE_KEY_HOUSE_GRYFFINDOR, "Gryffindor", 0x740001, ROLE_GROUP_HOUSE, hoist=False),
+            ManagedRoleDefinition(ROLE_KEY_HOUSE_HUFFLEPUFF, "Hufflepuff", 0xECB939, ROLE_GROUP_HOUSE, hoist=False),
+            ManagedRoleDefinition(ROLE_KEY_HOUSE_RAVENCLAW, "Ravenclaw", 0x0E1A40, ROLE_GROUP_HOUSE, hoist=False),
+            ManagedRoleDefinition(ROLE_KEY_HOUSE_SLYTHERIN, "Slytherin", 0x1A472A, ROLE_GROUP_HOUSE, hoist=False),
+        ]
+    )
+
+    defs.extend(
+        [
             ManagedRoleDefinition("gryff_color_crimson", "Gryffindor • Crimson", 0x7F1D1D, ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR),
             ManagedRoleDefinition("gryff_color_scarlet", "Gryffindor • Scarlet", 0xB91C1C, ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR),
             ManagedRoleDefinition("gryff_color_ember", "Gryffindor • Ember", 0xDC2626, ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR),
@@ -322,3 +354,18 @@ def zodiac_role_key_for_sign(sign: str) -> str:
 
 def year_role_key_for_level(level: int) -> str:
     return YEAR_ROLE_KEYS_BY_LEVEL[level]
+
+def house_role_key_for_name(house_name: str) -> str:
+    return HOUSE_ROLE_KEYS_BY_NAME[house_name]
+
+
+def house_name_for_role_key(role_key: str) -> str:
+    return HOUSE_ROLE_NAMES_BY_KEY[role_key]
+
+
+def house_color_group_for_name(house_name: str) -> str:
+    return HOUSE_COLOR_GROUP_BY_NAME[house_name]
+
+
+def house_role_names() -> set[str]:
+    return set(HOUSE_NAMES)

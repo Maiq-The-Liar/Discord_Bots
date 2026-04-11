@@ -5,13 +5,17 @@ from collections import defaultdict
 import discord
 
 from domain.role_registry import (
+    HOUSE_NAMES,
     ROLE_DEFINITION_BY_KEY,
+    ROLE_GROUP_HOUSE,
     ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR,
     ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF,
     ROLE_GROUP_HOUSE_COLOR_RAVENCLAW,
     ROLE_GROUP_HOUSE_COLOR_SLYTHERIN,
     get_all_managed_role_definitions,
     get_role_definition,
+    house_color_group_for_name,
+    house_role_key_for_name,
     role_keys_for_group,
     year_role_key_for_level,
     zodiac_role_key_for_sign,
@@ -183,15 +187,42 @@ class RoleService:
             return
 
         color_roles = [(role, group) for role, group in editable_roles if group in HOUSE_COLOR_GROUPS]
-        other_roles = [(role, group) for role, group in editable_roles if group not in HOUSE_COLOR_GROUPS]
+        house_roles = [(role, group) for role, group in editable_roles if group == ROLE_GROUP_HOUSE]
+        other_roles = [
+            (role, group)
+            for role, group in editable_roles
+            if group not in HOUSE_COLOR_GROUPS and group != ROLE_GROUP_HOUSE
+        ]
 
         color_roles.sort(key=lambda item: item[0].name.lower())
+        house_roles.sort(key=lambda item: item[0].name.lower())
         other_roles.sort(key=lambda item: item[0].name.lower())
 
-        # Discord hierarchy: larger position = higher role.
-        # We place managed roles as high as possible under the bot's top role,
-        # with all house colour roles above the other managed roles.
-        ordered_roles = [role for role, _ in other_roles] + [role for role, _ in color_roles]
+        ordered_roles = [role for role, _ in other_roles]
+
+        house_roles_by_name = {
+            house_name: self.get_role(guild, house_role_key_for_name(house_name))
+            for house_name in HOUSE_NAMES
+        }
+        color_roles_by_house = {
+            house_name: sorted(
+                [
+                    self.get_role(guild, role_key)
+                    for role_key in role_keys_for_group(house_color_group_for_name(house_name))
+                ],
+                key=lambda role: role.name.lower(),
+            )
+            for house_name in HOUSE_NAMES
+        }
+
+        for house_name in HOUSE_NAMES:
+            house_role = house_roles_by_name[house_name]
+            if house_role is not None and house_role < guild.me.top_role:
+                ordered_roles.append(house_role)
+
+            for color_role in color_roles_by_house[house_name]:
+                if color_role is not None and color_role < guild.me.top_role:
+                    ordered_roles.append(color_role)
 
         base_position = 1
         positions: dict[discord.Role, int] = {}
@@ -200,6 +231,34 @@ class RoleService:
             positions[role] = index
 
         await guild.edit_role_positions(positions=positions)
+
+
+    def get_house_role(self, guild: discord.Guild, house_name: str) -> discord.Role | None:
+        return self.get_role(guild, house_role_key_for_name(house_name))
+
+    def get_house_roles(self, guild: discord.Guild) -> dict[str, discord.Role]:
+        roles: dict[str, discord.Role] = {}
+        for house_name in HOUSE_NAMES:
+            role = self.get_house_role(guild, house_name)
+            if role is not None:
+                roles[house_name] = role
+        return roles
+
+    def get_member_house(self, guild: discord.Guild, member: discord.Member) -> str | None:
+        member_role_ids = {role.id for role in member.roles}
+        matching_houses = [
+            house_name
+            for house_name, role in self.get_house_roles(guild).items()
+            if role.id in member_role_ids
+        ]
+
+        if len(matching_houses) == 1:
+            return matching_houses[0]
+
+        return None
+
+    def member_has_house(self, guild: discord.Guild, member: discord.Member) -> bool:
+        return self.get_member_house(guild, member) is not None
 
     def _needs_edit(self, role: discord.Role, role_def) -> bool:
         return any(

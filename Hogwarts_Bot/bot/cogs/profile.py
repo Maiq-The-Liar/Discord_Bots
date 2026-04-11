@@ -3,15 +3,11 @@ from discord import app_commands
 from discord.ext import commands
 
 from db.database import Database
-from domain.constants import (
-    HOUSE_ROLE_IDS,
-    HOUSE_ROLE_NAMES_BY_ID,
-    HOUSE_ROLE_ID_SET,
-    ARENA_ROLE_ID,
-)
+from domain.constants import ARENA_ROLE_ID
 from domain.role_registry import (
     AGE_CHOICE_TO_ROLE_KEY,
     CONTINENT_CHOICE_TO_ROLE_KEY,
+    HOUSE_NAMES,
     PRONOUN_CHOICE_TO_ROLE_KEY,
     ROLE_GROUP_AGES,
     ROLE_GROUP_CONTINENTS,
@@ -38,10 +34,11 @@ def resolve_member_roles(member: discord.Member) -> MemberRoleContext:
     role_ids = [r.id for r in roles]
     role_names = [r.name for r in roles]
 
+    house_name_set = {house_name.lower() for house_name in HOUSE_NAMES}
     house_roles = [
-        HOUSE_ROLE_NAMES_BY_ID[r.id]
+        r.name
         for r in roles
-        if r.id in HOUSE_ROLE_ID_SET
+        if r.name.strip().lower() in house_name_set
     ]
 
     current_house = house_roles[0] if len(house_roles) == 1 else None
