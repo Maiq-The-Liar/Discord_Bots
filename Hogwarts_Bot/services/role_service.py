@@ -216,13 +216,13 @@ class RoleService:
         }
 
         for house_name in HOUSE_NAMES:
-            for color_role in color_roles_by_house[house_name]:
-                if color_role is not None and color_role < guild.me.top_role:
-                    ordered_roles.append(color_role)
-
             house_role = house_roles_by_name[house_name]
             if house_role is not None and house_role < guild.me.top_role:
                 ordered_roles.append(house_role)
+
+            for color_role in color_roles_by_house[house_name]:
+                if color_role is not None and color_role < guild.me.top_role:
+                    ordered_roles.append(color_role)
 
         base_position = 1
         positions: dict[discord.Role, int] = {}
