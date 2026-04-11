@@ -145,20 +145,6 @@ CREATE TABLE IF NOT EXISTS media_votes (
     FOREIGN KEY (message_id) REFERENCES media_posts(message_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS media_vote_cooldowns (
-    voter_user_id INTEGER PRIMARY KEY,
-    last_vote_at TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS guild_role_mappings (
-    guild_id INTEGER NOT NULL,
-    role_key TEXT NOT NULL,
-    role_id INTEGER NOT NULL,
-    role_name TEXT NOT NULL,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (guild_id, role_key)
-);
-
 CREATE TABLE IF NOT EXISTS reaction_role_channels (
     guild_id INTEGER PRIMARY KEY,
     channel_id INTEGER NOT NULL,
@@ -182,3 +168,8 @@ CREATE TABLE IF NOT EXISTS reaction_role_memberships (
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (guild_id, user_id, group_key, role_key)
 );
+CREATE INDEX IF NOT EXISTS idx_media_posts_open_by_channel ON media_posts(channel_id, author_user_id, is_closed);
+CREATE INDEX IF NOT EXISTS idx_media_posts_expiry ON media_posts(is_closed, closes_at);
+CREATE INDEX IF NOT EXISTS idx_media_votes_window ON media_votes(voter_user_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_reaction_role_messages_message_id ON reaction_role_messages(message_id);
+CREATE INDEX IF NOT EXISTS idx_reaction_role_memberships_group ON reaction_role_memberships(guild_id, group_key, role_key);

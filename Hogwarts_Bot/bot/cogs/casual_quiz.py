@@ -26,6 +26,12 @@ class CasualQuizCog(commands.Cog):
         self.bot = bot
         self.database = database
         self.processing_channels: set[int] = set()
+        self.quiz_channel_id: int | None = None
+
+        with self.database.connect() as conn:
+            bot_state_repo = BotStateRepository(conn)
+            configured_channel_id = bot_state_repo.get_value(self.QUIZ_CHANNEL_KEY)
+            self.quiz_channel_id = int(configured_channel_id) if configured_channel_id is not None else None
 
         base_dir = Path(__file__).resolve().parents[2]
         self.quiz_repo = QuizRepository(
@@ -84,6 +90,8 @@ class CasualQuizCog(commands.Cog):
 
             bot_state_repo.set_value(self.QUIZ_CHANNEL_KEY, str(channel.id))
             casual_quiz_repo.upsert_channel(channel.id)
+
+        self.quiz_channel_id = channel.id
 
         await interaction.response.send_message(
             f"Casual quiz channel set to {channel.mention}."
@@ -266,11 +274,7 @@ class CasualQuizCog(commands.Cog):
         if not isinstance(message.author, discord.Member):
             return
 
-        with self.database.connect() as conn:
-            bot_state_repo = BotStateRepository(conn)
-            configured_channel_id = bot_state_repo.get_value(self.QUIZ_CHANNEL_KEY)
-
-        if configured_channel_id is None or int(configured_channel_id) != message.channel.id:
+        if self.quiz_channel_id != message.channel.id:
             return
 
         if message.channel.id in self.processing_channels:

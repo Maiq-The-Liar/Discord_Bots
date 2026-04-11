@@ -1,3 +1,5 @@
+import logging
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -10,6 +12,9 @@ from repositories.user_repository import UserRepository
 from services.leveling_service import LevelingService
 from services.role_service import RoleService
 from bot.cogs.profile import resolve_member_roles, validate_house_context
+
+
+logger = logging.getLogger(__name__)
 
 
 class LevelingCog(commands.Cog):
@@ -161,6 +166,7 @@ class LevelingCog(commands.Cog):
                 await self.ensure_member_year_state(member, initialize_from_join=True)
                 initialized += 1
             except Exception:
+                logger.exception("Failed to initialize year state for member %s", member.id)
                 failed += 1
 
         await interaction.followup.send(

@@ -8,9 +8,12 @@ class Database:
         Path(db_path).parent.mkdir(parents=True, exist_ok=True)
 
     def connect(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA foreign_keys = ON;")
+        conn.execute("PRAGMA busy_timeout = 30000;")
+        conn.execute("PRAGMA journal_mode = WAL;")
+        conn.execute("PRAGMA synchronous = NORMAL;")
         return conn
 
     def initialize(self) -> None:
@@ -20,6 +23,7 @@ class Database:
         with self.connect() as conn:
             conn.executescript(schema_sql)
             self._run_migrations(conn)
+            self._ensure_indexes(conn)
             conn.commit()
 
     def _run_migrations(self, conn: sqlite3.Connection) -> None:
@@ -182,15 +186,6 @@ class Database:
                 """
             )
 
-        if "media_vote_cooldowns" not in existing_tables:
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS media_vote_cooldowns (
-                    voter_user_id INTEGER PRIMARY KEY,
-                    last_vote_at TEXT NOT NULL
-                )
-                """
-            )
 
         if "reaction_role_channels" not in existing_tables:
             conn.execute(
@@ -230,3 +225,11 @@ class Database:
                 )
                 """
             )
+
+    def _ensure_indexes(self, conn: sqlite3.Connection) -> None:
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_media_posts_open_by_channel ON media_posts(channel_id, author_user_id, is_closed)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_media_posts_expiry ON media_posts(is_closed, closes_at)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_media_votes_window ON media_votes(voter_user_id, created_at)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_reaction_role_messages_message_id ON reaction_role_messages(message_id)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_reaction_role_memberships_group ON reaction_role_memberships(guild_id, group_key, role_key)")
+

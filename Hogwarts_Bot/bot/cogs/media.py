@@ -22,8 +22,13 @@ class MediaCog(commands.Cog):
         self.bot = bot
         self.database = database
         self.media_service = MediaService()
+        self.media_channel_ids: set[int] = set()
 
     async def cog_load(self) -> None:
+        with self.database.connect() as conn:
+            media_repo = MediaRepository(conn)
+            self.media_channel_ids = media_repo.list_media_channel_ids()
+
         if not self.media_close_loop.is_running():
             self.media_close_loop.start()
 
@@ -58,6 +63,8 @@ class MediaCog(commands.Cog):
             media_repo = MediaRepository(conn)
             media_repo.add_media_channel(channel.id)
 
+        self.media_channel_ids.add(channel.id)
+
         await interaction.response.send_message(
             f"Media voting has been enabled in {channel.mention}.",
             ephemeral=True,
@@ -84,6 +91,8 @@ class MediaCog(commands.Cog):
             media_repo = MediaRepository(conn)
             media_repo.remove_media_channel(channel.id)
 
+        self.media_channel_ids.discard(channel.id)
+
         await interaction.response.send_message(
             f"Media voting has been disabled in {channel.mention}.",
             ephemeral=True,
@@ -91,7 +100,7 @@ class MediaCog(commands.Cog):
 
     @app_commands.command(
         name="media_reset",
-        description="Admin: reset a user's media posting state and vote cooldown.",
+        description="Admin: reset a user's active media post state.",
     )
     @app_commands.describe(member="The member whose media state should be reset")
     async def media_reset(
@@ -108,7 +117,6 @@ class MediaCog(commands.Cog):
 
         with self.database.connect() as conn:
             media_repo = MediaRepository(conn)
-            media_repo.clear_vote_cooldown(member.id)
             closed_count = media_repo.force_close_all_open_posts_for_user(member.id)
 
         await interaction.response.send_message(
@@ -145,10 +153,8 @@ class MediaCog(commands.Cog):
         if not isinstance(message.author, discord.Member):
             return
 
-        with self.database.connect() as conn:
-            media_repo = MediaRepository(conn)
-            if not media_repo.is_media_channel(message.channel.id):
-                return
+        if message.channel.id not in self.media_channel_ids:
+            return
 
         if not message.attachments:
             return

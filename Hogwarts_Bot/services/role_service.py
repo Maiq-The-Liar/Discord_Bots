@@ -177,10 +177,14 @@ class RoleService:
         if not managed_roles:
             return
 
+        bot_member = self._get_bot_member(guild)
+        if bot_member is None:
+            return
+
         editable_roles = [
             (role, group)
             for role, group in managed_roles
-            if guild.me is not None and role < guild.me.top_role
+            if role < bot_member.top_role
         ]
 
         if not editable_roles:
@@ -217,11 +221,11 @@ class RoleService:
 
         for house_name in HOUSE_NAMES:
             house_role = house_roles_by_name[house_name]
-            if house_role is not None and house_role < guild.me.top_role:
+            if house_role is not None and house_role < bot_member.top_role:
                 ordered_roles.append(house_role)
 
             for color_role in color_roles_by_house[house_name]:
-                if color_role is not None and color_role < guild.me.top_role:
+                if color_role is not None and color_role < bot_member.top_role:
                     ordered_roles.append(color_role)
 
         base_position = 1
@@ -259,6 +263,9 @@ class RoleService:
 
     def member_has_house(self, guild: discord.Guild, member: discord.Member) -> bool:
         return self.get_member_house(guild, member) is not None
+
+    def _get_bot_member(self, guild: discord.Guild) -> discord.Member | None:
+        return getattr(guild, "self_member", None) or guild.me
 
     def _needs_edit(self, role: discord.Role, role_def) -> bool:
         return any(

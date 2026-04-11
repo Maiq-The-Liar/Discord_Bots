@@ -71,8 +71,11 @@ class HogwartsBot(commands.Bot):
 
         guild = self.get_guild(settings.guild_id)
         if guild is None:
-            logging.warning("Configured guild %s not found in cache yet.", settings.guild_id)
-            return
+            try:
+                guild = await self.fetch_guild(settings.guild_id)
+            except discord.HTTPException:
+                logging.warning("Configured guild %s could not be fetched.", settings.guild_id)
+                return
 
         try:
             with database.connect() as conn:

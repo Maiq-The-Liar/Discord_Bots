@@ -188,10 +188,11 @@ class ReactionRoleService:
             return
 
         guild = self.bot.get_guild(int(mapping["guild_id"]))
-        if guild is None or guild.me is None:
+        bot_member = guild.self_member if guild is not None else None
+        if guild is None or bot_member is None:
             return
 
-        if payload.user_id == guild.me.id:
+        if payload.user_id == bot_member.id:
             return
 
         group = get_reaction_role_group(mapping["group_key"])
@@ -220,6 +221,32 @@ class ReactionRoleService:
                     pass
 
         await self.refresh_group_message(guild, group.key)
+
+    async def reconcile_guild_memberships(self, guild: discord.Guild) -> dict[str, int]:
+        memberships: list[tuple[int, str, str]] = []
+        matched_members = 0
+
+        for member in guild.members:
+            if member.bot:
+                continue
+
+            matched_for_member = 0
+            member_role_ids = {role.id for role in member.roles}
+            for group in get_reaction_role_groups():
+                if not self._member_can_use_group(member, group):
+                    continue
+
+                for option in group.options:
+                    role = self.role_service.get_role(guild, option.role_key)
+                    if role is not None and role.id in member_role_ids:
+                        memberships.append((member.id, group.key, option.role_key))
+                        matched_for_member += 1
+
+            if matched_for_member:
+                matched_members += 1
+
+        self.reaction_repo.replace_memberships_for_guild(guild.id, memberships)
+        return {"memberships": len(memberships), "members": matched_members}
 
     async def clear_invalid_house_color_roles(self, member: discord.Member) -> None:
         member_house = self._member_house(member)

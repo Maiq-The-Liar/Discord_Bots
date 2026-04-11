@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import random
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -37,6 +38,8 @@ QUESTION_DURATION_SECONDS = 15
 CORRECT_ANSWER_DELAY_SECONDS = 1
 RESULTS_DURATION_SECONDS = 5
 QUESTIONS_PER_DUEL = 10
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -318,8 +321,13 @@ class DuelCog(commands.Cog):
         guild: discord.Guild,
         participant_ids: list[int],
     ) -> None:
-        role = guild.get_role(DUELLING_ROLE_ID)
+        with self.database.connect() as conn:
+            role_repo = GuildRoleRepository(conn)
+            role_service = RoleService(role_repo)
+            role = role_service.get_role(guild, ROLE_KEY_DUELLING)
+
         if role is None:
+            logger.warning("Duelling role could not be resolved for guild %s", guild.id)
             return
 
         for user_id in participant_ids:
@@ -356,7 +364,8 @@ class DuelCog(commands.Cog):
             except asyncio.CancelledError:
                 pass
             except Exception:
-                pass
+                logger.exception("Unexpected error while cancelling duel runner task in channel %s", channel.id)
+
 
         participant_ids = list(session.participants)
         self.sessions.pop(channel.id, None)
@@ -532,6 +541,7 @@ class DuelCog(commands.Cog):
         except asyncio.CancelledError:
             raise
         except Exception:
+            logger.exception("Unhandled duel session error in channel %s", channel.id)
             await self.full_reset_channel(channel, list(session.participants))
 
     async def handle_start_button(self, interaction: discord.Interaction) -> None:

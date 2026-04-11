@@ -77,6 +77,41 @@ class ReactionRolesCog(commands.Cog):
             ephemeral=True,
         )
 
+    @app_commands.command(
+        name="sync_role_memberships",
+        description="Admin: rebuild stored reaction-role memberships from actual Discord roles.",
+    )
+    async def sync_role_memberships(
+        self,
+        interaction: discord.Interaction,
+    ) -> None:
+        if not self.is_admin(interaction):
+            await interaction.response.send_message(
+                "You do not have permission to use this command.",
+                ephemeral=True,
+            )
+            return
+
+        if interaction.guild is None:
+            await interaction.response.send_message(
+                "This command can only be used inside the server.",
+                ephemeral=True,
+            )
+            return
+
+        await interaction.response.defer(ephemeral=True)
+
+        with self.database.connect() as conn:
+            guild_role_repo = GuildRoleRepository(conn)
+            reaction_repo = ReactionRoleRepository(conn)
+            service = ReactionRoleService(self.bot, reaction_repo, guild_role_repo)
+            result = await service.reconcile_guild_memberships(interaction.guild)
+
+        await interaction.followup.send(
+            f"Reaction-role memberships rebuilt. Members matched: **{result['members']}** | Stored memberships: **{result['memberships']}**",
+            ephemeral=True,
+        )
+
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent) -> None:
         if payload.guild_id is None:

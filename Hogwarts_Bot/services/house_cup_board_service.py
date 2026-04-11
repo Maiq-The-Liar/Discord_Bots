@@ -1,3 +1,5 @@
+import asyncio
+import time
 from pathlib import Path
 import discord
 
@@ -7,6 +9,8 @@ from services.house_points_image_service import HousePointsImageService
 
 
 class HouseCupBoardService:
+    _recent_totals: dict[int, tuple[float, tuple[int, int, int, int]]] = {}
+
     CHANNEL_KEY = "house_board_channel_id"
     MESSAGE_KEY = "house_board_message_id"
 
@@ -42,8 +46,21 @@ class HouseCupBoardService:
             self.bot_state_repo.set_value(self.CHANNEL_KEY, str(channel.id))
 
         totals = self._get_totals()
+        totals_signature = (
+            totals["Slytherin"],
+            totals["Ravenclaw"],
+            totals["Hufflepuff"],
+            totals["Gryffindor"],
+        )
 
-        image_path = self.image_service.generate_image(
+        previous = self._recent_totals.get(guild.id)
+        if previous is not None:
+            previous_ts, previous_signature = previous
+            if previous_signature == totals_signature and (time.monotonic() - previous_ts) < 10:
+                return True, "House board already up to date."
+
+        image_path = await asyncio.to_thread(
+            self.image_service.generate_image,
             slytherin=totals["Slytherin"],
             ravenclaw=totals["Ravenclaw"],
             hufflepuff=totals["Hufflepuff"],
@@ -63,6 +80,7 @@ class HouseCupBoardService:
             try:
                 message = await channel.fetch_message(int(stored_message_id))
                 await message.edit(embed=embed, attachments=[discord_file])
+                self._recent_totals[guild.id] = (time.monotonic(), totals_signature)
                 return True, "House board updated."
             except discord.NotFound:
                 pass

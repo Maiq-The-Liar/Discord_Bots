@@ -22,6 +22,12 @@ class MediaRepository:
         )
         self.conn.commit()
 
+    def list_media_channel_ids(self) -> set[int]:
+        rows = self.conn.execute(
+            "SELECT channel_id FROM media_channels"
+        ).fetchall()
+        return {int(row["channel_id"]) for row in rows}
+
     def is_media_channel(self, channel_id: int) -> bool:
         row = self.conn.execute(
             "SELECT 1 FROM media_channels WHERE channel_id = ?",
@@ -178,12 +184,3 @@ class MediaRepository:
         ).fetchone()
         return row["created_at"] if row else None
 
-    def clear_vote_cooldown(self, voter_user_id: int) -> None:
-        self.conn.execute(
-            """
-            DELETE FROM media_vote_cooldowns
-            WHERE voter_user_id = ?
-            """,
-            (voter_user_id,),
-        )
-        self.conn.commit()

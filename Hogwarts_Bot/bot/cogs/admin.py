@@ -305,39 +305,40 @@ class AdminCog(commands.Cog):
             ephemeral=True,
         )
 
-        @app_commands.command(
-            name="sethouseboard",
-            description="Admin: set the channel used for the House Cup scoreboard.",
-        )
-        @app_commands.describe(channel="The text channel for the scoreboard")
-        async def sethouseboard(
-            self,
-            interaction: discord.Interaction,
-            channel: discord.TextChannel,
-        ) -> None:
-            if not self.is_admin(interaction):
-                await interaction.response.send_message(
-                    "You do not have permission to use this command.",
-                    ephemeral=True,
-                )
-                return
 
-            if not interaction.guild:
-                await interaction.response.send_message(
-                    "This command can only be used inside the server.",
-                    ephemeral=True,
-                )
-                return
-
-            with self.database.connect() as conn:
-                contribution_repo = ContributionRepository(conn)
-                bot_state_repo = BotStateRepository(conn)
-                board_service = HouseCupBoardService(bot_state_repo, contribution_repo)
-                _, message = await board_service.create_or_update_board(interaction.guild, channel)
-
+    @app_commands.command(
+        name="sethouseboard",
+        description="Admin: set the channel used for the House Cup scoreboard.",
+    )
+    @app_commands.describe(channel="The text channel for the scoreboard")
+    async def sethouseboard(
+        self,
+        interaction: discord.Interaction,
+        channel: discord.TextChannel,
+    ) -> None:
+        if not self.is_admin(interaction):
             await interaction.response.send_message(
-                f"{message} Channel: {channel.mention}"
+                "You do not have permission to use this command.",
+                ephemeral=True,
             )
+            return
+
+        if not interaction.guild:
+            await interaction.response.send_message(
+                "This command can only be used inside the server.",
+                ephemeral=True,
+            )
+            return
+
+        with self.database.connect() as conn:
+            contribution_repo = ContributionRepository(conn)
+            bot_state_repo = BotStateRepository(conn)
+            board_service = HouseCupBoardService(bot_state_repo, contribution_repo)
+            _, message = await board_service.create_or_update_board(interaction.guild, channel)
+
+        await interaction.response.send_message(
+            f"{message} Channel: {channel.mention}"
+        )
 
     @app_commands.command(
         name="refreshhouseboard",

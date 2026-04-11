@@ -153,3 +153,16 @@ class ReactionRoleRepository:
             (guild_id, group_key),
         ).fetchall()
         return {row["role_key"]: int(row["total"]) for row in rows}
+    def replace_memberships_for_guild(self, guild_id: int, memberships: list[tuple[int, str, str]]) -> None:
+        self.conn.execute(
+            "DELETE FROM reaction_role_memberships WHERE guild_id = ?",
+            (guild_id,),
+        )
+        self.conn.executemany(
+            """
+            INSERT INTO reaction_role_memberships (guild_id, user_id, group_key, role_key)
+            VALUES (?, ?, ?, ?)
+            """,
+            [(guild_id, user_id, group_key, role_key) for user_id, group_key, role_key in memberships],
+        )
+        self.conn.commit()

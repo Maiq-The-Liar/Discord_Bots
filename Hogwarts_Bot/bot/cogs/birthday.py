@@ -146,6 +146,7 @@ class BirthdayCog(commands.Cog):
         today_day, today_month, today_str = self.birthday_service.today_parts()
 
         for guild in self.bot.guilds:
+            guild_members = [member for member in guild.members if not member.bot]
             with self.database.connect() as conn:
                 user_repo = UserRepository(conn)
                 bot_state_repo = BotStateRepository(conn)
@@ -160,7 +161,7 @@ class BirthdayCog(commands.Cog):
                 birthday_role = role_service.get_role(guild, ROLE_KEY_BIRTHDAY)
 
             if birthday_role is not None:
-                for member in guild.members:
+                for member in guild_members:
                     has_birthday_today = member.id in birthday_user_ids
                     has_role = birthday_role in member.roles
 
@@ -211,7 +212,7 @@ class BirthdayCog(commands.Cog):
                         announcement_date=today_str,
                     )
 
-    @tasks.loop(minutes=5)
+    @tasks.loop(hours=1)
     async def birthday_loop(self) -> None:
         await self.sync_birthday_roles_and_announcements()
 
