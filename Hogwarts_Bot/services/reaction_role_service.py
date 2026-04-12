@@ -1,338 +1,404 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+import asyncio
+from datetime import datetime, timezone
+from pathlib import Path
 
-from domain.role_registry import (
-    ROLE_GROUP_AGES,
-    ROLE_GROUP_CONTINENTS,
-    ROLE_GROUP_DM,
-    ROLE_GROUP_GENDER_IDENTITY,
-    ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR,
-    ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF,
-    ROLE_GROUP_HOUSE_COLOR_RAVENCLAW,
-    ROLE_GROUP_HOUSE_COLOR_SLYTHERIN,
-    ROLE_GROUP_PINGS,
-    ROLE_GROUP_PRONOUNS,
-    ROLE_GROUP_QUIDDITCH_POSITIONS,
-    ROLE_GROUP_RELATIONSHIP,
-    ROLE_GROUP_SEXUALITY,
-    ROLE_KEY_CHAT_REVIVE,
-    ROLE_KEY_DUEL_PING,
-    ROLE_KEY_EVENT_PING,
-    ROLE_KEY_QUIDDITCH_BEATER,
-    ROLE_KEY_QUIDDITCH_CHASER,
-    ROLE_KEY_QUIDDITCH_KEEPER,
-    ROLE_KEY_QUIDDITCH_SEEKER,
+import discord
+
+from domain.role_registry import HOUSE_NAMES, get_role_definition
+from domain.reaction_role_registry import (
+    ReactionRoleGroup,
+    ReactionRoleOption,
+    get_reaction_role_group,
+    get_reaction_role_groups,
 )
+from repositories.guild_role_repository import GuildRoleRepository
+from repositories.reaction_role_repository import ReactionRoleRepository
+from services.role_service import RoleService
 
 
-@dataclass(frozen=True)
-class ReactionRoleOption:
-    role_key: str
-    emoji_name: str | None = None
-    emoji_id: int | None = None
-    emoji_unicode: str | None = None
-    emoji_animated: bool = False
+class ReactionRoleService:
+    def __init__(
+        self,
+        bot,
+        reaction_repo: ReactionRoleRepository,
+        guild_role_repo: GuildRoleRepository,
+    ):
+        self.bot = bot
+        self.reaction_repo = reaction_repo
+        self.role_service = RoleService(guild_role_repo)
+        self.roles_image_dir = Path(__file__).resolve().parents[1] / "resources" / "roles"
 
+    async def setup_channel(
+        self,
+        guild: discord.Guild,
+        channel: discord.TextChannel,
+    ) -> dict[str, int]:
+        await self.role_service.sync_all_managed_roles(guild)
+        self.reaction_repo.set_channel(guild.id, channel.id)
 
-@dataclass(frozen=True)
-class ReactionRoleGroup:
-    key: str
-    role_group: str
-    multi_select: bool
-    banner_filename: str
-    options: tuple[ReactionRoleOption, ...]
-    house_name: str | None = None
+        deleted = await self._clear_channel(channel)
+        self.reaction_repo.clear_message_mappings(guild.id)
 
+        posted = 0
+        for group in get_reaction_role_groups():
+            file, embeds = self.build_message_payload(guild, group.key)
+            message = await channel.send(
+                file=file,
+                embeds=embeds,
+                allowed_mentions=discord.AllowedMentions(roles=True, users=False, everyone=False),
+            )
+            self.reaction_repo.add_message_mapping(guild.id, group.key, channel.id, message.id)
 
-AGE_VERIFY_EMOJIS = {
-    "redverify": 1491469046074577110,
-    "orangeverify": 1491469032350679261,
-    "yellowverify": 1491469020384460992,
-    "greenverify": 1491468987228491957,
-    "blueverify": 1491468956207284264,
-    "purpleverify": 1491468937718665358,
-    "blackverified": 1491536921170804878,
-}
+            for option in group.options:
+                try:
+                    await message.add_reaction(self._emoji_for_reaction(option))
+                except discord.HTTPException:
+                    pass
 
-CONTINENT_EMOJIS = {
-    "europe": 1491428638107635792,
-    "asia": 1491428636040105994,
-    "northamerica": 1491428628032913531,
-    "africa": 1491428632202055843,
-    "southamerica": 1491428634265911428,
-    "oceania": 1491428629995852026,
-    "antarctica": 1491428626288214056,
-}
+            posted += 1
 
-PRONOUN_EMOJIS = {
-    "they_them": 1491531137603076217,
-    "shethem": 1491531031570944222,
-    "hethem": 1491531029356347523,
-    "she_her": 1491531024541155430,
-    "he_him": 1491531022548860938,
-    "ask": 1491532075273027827,
-}
+        return {"deleted_messages": deleted, "posted_messages": posted}
 
-GENDER_IDENTITY_EMOJIS = {
-    "nonbinary": 1491498356525240380,
-    "demigender": 1491498355216482324,
-    "genderfluid": 1491498353761063184,
-    "bigender": 1491498352590848070,
-    "female": 1491498351294677192,
-    "transgender": 1491498349935984830,
-    "male": 1491498348467851354,
-}
+    def build_message_payload(self, guild: discord.Guild, group_key: str) -> tuple[discord.File, list[discord.Embed]]:
+        group = get_reaction_role_group(group_key)
 
-SEXUALITY_EMOJIS = {
-    "Bisexual": 1491503728128295135,
-    "Demiromantic": 1491503475874595030,
-    "aromantic": 1491503473831972875,
-    "lesbian": 1491503108591980596,
-    "gay": 1491503106939420935,
-    "pansexual": 1491503104947126272,
-    "omnisexual": 1491503094314569920,
-    "asexual": 1491503092984840272,
-    "demisexual": 1491503091541872660,
-    "heterosexual": 1491503089864278016,
-    "Abrosexual": 1491503088278966323,
-    "Polyamorus": 1491503086613565511,
-}
+        banner_path = self.roles_image_dir / group.banner_filename
+        file = discord.File(banner_path, filename=group.banner_filename)
 
-QUIDDITCH_POSITION_EMOJIS = {
-    "beater": 1492902486607134972,
-    "seeker": 1492902484849459272,
-    "chaser": 1492902482710495332,
-    "keeper": 1492902481003417804,
-}
+        banner_embed = discord.Embed(color=0x2F3136)
+        banner_embed.set_image(url=f"attachment://{group.banner_filename}")
 
+        text_embed = discord.Embed(
+            description=self._build_description(guild, group),
+            color=0x2F3136,
+        )
+        text_embed.set_footer(text="Select multiple" if group.multi_select else "Select only one")
 
-REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
-    ReactionRoleGroup(
-        key="pronouns",
-        role_group=ROLE_GROUP_PRONOUNS,
-        multi_select=False,
-        banner_filename="select_pronouns.png",
-        options=(
-            ReactionRoleOption("pronouns_she_her", "she_her", PRONOUN_EMOJIS["she_her"], emoji_animated=False),
-            ReactionRoleOption("pronouns_she_they", "shethem", PRONOUN_EMOJIS["shethem"], emoji_animated=False),
-            ReactionRoleOption("pronouns_he_him", "he_him", PRONOUN_EMOJIS["he_him"], emoji_animated=False),
-            ReactionRoleOption("pronouns_he_they", "hethem", PRONOUN_EMOJIS["hethem"], emoji_animated=False),
-            ReactionRoleOption("pronouns_they_them", "they_them", PRONOUN_EMOJIS["they_them"], emoji_animated=False),
-            ReactionRoleOption("pronouns_ask", "ask", PRONOUN_EMOJIS["ask"], emoji_animated=False),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="gender_identity",
-        role_group=ROLE_GROUP_GENDER_IDENTITY,
-        multi_select=False,
-        banner_filename="select_gender.png",
-        options=(
-            ReactionRoleOption("gender_male", "male", GENDER_IDENTITY_EMOJIS["male"]),
-            ReactionRoleOption("gender_female", "female", GENDER_IDENTITY_EMOJIS["female"]),
-            ReactionRoleOption("gender_transgender", "transgender", GENDER_IDENTITY_EMOJIS["transgender"]),
-            ReactionRoleOption("gender_bigender", "bigender", GENDER_IDENTITY_EMOJIS["bigender"]),
-            ReactionRoleOption("gender_genderfluid", "genderfluid", GENDER_IDENTITY_EMOJIS["genderfluid"]),
-            ReactionRoleOption("gender_demigender", "demigender", GENDER_IDENTITY_EMOJIS["demigender"]),
-            ReactionRoleOption("gender_nonbinary", "nonbinary", GENDER_IDENTITY_EMOJIS["nonbinary"]),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="sexuality",
-        role_group=ROLE_GROUP_SEXUALITY,
-        multi_select=True,
-        banner_filename="select_orientation.png",
-        options=(
-            ReactionRoleOption("sexuality_lesbian", "lesbian", SEXUALITY_EMOJIS["lesbian"]),
-            ReactionRoleOption("sexuality_gay", "gay", SEXUALITY_EMOJIS["gay"]),
-            ReactionRoleOption("sexuality_bisexual", "Bisexual", SEXUALITY_EMOJIS["Bisexual"]),
-            ReactionRoleOption("sexuality_pansexual", "pansexual", SEXUALITY_EMOJIS["pansexual"]),
-            ReactionRoleOption("sexuality_omnisexual", "omnisexual", SEXUALITY_EMOJIS["omnisexual"]),
-            ReactionRoleOption("sexuality_asexual", "asexual", SEXUALITY_EMOJIS["asexual"]),
-            ReactionRoleOption("sexuality_aromantic", "aromantic", SEXUALITY_EMOJIS["aromantic"]),
-            ReactionRoleOption("sexuality_demisexual", "demisexual", SEXUALITY_EMOJIS["demisexual"]),
-            ReactionRoleOption("sexuality_demiromantic", "Demiromantic", SEXUALITY_EMOJIS["Demiromantic"]),
-            ReactionRoleOption("sexuality_heterosexual", "heterosexual", SEXUALITY_EMOJIS["heterosexual"]),
-            ReactionRoleOption("sexuality_abrosexual", "Abrosexual", SEXUALITY_EMOJIS["Abrosexual"]),
-            ReactionRoleOption("sexuality_polyamorous", "Polyamorus", SEXUALITY_EMOJIS["Polyamorus"]),
-            ReactionRoleOption("sexuality_questioning", emoji_unicode="❔"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="relationship",
-        role_group=ROLE_GROUP_RELATIONSHIP,
-        multi_select=False,
-        banner_filename="select_relationship.png",
-        options=(
-            ReactionRoleOption("relationship_taken", emoji_unicode="❤️"),
-            ReactionRoleOption("relationship_single", emoji_unicode="✨"),
-            ReactionRoleOption("relationship_complicated", emoji_unicode="🌀"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="ages",
-        role_group=ROLE_GROUP_AGES,
-        multi_select=False,
-        banner_filename="select_age.png",
-        options=(
-            ReactionRoleOption("age_below_21", "redverify", AGE_VERIFY_EMOJIS["redverify"], emoji_animated=True),
-            ReactionRoleOption("age_21_25", "orangeverify", AGE_VERIFY_EMOJIS["orangeverify"], emoji_animated=True),
-            ReactionRoleOption("age_26_30", "yellowverify", AGE_VERIFY_EMOJIS["yellowverify"], emoji_animated=True),
-            ReactionRoleOption("age_31_35", "greenverify", AGE_VERIFY_EMOJIS["greenverify"], emoji_animated=True),
-            ReactionRoleOption("age_36_40", "blueverify", AGE_VERIFY_EMOJIS["blueverify"], emoji_animated=True),
-            ReactionRoleOption("age_41_45", "purpleverify", AGE_VERIFY_EMOJIS["purpleverify"], emoji_animated=True),
-            ReactionRoleOption("age_46_plus", "blackverified", AGE_VERIFY_EMOJIS["blackverified"], emoji_animated=True),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="continents",
-        role_group=ROLE_GROUP_CONTINENTS,
-        multi_select=False,
-        banner_filename="select_location.png",
-        options=(
-            ReactionRoleOption("continent_europe", "europe", CONTINENT_EMOJIS["europe"]),
-            ReactionRoleOption("continent_asia", "asia", CONTINENT_EMOJIS["asia"]),
-            ReactionRoleOption("continent_north_america", "northamerica", CONTINENT_EMOJIS["northamerica"]),
-            ReactionRoleOption("continent_africa", "africa", CONTINENT_EMOJIS["africa"]),
-            ReactionRoleOption("continent_south_america", "southamerica", CONTINENT_EMOJIS["southamerica"]),
-            ReactionRoleOption("continent_australia_oceania", "oceania", CONTINENT_EMOJIS["oceania"]),
-            ReactionRoleOption("continent_antarctica", "antarctica", CONTINENT_EMOJIS["antarctica"]),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="pings",
-        role_group=ROLE_GROUP_PINGS,
-        multi_select=True,
-        banner_filename="select_pings.png",
-        options=(
-            ReactionRoleOption(ROLE_KEY_DUEL_PING, emoji_unicode="⚔️"),
-            ReactionRoleOption(ROLE_KEY_EVENT_PING, emoji_unicode="🎉"),
-            ReactionRoleOption(ROLE_KEY_CHAT_REVIVE, emoji_unicode="💬"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="dm_status",
-        role_group=ROLE_GROUP_DM,
-        multi_select=False,
-        banner_filename="select_DM.png",
-        options=(
-            ReactionRoleOption("dm_open", emoji_unicode="📬"),
-            ReactionRoleOption("dm_closed", emoji_unicode="🔒"),
-            ReactionRoleOption("dm_ask", emoji_unicode="❓"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="gryffindor_colors",
-        role_group=ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR,
-        multi_select=False,
-        banner_filename="gryffindor_colours.png",
-        house_name="Gryffindor",
-        options=(
-            ReactionRoleOption("gryff_color_crimson", emoji_unicode="1️⃣"),
-            ReactionRoleOption("gryff_color_scarlet", emoji_unicode="2️⃣"),
-            ReactionRoleOption("gryff_color_ember", emoji_unicode="3️⃣"),
-            ReactionRoleOption("gryff_color_ruby", emoji_unicode="4️⃣"),
-            ReactionRoleOption("gryff_color_garnet", emoji_unicode="5️⃣"),
-            ReactionRoleOption("gryff_color_burgundy", emoji_unicode="6️⃣"),
-            ReactionRoleOption("gryff_color_wine", emoji_unicode="7️⃣"),
-            ReactionRoleOption("gryff_color_rosewood", emoji_unicode="8️⃣"),
-            ReactionRoleOption("gryff_color_brick", emoji_unicode="9️⃣"),
-            ReactionRoleOption("gryff_color_phoenix", emoji_unicode="🔟"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="hufflepuff_colors",
-        role_group=ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF,
-        multi_select=False,
-        banner_filename="hufflepuff_colours.png",
-        house_name="Hufflepuff",
-        options=(
-            ReactionRoleOption("huff_color_gold", emoji_unicode="1️⃣"),
-            ReactionRoleOption("huff_color_honey", emoji_unicode="2️⃣"),
-            ReactionRoleOption("huff_color_amber", emoji_unicode="3️⃣"),
-            ReactionRoleOption("huff_color_mustard", emoji_unicode="4️⃣"),
-            ReactionRoleOption("huff_color_saffron", emoji_unicode="5️⃣"),
-            ReactionRoleOption("huff_color_sunburst", emoji_unicode="6️⃣"),
-            ReactionRoleOption("huff_color_wheat", emoji_unicode="7️⃣"),
-            ReactionRoleOption("huff_color_butter", emoji_unicode="8️⃣"),
-            ReactionRoleOption("huff_color_bronze", emoji_unicode="9️⃣"),
-            ReactionRoleOption("huff_color_caramel", emoji_unicode="🔟"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="ravenclaw_colors",
-        role_group=ROLE_GROUP_HOUSE_COLOR_RAVENCLAW,
-        multi_select=False,
-        banner_filename="ravenclaw_colours.png",
-        house_name="Ravenclaw",
-        options=(
-            ReactionRoleOption("raven_color_royal", emoji_unicode="1️⃣"),
-            ReactionRoleOption("raven_color_sapphire", emoji_unicode="2️⃣"),
-            ReactionRoleOption("raven_color_cobalt", emoji_unicode="3️⃣"),
-            ReactionRoleOption("raven_color_azure", emoji_unicode="4️⃣"),
-            ReactionRoleOption("raven_color_cerulean", emoji_unicode="5️⃣"),
-            ReactionRoleOption("raven_color_midnight", emoji_unicode="6️⃣"),
-            ReactionRoleOption("raven_color_storm", emoji_unicode="7️⃣"),
-            ReactionRoleOption("raven_color_ice", emoji_unicode="8️⃣"),
-            ReactionRoleOption("raven_color_steel", emoji_unicode="9️⃣"),
-            ReactionRoleOption("raven_color_twilight", emoji_unicode="🔟"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="slytherin_colors",
-        role_group=ROLE_GROUP_HOUSE_COLOR_SLYTHERIN,
-        multi_select=False,
-        banner_filename="slytherin_colours.png",
-        house_name="Slytherin",
-        options=(
-            ReactionRoleOption("slyth_color_emerald", emoji_unicode="1️⃣"),
-            ReactionRoleOption("slyth_color_jade", emoji_unicode="2️⃣"),
-            ReactionRoleOption("slyth_color_forest", emoji_unicode="3️⃣"),
-            ReactionRoleOption("slyth_color_moss", emoji_unicode="4️⃣"),
-            ReactionRoleOption("slyth_color_serpent", emoji_unicode="5️⃣"),
-            ReactionRoleOption("slyth_color_pine", emoji_unicode="6️⃣"),
-            ReactionRoleOption("slyth_color_olive", emoji_unicode="7️⃣"),
-            ReactionRoleOption("slyth_color_malachite", emoji_unicode="8️⃣"),
-            ReactionRoleOption("slyth_color_sea", emoji_unicode="9️⃣"),
-            ReactionRoleOption("slyth_color_sage", emoji_unicode="🔟"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="quidditch_positions",
-        role_group=ROLE_GROUP_QUIDDITCH_POSITIONS,
-        multi_select=False,
-        banner_filename="Quidditch_Position.png",
-        options=(
-            ReactionRoleOption(
-                ROLE_KEY_QUIDDITCH_KEEPER,
-                "keeper",
-                QUIDDITCH_POSITION_EMOJIS["keeper"],
-            ),
-            ReactionRoleOption(
-                ROLE_KEY_QUIDDITCH_SEEKER,
-                "seeker",
-                QUIDDITCH_POSITION_EMOJIS["seeker"],
-            ),
-            ReactionRoleOption(
-                ROLE_KEY_QUIDDITCH_BEATER,
-                "beater",
-                QUIDDITCH_POSITION_EMOJIS["beater"],
-            ),
-            ReactionRoleOption(
-                ROLE_KEY_QUIDDITCH_CHASER,
-                "chaser",
-                QUIDDITCH_POSITION_EMOJIS["chaser"],
-            ),
-        ),
-    ),
-)
+        return file, [banner_embed, text_embed]
 
-REACTION_ROLE_GROUP_BY_KEY = {group.key: group for group in REACTION_ROLE_GROUPS}
+    async def refresh_group_message(self, guild: discord.Guild, group_key: str) -> None:
+        mapping = self.reaction_repo.get_message_mapping_for_group(guild.id, group_key)
+        if mapping is None:
+            return
 
+        channel = guild.get_channel(int(mapping["channel_id"]))
+        if not isinstance(channel, discord.TextChannel):
+            return
 
-def get_reaction_role_groups() -> list[ReactionRoleGroup]:
-    return list(REACTION_ROLE_GROUPS)
+        try:
+            message = await channel.fetch_message(int(mapping["message_id"]))
+        except discord.HTTPException:
+            return
 
+        _, embeds = self.build_message_payload(guild, group_key)
+        try:
+            await message.edit(
+                embeds=embeds,
+                allowed_mentions=discord.AllowedMentions(roles=True, users=False, everyone=False),
+            )
+        except discord.HTTPException:
+            return
 
-def get_reaction_role_group(group_key: str) -> ReactionRoleGroup:
-    return REACTION_ROLE_GROUP_BY_KEY[group_key]
+    async def handle_reaction_add(self, payload: discord.RawReactionActionEvent) -> None:
+        mapping = self.reaction_repo.get_message_mapping_by_message_id(payload.message_id)
+        if mapping is None:
+            return
+
+        guild = self.bot.get_guild(int(mapping["guild_id"]))
+        if guild is None:
+            return
+
+        member = payload.member
+        if member is None or member.bot:
+            return
+
+        group = get_reaction_role_group(mapping["group_key"])
+        option = self._match_option(group, payload.emoji)
+        if option is None:
+            return
+
+        channel = guild.get_channel(int(mapping["channel_id"]))
+        if not isinstance(channel, discord.TextChannel):
+            return
+
+        try:
+            message = await channel.fetch_message(int(mapping["message_id"]))
+        except discord.HTTPException:
+            return
+
+        if not self._member_can_use_group(member, group):
+            try:
+                await message.remove_reaction(self._emoji_for_reaction(option), member)
+            except discord.HTTPException:
+                pass
+            return
+
+        role = self.role_service.get_role(guild, option.role_key)
+        if role is None:
+            try:
+                await message.remove_reaction(self._emoji_for_reaction(option), member)
+            except discord.HTTPException:
+                pass
+            return
+
+        if not group.multi_select:
+            existing = self.reaction_repo.list_user_memberships_in_group(guild.id, member.id, group.key)
+            for row in existing:
+                existing_role_key = row["role_key"]
+                if existing_role_key == option.role_key:
+                    continue
+
+                old_role = self.role_service.get_role(guild, existing_role_key)
+                if old_role is not None and old_role in member.roles:
+                    try:
+                        await member.remove_roles(old_role, reason="Reaction role swap")
+                    except discord.HTTPException:
+                        pass
+
+                self.reaction_repo.delete_membership(guild.id, member.id, group.key, existing_role_key)
+
+                old_option = self._get_option_by_role_key(group, existing_role_key)
+                if old_option is not None:
+                    try:
+                        await message.remove_reaction(self._emoji_for_reaction(old_option), member)
+                    except discord.HTTPException:
+                        pass
+
+        self.reaction_repo.upsert_membership(guild.id, member.id, group.key, option.role_key)
+
+        if role not in member.roles:
+            try:
+                await member.add_roles(role, reason="Reaction role selected")
+            except discord.HTTPException:
+                self.reaction_repo.delete_membership(guild.id, member.id, group.key, option.role_key)
+                try:
+                    await message.remove_reaction(self._emoji_for_reaction(option), member)
+                except discord.HTTPException:
+                    pass
+                return
+
+        await self.clear_invalid_house_color_roles(member)
+        await self.refresh_group_message(guild, group.key)
+
+    async def handle_reaction_remove(self, payload: discord.RawReactionActionEvent) -> None:
+        mapping = self.reaction_repo.get_message_mapping_by_message_id(payload.message_id)
+        if mapping is None:
+            return
+
+        guild = self.bot.get_guild(int(mapping["guild_id"]))
+        bot_member = guild.self_member if guild is not None else None
+        if guild is None or bot_member is None:
+            return
+
+        if payload.user_id == bot_member.id:
+            return
+
+        group = get_reaction_role_group(mapping["group_key"])
+        option = self._match_option(group, payload.emoji)
+        if option is None:
+            return
+
+        if not self.reaction_repo.membership_exists(guild.id, payload.user_id, group.key, option.role_key):
+            return
+
+        member = guild.get_member(payload.user_id)
+        if member is None:
+            try:
+                member = await guild.fetch_member(payload.user_id)
+            except discord.HTTPException:
+                member = None
+
+        self.reaction_repo.delete_membership(guild.id, payload.user_id, group.key, option.role_key)
+
+        if member is not None:
+            role = self.role_service.get_role(guild, option.role_key)
+            if role is not None and role in member.roles:
+                try:
+                    await member.remove_roles(role, reason="Reaction role removed")
+                except discord.HTTPException:
+                    pass
+
+        await self.refresh_group_message(guild, group.key)
+
+    async def reconcile_guild_memberships(self, guild: discord.Guild) -> dict[str, int]:
+        memberships: list[tuple[int, str, str]] = []
+        matched_members = 0
+
+        for member in guild.members:
+            if member.bot:
+                continue
+
+            matched_for_member = 0
+            member_role_ids = {role.id for role in member.roles}
+            for group in get_reaction_role_groups():
+                if not self._member_can_use_group(member, group):
+                    continue
+
+                for option in group.options:
+                    role = self.role_service.get_role(guild, option.role_key)
+                    if role is not None and role.id in member_role_ids:
+                        memberships.append((member.id, group.key, option.role_key))
+                        matched_for_member += 1
+
+            if matched_for_member:
+                matched_members += 1
+
+        self.reaction_repo.replace_memberships_for_guild(guild.id, memberships)
+        return {"memberships": len(memberships), "members": matched_members}
+
+    async def clear_invalid_house_color_roles(self, member: discord.Member) -> None:
+        member_house = self._member_house(member)
+        if member_house is None:
+            return
+
+        for group in get_reaction_role_groups():
+            if not group.house_name or group.house_name == member_house:
+                continue
+
+            for option in group.options:
+                role = self.role_service.get_role(member.guild, option.role_key)
+                if role is not None and role in member.roles:
+                    try:
+                        await member.remove_roles(role, reason="Removing other-house colour role")
+                    except discord.HTTPException:
+                        pass
+
+    async def _clear_channel(self, channel: discord.TextChannel) -> int:
+        deleted = 0
+        now = datetime.now(timezone.utc)
+
+        while True:
+            batch = [message async for message in channel.history(limit=100)]
+            if not batch:
+                break
+
+            recent = []
+            older = []
+
+            for message in batch:
+                age_seconds = (now - message.created_at).total_seconds()
+                if age_seconds < 14 * 24 * 60 * 60:
+                    recent.append(message)
+                else:
+                    older.append(message)
+
+            if recent:
+                if len(recent) == 1:
+                    try:
+                        await recent[0].delete()
+                        deleted += 1
+                    except discord.HTTPException:
+                        pass
+                else:
+                    try:
+                        await channel.delete_messages(recent)
+                        deleted += len(recent)
+                    except discord.HTTPException:
+                        for message in recent:
+                            try:
+                                await message.delete()
+                                deleted += 1
+                            except discord.HTTPException:
+                                pass
+
+            for message in older:
+                try:
+                    await message.delete()
+                    deleted += 1
+                    await asyncio.sleep(0.35)
+                except discord.HTTPException:
+                    pass
+
+            if len(batch) < 100:
+                break
+
+        return deleted
+
+    def _build_description(self, guild: discord.Guild, group: ReactionRoleGroup) -> str:
+        counts = self.reaction_repo.count_memberships_for_group(guild.id, group.key)
+        lines: list[str] = []
+
+        for option in group.options:
+            role_def = get_role_definition(option.role_key)
+            count = counts.get(option.role_key, 0)
+            emoji_text = self._emoji_for_display(option)
+
+            if group.house_name:
+                role = self.role_service.get_role(guild, option.role_key)
+                label = role.mention if role is not None else role_def.name
+            else:
+                label = role_def.name
+
+            lines.append(f"{emoji_text} {label} — `{count}`")
+
+        return "\n".join(lines)
+
+    def _emoji_for_display(self, option: ReactionRoleOption) -> str:
+        if option.emoji_id:
+            emoji_obj = self.bot.get_emoji(option.emoji_id)
+            if emoji_obj is not None:
+                return str(emoji_obj)
+
+            if option.emoji_name:
+                prefix = "a" if option.emoji_animated else ""
+                return f"<{prefix}:{option.emoji_name}:{option.emoji_id}>"
+
+        return option.emoji_unicode or "•"
+
+    def _emoji_for_reaction(self, option: ReactionRoleOption):
+        if option.emoji_id:
+            emoji_obj = self.bot.get_emoji(option.emoji_id)
+            if emoji_obj is not None:
+                return emoji_obj
+
+            if option.emoji_name:
+                return discord.PartialEmoji(
+                    name=option.emoji_name,
+                    id=option.emoji_id,
+                    animated=option.emoji_animated,
+                )
+
+        return option.emoji_unicode or "•"
+
+    def _match_option(
+        self,
+        group: ReactionRoleGroup,
+        emoji: discord.PartialEmoji,
+    ) -> ReactionRoleOption | None:
+        for option in group.options:
+            if option.emoji_id is not None and emoji.id == option.emoji_id:
+                return option
+            if option.emoji_unicode is not None and emoji.id is None and emoji.name == option.emoji_unicode:
+                return option
+        return None
+
+    def _get_option_by_role_key(
+        self,
+        group: ReactionRoleGroup,
+        role_key: str,
+    ) -> ReactionRoleOption | None:
+        for option in group.options:
+            if option.role_key == role_key:
+                return option
+        return None
+
+    def _member_house(self, member: discord.Member) -> str | None:
+        role_names_lower = {role.name.strip().lower() for role in member.roles}
+
+        for house_name in HOUSE_NAMES:
+            if house_name.strip().lower() in role_names_lower:
+                return house_name
+
+        return None
+
+    def _member_can_use_group(self, member: discord.Member, group: ReactionRoleGroup) -> bool:
+        if group.house_name is None:
+            return True
+
+        member_house = self._member_house(member)
+        if member_house is None:
+            return False
+
+        return member_house.strip().lower() == group.house_name.strip().lower()
