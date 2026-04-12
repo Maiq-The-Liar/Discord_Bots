@@ -186,7 +186,6 @@ class Database:
                 """
             )
 
-
         if "reaction_role_channels" not in existing_tables:
             conn.execute(
                 """
@@ -226,10 +225,28 @@ class Database:
                 """
             )
 
+        if "quidditch_position_progress" not in existing_tables:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS quidditch_position_progress (
+                    user_id INTEGER NOT NULL,
+                    position_key TEXT NOT NULL,
+                    level INTEGER NOT NULL DEFAULT 1,
+                    xp INTEGER NOT NULL DEFAULT 0,
+                    last_xp_at TEXT NULL,
+                    daily_xp INTEGER NOT NULL DEFAULT 0,
+                    daily_reset_on TEXT NULL,
+                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (user_id, position_key)
+                )
+                """
+            )
+
     def _ensure_indexes(self, conn: sqlite3.Connection) -> None:
         conn.execute("CREATE INDEX IF NOT EXISTS idx_media_posts_open_by_channel ON media_posts(channel_id, author_user_id, is_closed)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_media_posts_expiry ON media_posts(is_closed, closes_at)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_media_votes_window ON media_votes(voter_user_id, created_at)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_reaction_role_messages_message_id ON reaction_role_messages(message_id)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_reaction_role_memberships_group ON reaction_role_memberships(guild_id, group_key, role_key)")
-
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_quidditch_position_progress_user " "ON quidditch_position_progress(user_id, position_key)")

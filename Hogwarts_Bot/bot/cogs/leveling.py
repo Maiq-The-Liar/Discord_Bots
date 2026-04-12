@@ -6,10 +6,18 @@ from discord.ext import commands
 
 from db.database import Database
 from domain.constants import HOUSE_COLORS
-from domain.role_registry import ROLE_GROUP_YEARS
+from domain.role_registry import (
+    ROLE_GROUP_YEARS,
+    ROLE_KEY_QUIDDITCH_BEATER,
+    ROLE_KEY_QUIDDITCH_CHASER,
+    ROLE_KEY_QUIDDITCH_KEEPER,
+    ROLE_KEY_QUIDDITCH_SEEKER,
+)
 from repositories.guild_role_repository import GuildRoleRepository
+from repositories.quidditch_progress_repository import QuidditchProgressRepository
 from repositories.user_repository import UserRepository
 from services.leveling_service import LevelingService
+from services.quidditch_leveling_service import QuidditchLevelingService
 from services.role_service import RoleService
 from bot.cogs.profile import resolve_member_roles, validate_house_context
 
@@ -62,6 +70,27 @@ class LevelingCog(commands.Cog):
 
         return changed
 
+    def get_active_quidditch_position(
+        self,
+        member: discord.Member,
+        role_service: RoleService,
+    ) -> str | None:
+        role_key_to_position = {
+            ROLE_KEY_QUIDDITCH_KEEPER: "keeper",
+            ROLE_KEY_QUIDDITCH_SEEKER: "seeker",
+            ROLE_KEY_QUIDDITCH_BEATER: "beater",
+            ROLE_KEY_QUIDDITCH_CHASER: "chaser",
+        }
+
+        member_role_ids = {role.id for role in member.roles}
+
+        for role_key, position_key in role_key_to_position.items():
+            role = role_service.get_role(member.guild, role_key)
+            if role is not None and role.id in member_role_ids:
+                return position_key
+
+        return None
+
     async def ensure_member_year_state(self, member: discord.Member, initialize_from_join: bool = True) -> dict | None:
         role_ctx = resolve_member_roles(member)
         is_valid, _ = validate_house_context(role_ctx)
@@ -82,6 +111,12 @@ class LevelingCog(commands.Cog):
                     user_id=member.id,
                     joined_at=member.joined_at,
                 )
+
+            quidditch_repo = QuidditchProgressRepository(conn)
+            quidditch_service = QuidditchLevelingService(quidditch_repo)
+            quidditch_service.ensure_initialized(member.id)
+
+            conn.commit()
 
         await self.sync_year_role(member, result["level"])
         return result
@@ -113,11 +148,31 @@ class LevelingCog(commands.Cog):
             with self.database.connect() as conn:
                 user_repo = UserRepository(conn)
                 leveling_service = LevelingService(user_repo)
+
+                guild_role_repo = GuildRoleRepository(conn)
+                role_service = RoleService(guild_role_repo)
+
+                quidditch_repo = QuidditchProgressRepository(conn)
+                quidditch_service = QuidditchLevelingService(quidditch_repo)
+
+                # Existing school-year logic
                 result = leveling_service.process_member_message(
                     user_id=message.author.id,
                     joined_at=message.author.joined_at,
                     message_at=message.created_at,
                 )
+
+                # New Quidditch logic
+                quidditch_service.ensure_initialized(message.author.id)
+                active_position = self.get_active_quidditch_position(message.author, role_service)
+                quidditch_result = quidditch_service.process_message_for_position(
+                    user_id=message.author.id,
+                    position_key=active_position,
+                    message_content=message.content,
+                    message_at=message.created_at,
+                )
+
+                conn.commit()
 
             if result["leveled_up"]:
                 await self.sync_year_role(message.author, result["level"])
@@ -132,6 +187,13 @@ class LevelingCog(commands.Cog):
                     color=color,
                 )
                 await message.channel.send(embed=embed)
+
+            if quidditch_result["leveled_up"] and quidditch_result["position_key"]:
+                position_name = str(quidditch_result["position_key"]).capitalize()
+                await message.channel.send(
+                    f"⚡ {message.author.mention} leveled **{position_name}** to **Lv. {quidditch_result['level']}**!"
+                )
+
         finally:
             self.processing_users.discard(message.author.id)
 
