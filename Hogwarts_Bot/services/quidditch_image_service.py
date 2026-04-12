@@ -22,8 +22,8 @@ class QuidditchImageService:
     BEATER_2_Y = 780
     KEEPER_Y = 1025
 
-    SCORE_LEFT = (198, 115)
-    SCORE_RIGHT = (663, 115)
+    SCORE_LEFT = (203, 115)
+    SCORE_RIGHT = (668, 115)
 
     SIDE_TEXT_MAX_WIDTH = 470
 
@@ -63,7 +63,7 @@ class QuidditchImageService:
             left_lineup = home_lineup
             right_lineup = away_lineup
 
-        score_font = self._load_score_font(98)
+        score_font = self._load_score_font(97)
 
         self._draw_centered_text(
             draw,
