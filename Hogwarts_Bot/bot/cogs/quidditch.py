@@ -310,16 +310,62 @@ class QuidditchCog(commands.Cog):
             repo = QuidditchRepository(conn)
             service = QuidditchService(repo)
 
+            config = service.get_config(interaction.guild.id)
+            if config is None or config["match_channel_id"] is None:
+                await interaction.response.send_message(
+                    "Set up the Quidditch match channel first with `/setup_quidditch`.",
+                    ephemeral=True,
+                )
+                return
+
+            match_channel = interaction.guild.get_channel(int(config["match_channel_id"]))
+            if not isinstance(match_channel, discord.TextChannel):
+                await interaction.response.send_message(
+                    "Configured Quidditch match channel could not be found.",
+                    ephemeral=True,
+                )
+                return
+
             try:
                 result = service.start_test_game(guild_id=interaction.guild.id)
-                conn.commit()
             except ValueError as exc:
                 await interaction.response.send_message(str(exc), ephemeral=True)
                 return
 
+            embed = discord.Embed(
+                title="🧪 Quidditch Test Game",
+                description=(
+                    f"**{result['home_house']} vs {result['away_house']}**\n\n"
+                    f"This is an **unofficial** Quidditch test game.\n"
+                    f"It lasts **10 hours** and does **not** affect:\n"
+                    f"- season standings\n"
+                    f"- Quidditch Cup ranking\n"
+                    f"- House Cup points"
+                ),
+                color=0x5865F2,
+            )
+            embed.add_field(name=result["home_house"], value="0", inline=True)
+            embed.add_field(name=result["away_house"], value="0", inline=True)
+            embed.add_field(
+                name="Match Log",
+                value="No events yet.\nTest game initialized successfully.",
+                inline=False,
+            )
+            embed.set_footer(text="Unofficial test match")
+
+            message = await match_channel.send(embed=embed)
+
+            conn.execute(
+                """
+                UPDATE quidditch_test_matches
+                SET channel_id = ?, message_id = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+                """,
+                (match_channel.id, message.id, int(result["test_match_id"])),
+            )
+            conn.commit()
+
         await interaction.response.send_message(
-            f"Unofficial Quidditch test game started.\n"
-            f"**{result['home_house']} vs {result['away_house']}**\n"
-            f"This game lasts 10 hours and will not affect the season, standings, or House Cup points.",
+            f"Unofficial Quidditch test game created in {match_channel.mention}.",
             ephemeral=True,
         )
