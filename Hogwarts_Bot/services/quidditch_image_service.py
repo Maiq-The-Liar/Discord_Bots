@@ -22,8 +22,8 @@ class QuidditchImageService:
     BEATER_2_Y = 780
     KEEPER_Y = 1025
 
-    SCORE_LEFT = (230, 120)
-    SCORE_RIGHT = (690, 115)
+    SCORE_LEFT = (220, 120)
+    SCORE_RIGHT = (680, 115)
 
     SIDE_TEXT_MAX_WIDTH = 470
 
