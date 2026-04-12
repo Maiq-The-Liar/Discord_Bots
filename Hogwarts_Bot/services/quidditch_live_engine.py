@@ -30,28 +30,28 @@ class QuidditchLiveEngine:
 
     NPC_POOLS: dict[str, dict[str, list[str]]] = {
         "Gryffindor": {
-            "keeper": ["Oliver Wood", "Katie Bell"],
-            "seeker": ["Harry Potter", "Ginny Weasley"],
-            "beater": ["Fred Weasley", "George Weasley", "Jimmy Peakes"],
-            "chaser": ["Angelina Johnson", "Alicia Spinnet", "Demelza Robins", "Dean Thomas"],
+            "keeper": ["Oliver W.", "Katie B."],
+            "seeker": ["Harry P.", "Ginny W."],
+            "beater": ["Fred W.", "George W.", "Jimmy P."],
+            "chaser": ["Angelina J.", "Alicia S.", "Demelza R.", "Dean T."],
         },
         "Hufflepuff": {
-            "keeper": ["Herbert Fleet", "Summerby"],
-            "seeker": ["Cedric Diggory", "Tamsin Applebee"],
-            "beater": ["Maxine O'Flaherty", "Silas Diggory", "Beatrice Haywood"],
-            "chaser": ["Zacharias Smith", "Nia Goldspring", "Megan Jones", "Rory Fairbairn"],
+            "keeper": ["Herbert F.", "Summerby"],
+            "seeker": ["Cedric D.", "Tamsin A."],
+            "beater": ["Maxine O.", "Silas D.", "Beatrice H."],
+            "chaser": ["Zacharias S.", "Nia G.", "Megan J.", "Rory F."],
         },
         "Ravenclaw": {
-            "keeper": ["Grant Page", "Randolph Burrow"],
-            "seeker": ["Cho Chang", "Luna Lovegood"],
-            "beater": ["Duncan Inglebee", "Jeremy Stretton", "Nadia Vale"],
-            "chaser": ["Roger Davies", "Marietta Edgecombe", "Eddie Carmichael", "Padma Patil"],
+            "keeper": ["Grant P.", "Randolph B."],
+            "seeker": ["Cho C.", "Luna L."],
+            "beater": ["Duncan I.", "Jeremy S.", "Nadia V."],
+            "chaser": ["Roger D.", "Marietta E.", "Eddie C.", "Padma P."],
         },
         "Slytherin": {
-            "keeper": ["Miles Bletchley", "Cassius Warrington"],
-            "seeker": ["Draco Malfoy", "Voldemort"],
-            "beater": ["Vincent Crabbe", "Gregory Goyle", "Peregrine Derrick", "Lucian Bole"],
-            "chaser": ["Marcus Flint", "Adrian Pucey", "Graham Montague", "Pansy Parkinson"],
+            "keeper": ["Miles B.", "Cassius W."],
+            "seeker": ["Draco M.", "Voldemort"],
+            "beater": ["Vincent C.", "Gregory G.", "Peregrine D.", "Lucian B."],
+            "chaser": ["Marcus F.", "Adrian P.", "Graham M.", "Pansy P."],
         },
     }
 

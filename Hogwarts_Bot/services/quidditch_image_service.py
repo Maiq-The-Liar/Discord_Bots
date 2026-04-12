@@ -11,23 +11,21 @@ class QuidditchImageService:
     RESOURCE_DIR = Path(__file__).resolve().parent.parent / "resources" / "stands_matchup"
     FONT_DIR = Path(__file__).resolve().parent.parent / "resources" / "house_banners"
 
-    # Left/right columns
     LEFT_X = 250
     RIGHT_X = 790
 
-    # Vertical layout
-    SEEKER_Y = 300
-    CHASER_1_Y = 430
-    CHASER_2_Y = 485
-    CHASER_3_Y = 540
-    BEATER_1_Y = 650
-    BEATER_2_Y = 705
-    KEEPER_Y = 885
+    SEEKER_Y = 340
+    CHASER_1_Y = 470
+    CHASER_2_Y = 530
+    CHASER_3_Y = 590
+    BEATER_1_Y = 720
+    BEATER_2_Y = 780
+    KEEPER_Y = 1025
 
-    SCORE_LEFT = (362, 76)
-    SCORE_RIGHT = (670, 76)
+    SCORE_LEFT = (322, 74)
+    SCORE_RIGHT = (702, 74)
 
-    SIDE_TEXT_MAX_WIDTH = 420
+    SIDE_TEXT_MAX_WIDTH = 470
 
     def render_match_image(
         self,
@@ -59,7 +57,7 @@ class QuidditchImageService:
             left_lineup = home_lineup
             right_lineup = away_lineup
 
-        score_font = self._load_score_font(82)
+        score_font = self._load_score_font(90)
 
         self._draw_centered_text(
             draw,
@@ -74,16 +72,8 @@ class QuidditchImageService:
             score_font,
         )
 
-        self._draw_side_lineup(
-            draw=draw,
-            lineup=left_lineup,
-            x_center=self.LEFT_X,
-        )
-        self._draw_side_lineup(
-            draw=draw,
-            lineup=right_lineup,
-            x_center=self.RIGHT_X,
-        )
+        self._draw_side_lineup(draw=draw, lineup=left_lineup, x_center=self.LEFT_X)
+        self._draw_side_lineup(draw=draw, lineup=right_lineup, x_center=self.RIGHT_X)
 
         output_path = (
             Path(tempfile.gettempdir())
@@ -133,8 +123,7 @@ class QuidditchImageService:
         x_center: int,
     ) -> None:
         ordered = self._order_lineup(lineup)
-
-        slots = [
+        y_positions = [
             self.SEEKER_Y,
             self.CHASER_1_Y,
             self.CHASER_2_Y,
@@ -144,9 +133,15 @@ class QuidditchImageService:
             self.KEEPER_Y,
         ]
 
-        for player, y in zip(ordered, slots):
+        for player, y in zip(ordered, y_positions):
             label = self._player_label(player)
-            font = self._fit_name_font(draw, label, self.SIDE_TEXT_MAX_WIDTH, start_size=24, min_size=18)
+            font = self._fit_name_font(
+                draw,
+                label,
+                self.SIDE_TEXT_MAX_WIDTH,
+                start_size=30,
+                min_size=22,
+            )
             self._draw_centered_text(draw, (x_center, y), label, font)
 
     def _player_label(self, player: dict[str, Any]) -> str:
@@ -159,7 +154,6 @@ class QuidditchImageService:
 
         position = str(player.get("position", "")).lower().strip()
         level = int(player.get("level", 1))
-
         return f"{username} ({position} lv. {level})"
 
     def _order_lineup(self, lineup: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -170,7 +164,7 @@ class QuidditchImageService:
         return seekers[:1] + chasers[:3] + beaters[:2] + keepers[:1]
 
     def _format_score(self, score: int) -> str:
-        return " ".join(f"{score:04d}")
+        return f"{score:04d}"
 
     def _load_score_font(self, size: int):
         harry_font = self.FONT_DIR / "HARRYP__.TTF"
