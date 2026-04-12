@@ -17,6 +17,10 @@ from domain.role_registry import (
     ROLE_GROUP_AGES,
     ROLE_GROUP_CONTINENTS,
     ROLE_GROUP_PRONOUNS,
+    ROLE_KEY_QUIDDITCH_BEATER,
+    ROLE_KEY_QUIDDITCH_CHASER,
+    ROLE_KEY_QUIDDITCH_KEEPER,
+    ROLE_KEY_QUIDDITCH_SEEKER,
     role_names_for_group,
 )
 
@@ -27,7 +31,9 @@ from repositories.contribution_repository import ContributionRepository
 from repositories.patronus_repository import PatronusRepository
 from repositories.chocolate_frog_repository import ChocolateFrogRepository
 from repositories.frog_collection_repository import FrogCollectionRepository
+from repositories.quidditch_progress_repository import QuidditchProgressRepository
 from services.birthday_service import BirthdayService
+from services.role_service import RoleService
 
 
 class ProfileService:
@@ -63,11 +69,15 @@ class ProfileService:
         inventory_repo: InventoryRepository,
         contribution_repo: ContributionRepository,
         frog_collection_repo: FrogCollectionRepository,
+        role_service: RoleService,
+        quidditch_progress_repo: QuidditchProgressRepository,
     ):
         self.user_repo = user_repo
         self.inventory_repo = inventory_repo
         self.contribution_repo = contribution_repo
         self.frog_collection_repo = frog_collection_repo
+        self.role_service = role_service
+        self.quidditch_progress_repo = quidditch_progress_repo
         self.birthday_service = BirthdayService()
 
         base_dir = Path(__file__).resolve().parents[1]
@@ -104,6 +114,29 @@ class ProfileService:
             if role.name in valid_names:
                 return role.name
         return "n/a"
+
+    def _resolve_active_quidditch_position(self, member: discord.Member) -> tuple[str, int | None]:
+        role_key_to_position = {
+            ROLE_KEY_QUIDDITCH_KEEPER: "Keeper",
+            ROLE_KEY_QUIDDITCH_SEEKER: "Seeker",
+            ROLE_KEY_QUIDDITCH_BEATER: "Beater",
+            ROLE_KEY_QUIDDITCH_CHASER: "Chaser",
+        }
+
+        member_role_ids = {role.id for role in member.roles}
+
+        for role_key, display_name in role_key_to_position.items():
+            role = self.role_service.get_role(member.guild, role_key)
+            if role is None or role.id not in member_role_ids:
+                continue
+
+            progress = self.quidditch_progress_repo.get_progress(
+                member.id,
+                display_name.lower(),
+            )
+            return display_name, int(progress["level"])
+
+        return "n/a", None
 
     def _get_banner_path(self, house_name: str | None) -> Path | None:
         if not house_name:
@@ -519,7 +552,7 @@ class ProfileService:
             font=text_font,
             stroke_width=stroke_width,
         )
-        text_height = font_bbox[3] - font_bbox[1]
+        font_height = font_bbox[3] - font_bbox[1]
 
         for idx, token in enumerate(tokens):
             if token["kind"] == "text":
@@ -530,78 +563,60 @@ class ProfileService:
                     stroke_width=stroke_width,
                 )
                 token_width = bbox[2] - bbox[0]
+                token_height = bbox[3] - bbox[1]
+                text_y = y + (font_height - token_height) / 2
 
                 draw.text(
-                    (current_x + shadow_offset, y + shadow_offset),
+                    (current_x + shadow_offset, text_y + shadow_offset),
                     token["value"],
                     font=text_font,
                     fill=style["shadow"],
-                    stroke_width=0,
+                    stroke_width=stroke_width,
+                    stroke_fill=style["shadow"],
                 )
-
-                outline_offsets = [
-                    (-stroke_width, 0),
-                    (stroke_width, 0),
-                    (0, -stroke_width),
-                    (0, stroke_width),
-                    (-stroke_width, -stroke_width),
-                    (-stroke_width, stroke_width),
-                    (stroke_width, -stroke_width),
-                    (stroke_width, stroke_width),
-                ]
-
-                for dx, dy in outline_offsets:
-                    draw.text(
-                        (current_x + dx, y + dy),
-                        token["value"],
-                        font=text_font,
-                        fill=style["stroke"],
-                        stroke_width=0,
-                    )
-
                 draw.text(
-                    (current_x, y),
+                    (current_x, text_y),
                     token["value"],
                     font=text_font,
                     fill=style["fill"],
-                    stroke_width=0,
+                    stroke_width=stroke_width,
+                    stroke_fill=style["stroke"],
                 )
-                
             else:
-                token_width = emoji_size
-                emoji_img = self._get_token_image(token)
-
-                if emoji_img is not None:
-                    resized = self._resize_emoji_image(emoji_img, emoji_size)
-                    paste_x = int(round(current_x + (emoji_size - resized.width) / 2))
-                    paste_y = int(round(y + (text_height - resized.height) / 2 + stroke_width * 0.15))
-                    image.alpha_composite(resized, (paste_x, paste_y))
-                else:
-                    fallback = "□"
+                token_image = self._get_token_image(token)
+                if token_image is None:
+                    fallback_text = token["raw"]
                     bbox = draw.textbbox(
                         (0, 0),
-                        fallback,
+                        fallback_text,
                         font=text_font,
                         stroke_width=stroke_width,
                     )
-                    fallback_width = bbox[2] - bbox[0]
-                    fallback_x = current_x + (emoji_size - fallback_width) / 2
+                    token_width = bbox[2] - bbox[0]
+                    token_height = bbox[3] - bbox[1]
+                    text_y = y + (font_height - token_height) / 2
 
                     draw.text(
-                        (fallback_x + shadow_offset, y + shadow_offset),
-                        fallback,
+                        (current_x + shadow_offset, text_y + shadow_offset),
+                        fallback_text,
                         font=text_font,
                         fill=style["shadow"],
-                        stroke_width=0,
+                        stroke_width=stroke_width,
+                        stroke_fill=style["shadow"],
                     )
                     draw.text(
-                        (fallback_x, y),
-                        fallback,
+                        (current_x, text_y),
+                        fallback_text,
                         font=text_font,
                         fill=style["fill"],
                         stroke_width=stroke_width,
                         stroke_fill=style["stroke"],
                     )
+                else:
+                    resized = self._resize_emoji_image(token_image, emoji_size)
+                    token_width, token_height = resized.size
+                    token_y = y + (font_height - token_height) / 2
+                    image.alpha_composite(resized, (int(round(current_x)), int(round(token_y))))
 
             current_x += token_width
             if idx < len(tokens) - 1:
@@ -613,44 +628,37 @@ class ProfileService:
         display_name: str,
     ) -> discord.File | None:
         banner_path = self._get_banner_path(house_name)
-        if banner_path is None or not banner_path.exists():
+        if banner_path is None:
             return None
 
-        image = Image.open(banner_path).convert("RGBA")
-        draw = ImageDraw.Draw(image)
+        try:
+            image = Image.open(banner_path).convert("RGBA")
+        except Exception:
+            return None
 
+        draw = ImageDraw.Draw(image)
+        width, height = image.size
         style = self.HOUSE_BANNER_TEXT_STYLES.get(
             house_name or "",
             {
                 "fill": (255, 255, 255, 255),
                 "stroke": (0, 0, 0, 255),
-                "shadow": (0, 0, 0, 170),
+                "shadow": (0, 0, 0, 180),
             },
         )
 
-        raw_text = display_name.strip() if display_name.strip() else "Unknown Wizard"
-        tokens = self._tokenize_banner_text(raw_text)
-
+        tokens = self._tokenize_banner_text(display_name)
         if not tokens:
-            tokens = [{"kind": "text", "raw": "Unknown Wizard", "value": "Unknown Wizard"}]
+            tokens = [{"kind": "text", "raw": display_name, "value": display_name}]
 
-        width, height = image.size
-
-        text_area_left = int(width * 0.14)
-        text_area_right = int(width * 0.86)
-        text_area_top = int(height * 0.28)
-        text_area_bottom = int(height * 0.78)
-
-        max_text_width = text_area_right - text_area_left
-        max_text_height = text_area_bottom - text_area_top
+        max_text_width = int(width * 0.78)
+        max_text_height = int(height * 0.30)
 
         font, stroke_width, emoji_size, emoji_gap = self._fit_banner_layout(
             draw=draw,
             tokens=tokens,
             max_width=max_text_width,
             max_height=max_text_height,
-            max_font_size=min(200, int(height * 0.27)),
-            min_font_size=30,
         )
 
         total_width, total_height = self._measure_banner_tokens(
@@ -662,11 +670,9 @@ class ProfileService:
             emoji_gap=emoji_gap,
         )
 
-        approx_size = getattr(font, "size", 48)
-        shadow_offset = max(2, approx_size // 20)
-
         x = (width - total_width) / 2
-        y = ((text_area_top + text_area_bottom) / 2 - total_height / 2) + 75
+        y = height * 0.61 - total_height / 2
+        shadow_offset = max(2, stroke_width)
 
         self._draw_banner_tokens(
             image=image,
@@ -696,6 +702,7 @@ class ProfileService:
         role_ctx: MemberRoleContext,
     ) -> tuple[list[discord.Embed], list[discord.File]]:
         self.user_repo.ensure_user(member.id)
+        self.quidditch_progress_repo.ensure_user_positions(member.id)
 
         user_row = self.user_repo.get_user(member.id)
 
@@ -724,6 +731,12 @@ class ProfileService:
         continent_text = self._resolve_continent_text(member)
         age_text = self._resolve_age_text(member)
         bio_text = user_row["bio"].strip() if user_row["bio"] else "No bio set."
+        quidditch_position, quidditch_level = self._resolve_active_quidditch_position(member)
+
+        if quidditch_level is None:
+            quidditch_text = quidditch_position
+        else:
+            quidditch_text = f"{quidditch_position} (Lv. {quidditch_level})"
 
         birth_day, birth_month = self.user_repo.get_birthday(member.id)
         if birth_day and birth_month:
@@ -772,6 +785,8 @@ class ProfileService:
         else:
             banner_embed.title = f"{member.display_name}'s Profile"
 
+        banner_embed.set_footer(text=HOGWARTS_CREST_EMOJI)
+
         profile_embed = discord.Embed(color=color)
         profile_embed.set_thumbnail(url=member.display_avatar.url)
 
@@ -781,7 +796,8 @@ class ProfileService:
                 f"**Name:** {member.display_name}\n"
                 f"**Patronus:** {patronus_name}\n"
                 f"**School Year:** {current_level}\n"
-                f"**Pronouns:** {pronouns}"
+                f"**Pronouns:** {pronouns}\n"
+                f"**Quidditch:** {quidditch_text}"
             ),
             inline=True,
         )
@@ -795,7 +811,7 @@ class ProfileService:
             ),
             inline=True,
         )
-        
+
         profile_embed.add_field(
             name="🏰 __Hogwarts Progress__",
             value=(

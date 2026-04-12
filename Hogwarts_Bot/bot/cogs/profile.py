@@ -18,6 +18,7 @@ from domain.role_registry import (
     zodiac_role_key_for_sign,
 )
 from repositories.guild_role_repository import GuildRoleRepository
+from repositories.quidditch_progress_repository import QuidditchProgressRepository
 from services.role_service import RoleService
 from domain.role_context import MemberRoleContext
 from repositories.user_repository import UserRepository
@@ -103,19 +104,26 @@ class ProfileCog(commands.Cog):
             contribution_repo = ContributionRepository(conn)
             frog_collection_repo = FrogCollectionRepository(conn)
             role_snapshot_repo = RoleSnapshotRepository(conn)
+            role_repo = GuildRoleRepository(conn)
+            quidditch_progress_repo = QuidditchProgressRepository(conn)
 
             user_repo.ensure_user(target.id)
+            quidditch_progress_repo.ensure_user_positions(target.id)
 
             role_snapshot_repo.replace_user_roles(
                 target.id,
                 [(role.id, role.name) for role in target.roles if not role.is_default()],
             )
 
+            role_service = RoleService(role_repo)
+
             profile_service = ProfileService(
                 user_repo=user_repo,
                 inventory_repo=inventory_repo,
                 contribution_repo=contribution_repo,
                 frog_collection_repo=frog_collection_repo,
+                role_service=role_service,
+                quidditch_progress_repo=quidditch_progress_repo,
             )
 
             embeds, files = profile_service.build_profile_message(target, role_ctx)
@@ -346,6 +354,7 @@ class ProfileCog(commands.Cog):
             f"Your pronouns have been updated to **{new_role.name}**.",
             ephemeral=True,
         )
+
     @app_commands.command(
         name="set_age",
         description="Set your age range role.",
@@ -430,9 +439,6 @@ class ProfileCog(commands.Cog):
             f"Your age range has been updated to **{new_role.name}**.",
             ephemeral=True,
         )
-
-
-
 
     @app_commands.command(
         name="set_continent",
