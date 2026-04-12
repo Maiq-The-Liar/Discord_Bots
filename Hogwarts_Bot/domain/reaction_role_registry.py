@@ -13,11 +13,16 @@ from domain.role_registry import (
     ROLE_GROUP_HOUSE_COLOR_SLYTHERIN,
     ROLE_GROUP_PINGS,
     ROLE_GROUP_PRONOUNS,
+    ROLE_GROUP_QUIDDITCH_POSITIONS,
     ROLE_GROUP_RELATIONSHIP,
     ROLE_GROUP_SEXUALITY,
     ROLE_KEY_CHAT_REVIVE,
     ROLE_KEY_DUEL_PING,
     ROLE_KEY_EVENT_PING,
+    ROLE_KEY_QUIDDITCH_BEATER,
+    ROLE_KEY_QUIDDITCH_CHASER,
+    ROLE_KEY_QUIDDITCH_KEEPER,
+    ROLE_KEY_QUIDDITCH_SEEKER,
 )
 
 
@@ -92,6 +97,13 @@ SEXUALITY_EMOJIS = {
     "heterosexual": 1491503089864278016,
     "Abrosexual": 1491503088278966323,
     "Polyamorus": 1491503086613565511,
+}
+
+QUIDDITCH_POSITION_EMOJIS = {
+    "beater": 1492902486607134972,
+    "seeker": 1492902484849459272,
+    "chaser": 1492902482710495332,
+    "keeper": 1492902481003417804,
 }
 
 REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
@@ -206,6 +218,34 @@ REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
             ReactionRoleOption("dm_open", emoji_unicode="📬"),
             ReactionRoleOption("dm_closed", emoji_unicode="🔒"),
             ReactionRoleOption("dm_ask", emoji_unicode="❓"),
+        ),
+    ),
+    ReactionRoleGroup(
+        key="quidditch_positions",
+        role_group=ROLE_GROUP_QUIDDITCH_POSITIONS,
+        multi_select=False,
+        banner_filename="Quidditch_Position.png",
+        options=(
+            ReactionRoleOption(
+                ROLE_KEY_QUIDDITCH_KEEPER,
+                "keeper",
+                QUIDDITCH_POSITION_EMOJIS["keeper"],
+            ),
+            ReactionRoleOption(
+                ROLE_KEY_QUIDDITCH_SEEKER,
+                "seeker",
+                QUIDDITCH_POSITION_EMOJIS["seeker"],
+            ),
+            ReactionRoleOption(
+                ROLE_KEY_QUIDDITCH_BEATER,
+                "beater",
+                QUIDDITCH_POSITION_EMOJIS["beater"],
+            ),
+            ReactionRoleOption(
+                ROLE_KEY_QUIDDITCH_CHASER,
+                "chaser",
+                QUIDDITCH_POSITION_EMOJIS["chaser"],
+            ),
         ),
     ),
     ReactionRoleGroup(

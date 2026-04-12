@@ -25,6 +25,7 @@ ROLE_GROUP_SEXUALITY = "sexuality"
 ROLE_GROUP_PINGS = "pings"
 ROLE_GROUP_DM = "dm"
 ROLE_GROUP_RELATIONSHIP = "relationship"
+ROLE_GROUP_QUIDDITCH_POSITIONS = "quidditch_positions"
 
 ROLE_GROUP_HOUSE = "house"
 ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR = "house_colors_gryffindor"
@@ -36,6 +37,11 @@ ROLE_KEY_HOUSE_GRYFFINDOR = "house_gryffindor"
 ROLE_KEY_HOUSE_HUFFLEPUFF = "house_hufflepuff"
 ROLE_KEY_HOUSE_RAVENCLAW = "house_ravenclaw"
 ROLE_KEY_HOUSE_SLYTHERIN = "house_slytherin"
+
+ROLE_KEY_QUIDDITCH_KEEPER = "quidditch_keeper"
+ROLE_KEY_QUIDDITCH_SEEKER = "quidditch_seeker"
+ROLE_KEY_QUIDDITCH_BEATER = "quidditch_beater"
+ROLE_KEY_QUIDDITCH_CHASER = "quidditch_chaser"
 
 HOUSE_NAMES = ["Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin"]
 HOUSE_ROLE_KEYS_BY_NAME: dict[str, str] = {
@@ -250,6 +256,35 @@ def _build_role_definitions() -> list[ManagedRoleDefinition]:
 
     defs.extend(
         [
+            ManagedRoleDefinition(
+                ROLE_KEY_QUIDDITCH_KEEPER,
+                "Keeper",
+                0x8B5E3C,
+                ROLE_GROUP_QUIDDITCH_POSITIONS,
+            ),
+            ManagedRoleDefinition(
+                ROLE_KEY_QUIDDITCH_SEEKER,
+                "Seeker",
+                0xD4AF37,
+                ROLE_GROUP_QUIDDITCH_POSITIONS,
+            ),
+            ManagedRoleDefinition(
+                ROLE_KEY_QUIDDITCH_BEATER,
+                "Beater",
+                0x6B4F3A,
+                ROLE_GROUP_QUIDDITCH_POSITIONS,
+            ),
+            ManagedRoleDefinition(
+                ROLE_KEY_QUIDDITCH_CHASER,
+                "Chaser",
+                0xA05A2C,
+                ROLE_GROUP_QUIDDITCH_POSITIONS,
+            ),
+        ]
+    )
+
+    defs.extend(
+        [
             ManagedRoleDefinition(ROLE_KEY_HOUSE_GRYFFINDOR, "Gryffindor", 0xD02126, ROLE_GROUP_HOUSE, hoist=True),
             ManagedRoleDefinition(ROLE_KEY_HOUSE_HUFFLEPUFF, "Hufflepuff", 0xE0B426, ROLE_GROUP_HOUSE, hoist=True),
             ManagedRoleDefinition(ROLE_KEY_HOUSE_RAVENCLAW, "Ravenclaw", 0x0178A3, ROLE_GROUP_HOUSE, hoist=True),
@@ -354,6 +389,7 @@ def zodiac_role_key_for_sign(sign: str) -> str:
 
 def year_role_key_for_level(level: int) -> str:
     return YEAR_ROLE_KEYS_BY_LEVEL[level]
+
 
 def house_role_key_for_name(house_name: str) -> str:
     return HOUSE_ROLE_KEYS_BY_NAME[house_name]
