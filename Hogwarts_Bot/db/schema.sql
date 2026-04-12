@@ -268,6 +268,35 @@ CREATE TABLE IF NOT EXISTS quidditch_test_matches (
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS quidditch_match_runtime_state (
+    match_scope TEXT NOT NULL,
+    match_id INTEGER NOT NULL,
+    state_json TEXT NOT NULL DEFAULT '{}',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (match_scope, match_id)
+);
+
+CREATE TABLE IF NOT EXISTS quidditch_house_position_rotation (
+    guild_id INTEGER NOT NULL,
+    house_name TEXT NOT NULL,
+    position_key TEXT NOT NULL,
+    cycle_json TEXT NOT NULL DEFAULT '[]',
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (guild_id, house_name, position_key)
+);
+
+CREATE TABLE IF NOT EXISTS quidditch_match_cheers (
+    match_scope TEXT NOT NULL,
+    match_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    cheering_house TEXT NOT NULL,
+    last_cheered_at TEXT NOT NULL,
+    cheer_count INTEGER NOT NULL DEFAULT 1,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (match_scope, match_id, user_id)
+);
+
 
 CREATE INDEX IF NOT EXISTS idx_media_posts_open_by_channel
 ON media_posts(channel_id, author_user_id, is_closed);
@@ -304,3 +333,12 @@ ON quidditch_house_standings(season_id, house_name);
 
 CREATE INDEX IF NOT EXISTS idx_quidditch_test_matches_guild_status
 ON quidditch_test_matches(guild_id, status, started_at);
+
+CREATE INDEX IF NOT EXISTS idx_quidditch_runtime_scope
+ON quidditch_match_runtime_state(match_scope, match_id);
+
+CREATE INDEX IF NOT EXISTS idx_quidditch_rotation_guild
+ON quidditch_house_position_rotation(guild_id, house_name, position_key);
+
+CREATE INDEX IF NOT EXISTS idx_quidditch_cheers_match
+ON quidditch_match_cheers(match_scope, match_id, cheering_house);

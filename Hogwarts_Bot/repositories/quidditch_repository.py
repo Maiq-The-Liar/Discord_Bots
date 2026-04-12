@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import random
 import sqlite3
-
+from datetime import datetime
 
 class QuidditchRepository:
     HOUSES = ("Slytherin", "Ravenclaw", "Hufflepuff", "Gryffindor")
@@ -526,3 +526,326 @@ class QuidditchRepository:
         home = random.choice(houses)
         away = random.choice([h for h in houses if h != home])
         return home, away
+
+
+    def get_runtime_state(self, match_scope: str, match_id: int) -> dict | None:
+        row = self.conn.execute(
+            """
+            SELECT state_json
+            FROM quidditch_match_runtime_state
+            WHERE match_scope = ? AND match_id = ?
+            """,
+            (match_scope, match_id),
+        ).fetchone()
+        if row is None:
+            return None
+        try:
+            return json.loads(str(row["state_json"]))
+        except json.JSONDecodeError:
+            return None
+
+    def upsert_runtime_state(
+        self,
+        match_scope: str,
+        match_id: int,
+        state: dict,
+    ) -> None:
+        self.conn.execute(
+            """
+            INSERT INTO quidditch_match_runtime_state (
+                match_scope,
+                match_id,
+                state_json,
+                updated_at
+            )
+            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(match_scope, match_id) DO UPDATE SET
+                state_json = excluded.state_json,
+                updated_at = CURRENT_TIMESTAMP
+            """,
+            (match_scope, match_id, json.dumps(state)),
+        )
+
+    def delete_runtime_state(self, match_scope: str, match_id: int) -> None:
+        self.conn.execute(
+            """
+            DELETE FROM quidditch_match_runtime_state
+            WHERE match_scope = ? AND match_id = ?
+            """,
+            (match_scope, match_id),
+        )
+
+    def get_rotation_cycle(
+        self,
+        guild_id: int,
+        house_name: str,
+        position_key: str,
+    ) -> list[int]:
+        row = self.conn.execute(
+            """
+            SELECT cycle_json
+            FROM quidditch_house_position_rotation
+            WHERE guild_id = ? AND house_name = ? AND position_key = ?
+            """,
+            (guild_id, house_name, position_key),
+        ).fetchone()
+        if row is None:
+            return []
+        try:
+            raw = json.loads(str(row["cycle_json"]))
+            return [int(value) for value in raw]
+        except (TypeError, ValueError, json.JSONDecodeError):
+            return []
+
+    def save_rotation_cycle(
+        self,
+        guild_id: int,
+        house_name: str,
+        position_key: str,
+        cycle_user_ids: list[int],
+    ) -> None:
+        self.conn.execute(
+            """
+            INSERT INTO quidditch_house_position_rotation (
+                guild_id,
+                house_name,
+                position_key,
+                cycle_json,
+                updated_at
+            )
+            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(guild_id, house_name, position_key) DO UPDATE SET
+                cycle_json = excluded.cycle_json,
+                updated_at = CURRENT_TIMESTAMP
+            """,
+            (guild_id, house_name, position_key, json.dumps(cycle_user_ids)),
+        )
+
+    def clear_rotation_cycle(
+        self,
+        guild_id: int,
+        house_name: str,
+        position_key: str,
+    ) -> None:
+        self.conn.execute(
+            """
+            DELETE FROM quidditch_house_position_rotation
+            WHERE guild_id = ? AND house_name = ? AND position_key = ?
+            """,
+            (guild_id, house_name, position_key),
+        )
+
+    def get_user_cheer(
+        self,
+        match_scope: str,
+        match_id: int,
+        user_id: int,
+    ) -> sqlite3.Row | None:
+        return self.conn.execute(
+            """
+            SELECT *
+            FROM quidditch_match_cheers
+            WHERE match_scope = ? AND match_id = ? AND user_id = ?
+            """,
+            (match_scope, match_id, user_id),
+        ).fetchone()
+
+    def record_cheer(
+        self,
+        match_scope: str,
+        match_id: int,
+        user_id: int,
+        cheering_house: str,
+        cheered_at_iso: str,
+    ) -> None:
+        existing = self.get_user_cheer(match_scope, match_id, user_id)
+        if existing is None:
+            self.conn.execute(
+                """
+                INSERT INTO quidditch_match_cheers (
+                    match_scope,
+                    match_id,
+                    user_id,
+                    cheering_house,
+                    last_cheered_at,
+                    cheer_count,
+                    updated_at
+                )
+                VALUES (?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP)
+                """,
+                (match_scope, match_id, user_id, cheering_house, cheered_at_iso),
+            )
+            return
+
+        self.conn.execute(
+            """
+            UPDATE quidditch_match_cheers
+            SET cheering_house = ?,
+                last_cheered_at = ?,
+                cheer_count = cheer_count + 1,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE match_scope = ? AND match_id = ? AND user_id = ?
+            """,
+            (cheering_house, cheered_at_iso, match_scope, match_id, user_id),
+        )
+
+    def clear_match_cheers(self, match_scope: str, match_id: int) -> None:
+        self.conn.execute(
+            """
+            DELETE FROM quidditch_match_cheers
+            WHERE match_scope = ? AND match_id = ?
+            """,
+            (match_scope, match_id),
+        )
+
+    def get_cheer_totals(self, match_scope: str, match_id: int) -> dict[str, int]:
+        rows = self.conn.execute(
+            """
+            SELECT cheering_house, COUNT(*) AS cheerers
+            FROM quidditch_match_cheers
+            WHERE match_scope = ? AND match_id = ?
+            GROUP BY cheering_house
+            """,
+            (match_scope, match_id),
+        ).fetchall()
+        return {str(row["cheering_house"]): int(row["cheerers"]) for row in rows}
+
+    def get_all_active_test_matches(self) -> list[sqlite3.Row]:
+        rows = self.conn.execute(
+            """
+            SELECT *
+            FROM quidditch_test_matches
+            WHERE status = 'active'
+            ORDER BY started_at ASC, id ASC
+            """
+        ).fetchall()
+        return list(rows)
+
+    def get_all_active_fixtures(self) -> list[sqlite3.Row]:
+        rows = self.conn.execute(
+            """
+            SELECT *
+            FROM quidditch_fixtures
+            WHERE status = 'active'
+            ORDER BY starts_at ASC, id ASC
+            """
+        ).fetchall()
+        return list(rows)
+
+    def append_live_match_log(
+        self,
+        fixture_id: int,
+        log_line: str,
+    ) -> list[str]:
+        state = self.get_live_match_state(fixture_id)
+        entries: list[str] = []
+        if state is not None:
+            try:
+                entries = json.loads(str(state["log_json"]))
+            except json.JSONDecodeError:
+                entries = []
+
+        entries.append(log_line)
+
+        self.conn.execute(
+            """
+            UPDATE quidditch_live_match_state
+            SET log_json = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE fixture_id = ?
+            """,
+            (json.dumps(entries), fixture_id),
+        )
+        return entries
+
+    def replace_live_match_log(
+        self,
+        fixture_id: int,
+        log_entries: list[str],
+    ) -> None:
+        self.conn.execute(
+            """
+            UPDATE quidditch_live_match_state
+            SET log_json = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE fixture_id = ?
+            """,
+            (json.dumps(log_entries), fixture_id),
+        )
+
+    def replace_test_match_log(
+        self,
+        test_match_id: int,
+        log_entries: list[str],
+    ) -> None:
+        self.conn.execute(
+            """
+            UPDATE quidditch_test_matches
+            SET log_json = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """,
+            (json.dumps(log_entries), test_match_id),
+        )
+
+    def set_test_match_image_path(
+        self,
+        test_match_id: int,
+        image_path: str | None,
+    ) -> None:
+        self.conn.execute(
+            """
+            UPDATE quidditch_test_matches
+            SET image_path = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """,
+            (image_path, test_match_id),
+        )
+
+    def set_live_match_image_path(
+        self,
+        fixture_id: int,
+        image_path: str | None,
+    ) -> None:
+        self.conn.execute(
+            """
+            UPDATE quidditch_live_match_state
+            SET image_path = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE fixture_id = ?
+            """,
+            (image_path, fixture_id),
+        )
+
+    def update_test_match_message(
+        self,
+        test_match_id: int,
+        *,
+        channel_id: int | None,
+        message_id: int | None,
+    ) -> None:
+        self.conn.execute(
+            """
+            UPDATE quidditch_test_matches
+            SET channel_id = ?, message_id = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """,
+            (channel_id, message_id, test_match_id),
+        )
+
+    def can_user_cheer_again(
+        self,
+        match_scope: str,
+        match_id: int,
+        user_id: int,
+        now: datetime,
+        *,
+        cooldown_minutes: int = 20,
+    ) -> bool:
+        existing = self.get_user_cheer(match_scope, match_id, user_id)
+        if existing is None:
+            return True
+
+        try:
+            last_cheered_at = datetime.fromisoformat(str(existing["last_cheered_at"]))
+        except ValueError:
+            return True
+
+        elapsed = now - last_cheered_at
+        return elapsed.total_seconds() >= cooldown_minutes * 60

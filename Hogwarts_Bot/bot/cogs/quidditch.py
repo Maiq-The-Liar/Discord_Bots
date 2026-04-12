@@ -6,6 +6,7 @@ from discord.ext import commands
 
 from db.database import Database
 from repositories.quidditch_repository import QuidditchRepository
+from services.quidditch_image_service import QuidditchImageService
 from services.quidditch_service import QuidditchService
 
 
@@ -363,6 +364,63 @@ class QuidditchCog(commands.Cog):
 
         await interaction.response.send_message(
             f"Unofficial Quidditch test game created in {match_channel.mention}.",
+            ephemeral=True,
+        )
+
+    @app_commands.command(
+        name="quidditch_test_pitch",
+        description="Admin: render a demo Quidditch pitch image with mock players and custom scores.",
+    )
+    async def quidditch_test_pitch(
+        self,
+        interaction: discord.Interaction,
+        score_team1: app_commands.Range[int, 0, 9999],
+        score_team2: app_commands.Range[int, 0, 9999],
+    ) -> None:
+        if not self.is_admin(interaction):
+            await interaction.response.send_message(
+                "You do not have permission to use this command.",
+                ephemeral=True,
+            )
+            return
+
+        if interaction.guild is None:
+            await interaction.response.send_message(
+                "This command can only be used in a server.",
+                ephemeral=True,
+            )
+            return
+
+        image_service = QuidditchImageService()
+        home_house = "Gryffindor"
+        away_house = "Ravenclaw"
+
+        home_lineup = image_service.build_demo_lineup(home_house)
+        away_lineup = image_service.build_demo_lineup(away_house)
+
+        image_path = image_service.render_match_image(
+            home_house=home_house,
+            away_house=away_house,
+            home_score=score_team1,
+            away_score=score_team2,
+            home_lineup=home_lineup,
+            away_lineup=away_lineup,
+        )
+
+        embed = discord.Embed(
+            title="🧪 Quidditch Pitch Render Test",
+            description=(
+                f"**{home_house} vs {away_house}**\n"
+                f"Rendered with mock/demo lineups for layout tuning.\n"
+                f"Score preview: **{score_team1:04d} – {score_team2:04d}**"
+            ),
+            color=0x5865F2,
+        )
+        embed.set_image(url="attachment://quidditch_test_pitch.png")
+
+        await interaction.response.send_message(
+            embed=embed,
+            file=discord.File(str(image_path), filename="quidditch_test_pitch.png"),
             ephemeral=True,
         )
 
