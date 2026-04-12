@@ -2,382 +2,381 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from domain.role_registry import (
-    ROLE_GROUP_AGES,
-    ROLE_GROUP_CONTINENTS,
-    ROLE_GROUP_DM,
-    ROLE_GROUP_GENDER_IDENTITY,
-    ROLE_GROUP_HOUSE,
-    ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR,
-    ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF,
-    ROLE_GROUP_HOUSE_COLOR_RAVENCLAW,
-    ROLE_GROUP_HOUSE_COLOR_SLYTHERIN,
-    ROLE_GROUP_PINGS,
-    ROLE_GROUP_PRONOUNS,
-    ROLE_GROUP_QUIDDITCH_POSITIONS,
-    ROLE_GROUP_RELATIONSHIP,
-    ROLE_GROUP_SEXUALITY,
-    ROLE_KEY_CHAT_REVIVE,
-    ROLE_KEY_DUEL_PING,
-    ROLE_KEY_EVENT_PING,
-    ROLE_KEY_HOUSE_GRYFFINDOR,
-    ROLE_KEY_HOUSE_HUFFLEPUFF,
-    ROLE_KEY_HOUSE_RAVENCLAW,
-    ROLE_KEY_HOUSE_SLYTHERIN,
-    ROLE_KEY_QUIDDITCH_BEATER,
-    ROLE_KEY_QUIDDITCH_CHASER,
-    ROLE_KEY_QUIDDITCH_KEEPER,
-    ROLE_KEY_QUIDDITCH_SEEKER,
-)
-
 
 @dataclass(frozen=True)
-class ReactionRoleOption:
-    role_key: str
-    emoji_name: str | None = None
-    emoji_id: int | None = None
-    emoji_unicode: str | None = None
-    emoji_animated: bool = False
-
-
-@dataclass(frozen=True)
-class ReactionRoleGroup:
+class ManagedRoleDefinition:
     key: str
-    role_group: str
-    multi_select: bool
-    banner_filename: str
-    options: tuple[ReactionRoleOption, ...]
-    house_name: str | None = None
+    name: str
+    color: int
+    group: str
+    mentionable: bool = False
+    hoist: bool = False
 
 
-AGE_VERIFY_EMOJIS = {
-    "redverify": 1491469046074577110,
-    "orangeverify": 1491469032350679261,
-    "yellowverify": 1491469020384460992,
-    "greenverify": 1491468987228491957,
-    "blueverify": 1491468956207284264,
-    "purpleverify": 1491468937718665358,
-    "blackverified": 1491536921170804878,
+ROLE_GROUP_YEARS = "years"
+ROLE_GROUP_ZODIAC = "zodiac"
+ROLE_GROUP_SYSTEM = "system"
+
+ROLE_GROUP_AGES = "ages"
+ROLE_GROUP_PRONOUNS = "pronouns"
+ROLE_GROUP_GENDER_IDENTITY = "gender_identity"
+ROLE_GROUP_CONTINENTS = "continents"
+ROLE_GROUP_SEXUALITY = "sexuality"
+ROLE_GROUP_PINGS = "pings"
+ROLE_GROUP_DM = "dm"
+ROLE_GROUP_RELATIONSHIP = "relationship"
+ROLE_GROUP_QUIDDITCH_POSITIONS = "quidditch_positions"
+
+ROLE_GROUP_HOUSE = "house"
+ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR = "house_colors_gryffindor"
+ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF = "house_colors_hufflepuff"
+ROLE_GROUP_HOUSE_COLOR_RAVENCLAW = "house_colors_ravenclaw"
+ROLE_GROUP_HOUSE_COLOR_SLYTHERIN = "house_colors_slytherin"
+
+ROLE_KEY_HOUSE_GRYFFINDOR = "house_gryffindor"
+ROLE_KEY_HOUSE_HUFFLEPUFF = "house_hufflepuff"
+ROLE_KEY_HOUSE_RAVENCLAW = "house_ravenclaw"
+ROLE_KEY_HOUSE_SLYTHERIN = "house_slytherin"
+
+ROLE_KEY_QUIDDITCH_KEEPER = "quidditch_keeper"
+ROLE_KEY_QUIDDITCH_SEEKER = "quidditch_seeker"
+ROLE_KEY_QUIDDITCH_BEATER = "quidditch_beater"
+ROLE_KEY_QUIDDITCH_CHASER = "quidditch_chaser"
+
+ROLE_KEY_BIRTHDAY = "birthday"
+ROLE_KEY_DUEL_PING = "duel_ping"
+ROLE_KEY_EVENT_PING = "event_ping"
+ROLE_KEY_CHAT_REVIVE = "chat_revive"
+ROLE_KEY_DUELLING = "duelling"
+
+HOUSE_NAMES = ["Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin"]
+
+HOUSE_ROLE_KEYS_BY_NAME: dict[str, str] = {
+    "Gryffindor": ROLE_KEY_HOUSE_GRYFFINDOR,
+    "Hufflepuff": ROLE_KEY_HOUSE_HUFFLEPUFF,
+    "Ravenclaw": ROLE_KEY_HOUSE_RAVENCLAW,
+    "Slytherin": ROLE_KEY_HOUSE_SLYTHERIN,
 }
 
-CONTINENT_EMOJIS = {
-    "europe": 1491428638107635792,
-    "asia": 1491428636040105994,
-    "northamerica": 1491428628032913531,
-    "africa": 1491428632202055843,
-    "southamerica": 1491428634265911428,
-    "oceania": 1491428629995852026,
-    "antarctica": 1491428626288214056,
+HOUSE_ROLE_NAMES_BY_KEY: dict[str, str] = {
+    value: key for key, value in HOUSE_ROLE_KEYS_BY_NAME.items()
 }
 
-PRONOUN_EMOJIS = {
-    "they_them": 1491531137603076217,
-    "shethem": 1491531031570944222,
-    "hethem": 1491531029356347523,
-    "she_her": 1491531024541155430,
-    "he_him": 1491531022548860938,
-    "ask": 1491532075273027827,
+HOUSE_COLOR_GROUP_BY_NAME: dict[str, str] = {
+    "Gryffindor": ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR,
+    "Hufflepuff": ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF,
+    "Ravenclaw": ROLE_GROUP_HOUSE_COLOR_RAVENCLAW,
+    "Slytherin": ROLE_GROUP_HOUSE_COLOR_SLYTHERIN,
 }
 
-GENDER_IDENTITY_EMOJIS = {
-    "nonbinary": 1491498356525240380,
-    "demigender": 1491498355216482324,
-    "genderfluid": 1491498353761063184,
-    "bigender": 1491498352590848070,
-    "female": 1491498351294677192,
-    "transgender": 1491498349935984830,
-    "male": 1491498348467851354,
+YEAR_ROLE_KEYS_BY_LEVEL: dict[int, str] = {
+    1: "year_1",
+    2: "year_2",
+    3: "year_3",
+    4: "year_4",
+    5: "year_5",
+    6: "year_6",
+    7: "year_7",
 }
 
-SEXUALITY_EMOJIS = {
-    "bisexual": 1491503728128295135,
-    "demiromantic": 1491503475874595030,
-    "aromantic": 1491503473831972875,
-    "lesbian": 1491503108591980596,
-    "gay": 1491503106939420935,
-    "pansexual": 1491503104947126272,
-    "omnisexual": 1491503094314569920,
-    "asexual": 1491503092984840272,
-    "demisexual": 1491503091541872660,
-    "heterosexual": 1491503089864278016,
-    "abrosexual": 1491503088278966323,
-    "polyamorous": 1491503086613565511,
+YEAR_ROLE_NAMES_BY_LEVEL: dict[int, str] = {
+    1: "1st Year",
+    2: "2nd Year",
+    3: "3rd Year",
+    4: "4th Year",
+    5: "5th Year",
+    6: "6th Year",
+    7: "7th Year",
 }
 
-QUIDDITCH_POSITION_EMOJIS = {
-    "beater": 1492902486607134972,
-    "seeker": 1492902484849459272,
-    "chaser": 1492902482710495332,
-    "keeper": 1492902481003417804,
+ZODIAC_ROLE_KEYS_BY_SIGN: dict[str, str] = {
+    "Aries": "zodiac_aries",
+    "Taurus": "zodiac_taurus",
+    "Gemini": "zodiac_gemini",
+    "Cancer": "zodiac_cancer",
+    "Leo": "zodiac_leo",
+    "Virgo": "zodiac_virgo",
+    "Libra": "zodiac_libra",
+    "Scorpio": "zodiac_scorpio",
+    "Sagittarius": "zodiac_sagittarius",
+    "Capricorn": "zodiac_capricorn",
+    "Aquarius": "zodiac_aquarius",
+    "Pisces": "zodiac_pisces",
+}
+
+PRONOUN_CHOICE_TO_ROLE_KEY: dict[str, str] = {
+    "she_her": "pronouns_she_her",
+    "she_they": "pronouns_she_they",
+    "he_him": "pronouns_he_him",
+    "he_they": "pronouns_he_they",
+    "they_them": "pronouns_they_them",
+    "ask_pronouns": "pronouns_ask",
+}
+
+AGE_CHOICE_TO_ROLE_KEY: dict[str, str] = {
+    "below_21": "age_below_21",
+    "21_25": "age_21_25",
+    "26_30": "age_26_30",
+    "31_35": "age_31_35",
+    "36_40": "age_36_40",
+    "41_45": "age_41_45",
+    "46_plus": "age_46_plus",
+}
+
+CONTINENT_CHOICE_TO_ROLE_KEY: dict[str, str] = {
+    "africa": "continent_africa",
+    "antarctica": "continent_antarctica",
+    "asia": "continent_asia",
+    "australia_oceania": "continent_australia_oceania",
+    "europe": "continent_europe",
+    "north_america": "continent_north_america",
+    "south_america": "continent_south_america",
 }
 
 
-REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
-    ReactionRoleGroup(
-        key="gryffindor_colors",
-        role_group=ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR,
-        multi_select=False,
-        banner_filename="gryffindor_colours.png",
-        house_name="Gryffindor",
-        options=(
-            ReactionRoleOption("gryff_color_crimson", emoji_unicode="1️⃣"),
-            ReactionRoleOption("gryff_color_scarlet", emoji_unicode="2️⃣"),
-            ReactionRoleOption("gryff_color_ember", emoji_unicode="3️⃣"),
-            ReactionRoleOption("gryff_color_ruby", emoji_unicode="4️⃣"),
-            ReactionRoleOption("gryff_color_garnet", emoji_unicode="5️⃣"),
-            ReactionRoleOption("gryff_color_burgundy", emoji_unicode="6️⃣"),
-            ReactionRoleOption("gryff_color_wine", emoji_unicode="7️⃣"),
-            ReactionRoleOption("gryff_color_rosewood", emoji_unicode="8️⃣"),
-            ReactionRoleOption("gryff_color_brick", emoji_unicode="9️⃣"),
-            ReactionRoleOption("gryff_color_phoenix", emoji_unicode="🔟"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="gryffindor_house",
-        role_group=ROLE_GROUP_HOUSE,
-        multi_select=False,
-        banner_filename="gryffindor_colours.png",
-        house_name="Gryffindor",
-        options=(
-            ReactionRoleOption(ROLE_KEY_HOUSE_GRYFFINDOR, emoji_unicode="🦁"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="hufflepuff_colors",
-        role_group=ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF,
-        multi_select=False,
-        banner_filename="hufflepuff_colours.png",
-        house_name="Hufflepuff",
-        options=(
-            ReactionRoleOption("huff_color_gold", emoji_unicode="1️⃣"),
-            ReactionRoleOption("huff_color_honey", emoji_unicode="2️⃣"),
-            ReactionRoleOption("huff_color_amber", emoji_unicode="3️⃣"),
-            ReactionRoleOption("huff_color_mustard", emoji_unicode="4️⃣"),
-            ReactionRoleOption("huff_color_saffron", emoji_unicode="5️⃣"),
-            ReactionRoleOption("huff_color_sunburst", emoji_unicode="6️⃣"),
-            ReactionRoleOption("huff_color_wheat", emoji_unicode="7️⃣"),
-            ReactionRoleOption("huff_color_butter", emoji_unicode="8️⃣"),
-            ReactionRoleOption("huff_color_bronze", emoji_unicode="9️⃣"),
-            ReactionRoleOption("huff_color_caramel", emoji_unicode="🔟"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="hufflepuff_house",
-        role_group=ROLE_GROUP_HOUSE,
-        multi_select=False,
-        banner_filename="hufflepuff_colours.png",
-        house_name="Hufflepuff",
-        options=(
-            ReactionRoleOption(ROLE_KEY_HOUSE_HUFFLEPUFF, emoji_unicode="🦡"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="ravenclaw_colors",
-        role_group=ROLE_GROUP_HOUSE_COLOR_RAVENCLAW,
-        multi_select=False,
-        banner_filename="ravenclaw_colours.png",
-        house_name="Ravenclaw",
-        options=(
-            ReactionRoleOption("raven_color_royal", emoji_unicode="1️⃣"),
-            ReactionRoleOption("raven_color_sapphire", emoji_unicode="2️⃣"),
-            ReactionRoleOption("raven_color_cobalt", emoji_unicode="3️⃣"),
-            ReactionRoleOption("raven_color_azure", emoji_unicode="4️⃣"),
-            ReactionRoleOption("raven_color_cerulean", emoji_unicode="5️⃣"),
-            ReactionRoleOption("raven_color_midnight", emoji_unicode="6️⃣"),
-            ReactionRoleOption("raven_color_storm", emoji_unicode="7️⃣"),
-            ReactionRoleOption("raven_color_ice", emoji_unicode="8️⃣"),
-            ReactionRoleOption("raven_color_steel", emoji_unicode="9️⃣"),
-            ReactionRoleOption("raven_color_twilight", emoji_unicode="🔟"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="ravenclaw_house",
-        role_group=ROLE_GROUP_HOUSE,
-        multi_select=False,
-        banner_filename="ravenclaw_colours.png",
-        house_name="Ravenclaw",
-        options=(
-            ReactionRoleOption(ROLE_KEY_HOUSE_RAVENCLAW, emoji_unicode="🦅"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="slytherin_colors",
-        role_group=ROLE_GROUP_HOUSE_COLOR_SLYTHERIN,
-        multi_select=False,
-        banner_filename="slytherin_colours.png",
-        house_name="Slytherin",
-        options=(
-            ReactionRoleOption("slyth_color_emerald", emoji_unicode="1️⃣"),
-            ReactionRoleOption("slyth_color_jade", emoji_unicode="2️⃣"),
-            ReactionRoleOption("slyth_color_forest", emoji_unicode="3️⃣"),
-            ReactionRoleOption("slyth_color_moss", emoji_unicode="4️⃣"),
-            ReactionRoleOption("slyth_color_serpent", emoji_unicode="5️⃣"),
-            ReactionRoleOption("slyth_color_pine", emoji_unicode="6️⃣"),
-            ReactionRoleOption("slyth_color_olive", emoji_unicode="7️⃣"),
-            ReactionRoleOption("slyth_color_malachite", emoji_unicode="8️⃣"),
-            ReactionRoleOption("slyth_color_sea", emoji_unicode="9️⃣"),
-            ReactionRoleOption("slyth_color_sage", emoji_unicode="🔟"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="slytherin_house",
-        role_group=ROLE_GROUP_HOUSE,
-        multi_select=False,
-        banner_filename="slytherin_colours.png",
-        house_name="Slytherin",
-        options=(
-            ReactionRoleOption(ROLE_KEY_HOUSE_SLYTHERIN, emoji_unicode="🐍"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="quidditch_positions",
-        role_group=ROLE_GROUP_QUIDDITCH_POSITIONS,
-        multi_select=False,
-        banner_filename="Quidditch_Position.png",
-        options=(
-            ReactionRoleOption(
-                ROLE_KEY_QUIDDITCH_KEEPER,
-                "keeper",
-                QUIDDITCH_POSITION_EMOJIS["keeper"],
-            ),
-            ReactionRoleOption(
-                ROLE_KEY_QUIDDITCH_SEEKER,
-                "seeker",
-                QUIDDITCH_POSITION_EMOJIS["seeker"],
-            ),
-            ReactionRoleOption(
-                ROLE_KEY_QUIDDITCH_BEATER,
-                "beater",
-                QUIDDITCH_POSITION_EMOJIS["beater"],
-            ),
-            ReactionRoleOption(
-                ROLE_KEY_QUIDDITCH_CHASER,
-                "chaser",
-                QUIDDITCH_POSITION_EMOJIS["chaser"],
-            ),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="pronouns",
-        role_group=ROLE_GROUP_PRONOUNS,
-        multi_select=False,
-        banner_filename="select_pronouns.png",
-        options=(
-            ReactionRoleOption("pronouns_she_her", "she_her", PRONOUN_EMOJIS["she_her"]),
-            ReactionRoleOption("pronouns_she_they", "shethem", PRONOUN_EMOJIS["shethem"]),
-            ReactionRoleOption("pronouns_he_him", "he_him", PRONOUN_EMOJIS["he_him"]),
-            ReactionRoleOption("pronouns_he_they", "hethem", PRONOUN_EMOJIS["hethem"]),
-            ReactionRoleOption("pronouns_they_them", "they_them", PRONOUN_EMOJIS["they_them"]),
-            ReactionRoleOption("pronouns_ask", "ask", PRONOUN_EMOJIS["ask"]),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="gender_identity",
-        role_group=ROLE_GROUP_GENDER_IDENTITY,
-        multi_select=False,
-        banner_filename="select_gender.png",
-        options=(
-            ReactionRoleOption("gender_male", "male", GENDER_IDENTITY_EMOJIS["male"]),
-            ReactionRoleOption("gender_female", "female", GENDER_IDENTITY_EMOJIS["female"]),
-            ReactionRoleOption("gender_transgender", "transgender", GENDER_IDENTITY_EMOJIS["transgender"]),
-            ReactionRoleOption("gender_bigender", "bigender", GENDER_IDENTITY_EMOJIS["bigender"]),
-            ReactionRoleOption("gender_genderfluid", "genderfluid", GENDER_IDENTITY_EMOJIS["genderfluid"]),
-            ReactionRoleOption("gender_demigender", "demigender", GENDER_IDENTITY_EMOJIS["demigender"]),
-            ReactionRoleOption("gender_nonbinary", "nonbinary", GENDER_IDENTITY_EMOJIS["nonbinary"]),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="sexuality",
-        role_group=ROLE_GROUP_SEXUALITY,
-        multi_select=True,
-        banner_filename="select_orientation.png",
-        options=(
-            ReactionRoleOption("sexuality_lesbian", "lesbian", SEXUALITY_EMOJIS["lesbian"]),
-            ReactionRoleOption("sexuality_gay", "gay", SEXUALITY_EMOJIS["gay"]),
-            ReactionRoleOption("sexuality_bisexual", "bisexual", SEXUALITY_EMOJIS["bisexual"]),
-            ReactionRoleOption("sexuality_pansexual", "pansexual", SEXUALITY_EMOJIS["pansexual"]),
-            ReactionRoleOption("sexuality_omnisexual", "omnisexual", SEXUALITY_EMOJIS["omnisexual"]),
-            ReactionRoleOption("sexuality_asexual", "asexual", SEXUALITY_EMOJIS["asexual"]),
-            ReactionRoleOption("sexuality_aromantic", "aromantic", SEXUALITY_EMOJIS["aromantic"]),
-            ReactionRoleOption("sexuality_demisexual", "demisexual", SEXUALITY_EMOJIS["demisexual"]),
-            ReactionRoleOption("sexuality_demiromantic", "demiromantic", SEXUALITY_EMOJIS["demiromantic"]),
-            ReactionRoleOption("sexuality_heterosexual", "heterosexual", SEXUALITY_EMOJIS["heterosexual"]),
-            ReactionRoleOption("sexuality_abrosexual", "abrosexual", SEXUALITY_EMOJIS["abrosexual"]),
-            ReactionRoleOption("sexuality_polyamorous", "polyamorous", SEXUALITY_EMOJIS["polyamorous"]),
-            ReactionRoleOption("sexuality_questioning", emoji_unicode="❔"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="relationship",
-        role_group=ROLE_GROUP_RELATIONSHIP,
-        multi_select=False,
-        banner_filename="select_relationship.png",
-        options=(
-            ReactionRoleOption("relationship_taken", emoji_unicode="❤️"),
-            ReactionRoleOption("relationship_single", emoji_unicode="✨"),
-            ReactionRoleOption("relationship_complicated", emoji_unicode="🌀"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="ages",
-        role_group=ROLE_GROUP_AGES,
-        multi_select=False,
-        banner_filename="select_age.png",
-        options=(
-            ReactionRoleOption("age_below_21", "redverify", AGE_VERIFY_EMOJIS["redverify"], emoji_animated=True),
-            ReactionRoleOption("age_21_25", "orangeverify", AGE_VERIFY_EMOJIS["orangeverify"], emoji_animated=True),
-            ReactionRoleOption("age_26_30", "yellowverify", AGE_VERIFY_EMOJIS["yellowverify"], emoji_animated=True),
-            ReactionRoleOption("age_31_35", "greenverify", AGE_VERIFY_EMOJIS["greenverify"], emoji_animated=True),
-            ReactionRoleOption("age_36_40", "blueverify", AGE_VERIFY_EMOJIS["blueverify"], emoji_animated=True),
-            ReactionRoleOption("age_41_45", "purpleverify", AGE_VERIFY_EMOJIS["purpleverify"], emoji_animated=True),
-            ReactionRoleOption("age_46_plus", "blackverified", AGE_VERIFY_EMOJIS["blackverified"], emoji_animated=True),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="continents",
-        role_group=ROLE_GROUP_CONTINENTS,
-        multi_select=False,
-        banner_filename="select_location.png",
-        options=(
-            ReactionRoleOption("continent_europe", "europe", CONTINENT_EMOJIS["europe"]),
-            ReactionRoleOption("continent_asia", "asia", CONTINENT_EMOJIS["asia"]),
-            ReactionRoleOption("continent_north_america", "northamerica", CONTINENT_EMOJIS["northamerica"]),
-            ReactionRoleOption("continent_africa", "africa", CONTINENT_EMOJIS["africa"]),
-            ReactionRoleOption("continent_south_america", "southamerica", CONTINENT_EMOJIS["southamerica"]),
-            ReactionRoleOption("continent_australia_oceania", "oceania", CONTINENT_EMOJIS["oceania"]),
-            ReactionRoleOption("continent_antarctica", "antarctica", CONTINENT_EMOJIS["antarctica"]),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="pings",
-        role_group=ROLE_GROUP_PINGS,
-        multi_select=True,
-        banner_filename="select_pings.png",
-        options=(
-            ReactionRoleOption(ROLE_KEY_DUEL_PING, emoji_unicode="⚔️"),
-            ReactionRoleOption(ROLE_KEY_EVENT_PING, emoji_unicode="🎉"),
-            ReactionRoleOption(ROLE_KEY_CHAT_REVIVE, emoji_unicode="💬"),
-        ),
-    ),
-    ReactionRoleGroup(
-        key="dm_status",
-        role_group=ROLE_GROUP_DM,
-        multi_select=False,
-        banner_filename="select_DM.png",
-        options=(
-            ReactionRoleOption("dm_open", emoji_unicode="📬"),
-            ReactionRoleOption("dm_closed", emoji_unicode="🔒"),
-            ReactionRoleOption("dm_ask", emoji_unicode="❓"),
-        ),
-    ),
-)
+def _build_role_definitions() -> list[ManagedRoleDefinition]:
+    defs: list[ManagedRoleDefinition] = []
 
-REACTION_ROLE_GROUP_BY_KEY = {group.key: group for group in REACTION_ROLE_GROUPS}
+    defs.extend(
+        [
+            ManagedRoleDefinition(
+                key=YEAR_ROLE_KEYS_BY_LEVEL[level],
+                name=YEAR_ROLE_NAMES_BY_LEVEL[level],
+                color=0x6B7280,
+                group=ROLE_GROUP_YEARS,
+            )
+            for level in range(1, 8)
+        ]
+    )
+
+    defs.extend(
+        [
+            ManagedRoleDefinition("zodiac_aries", "Aries", 0xE76F51, ROLE_GROUP_ZODIAC),
+            ManagedRoleDefinition("zodiac_taurus", "Taurus", 0x6A994E, ROLE_GROUP_ZODIAC),
+            ManagedRoleDefinition("zodiac_gemini", "Gemini", 0xF4A261, ROLE_GROUP_ZODIAC),
+            ManagedRoleDefinition("zodiac_cancer", "Cancer", 0x577590, ROLE_GROUP_ZODIAC),
+            ManagedRoleDefinition("zodiac_leo", "Leo", 0xE9C46A, ROLE_GROUP_ZODIAC),
+            ManagedRoleDefinition("zodiac_virgo", "Virgo", 0x84A59D, ROLE_GROUP_ZODIAC),
+            ManagedRoleDefinition("zodiac_libra", "Libra", 0xCDB4DB, ROLE_GROUP_ZODIAC),
+            ManagedRoleDefinition("zodiac_scorpio", "Scorpio", 0x7B2CBF, ROLE_GROUP_ZODIAC),
+            ManagedRoleDefinition("zodiac_sagittarius", "Sagittarius", 0xF77F00, ROLE_GROUP_ZODIAC),
+            ManagedRoleDefinition("zodiac_capricorn", "Capricorn", 0x4D908E, ROLE_GROUP_ZODIAC),
+            ManagedRoleDefinition("zodiac_aquarius", "Aquarius", 0x219EBC, ROLE_GROUP_ZODIAC),
+            ManagedRoleDefinition("zodiac_pisces", "Pisces", 0x3A86FF, ROLE_GROUP_ZODIAC),
+        ]
+    )
+
+    defs.extend(
+        [
+            ManagedRoleDefinition(ROLE_KEY_BIRTHDAY, "Birthday", 0xFF69B4, ROLE_GROUP_SYSTEM),
+            ManagedRoleDefinition(ROLE_KEY_DUEL_PING, "Arena Ping", 0xB22222, ROLE_GROUP_PINGS, mentionable=True),
+            ManagedRoleDefinition(ROLE_KEY_EVENT_PING, "Event Ping", 0x6A4C93, ROLE_GROUP_PINGS, mentionable=True),
+            ManagedRoleDefinition(ROLE_KEY_CHAT_REVIVE, "Chat Revive", 0x4D908E, ROLE_GROUP_PINGS, mentionable=True),
+            ManagedRoleDefinition(ROLE_KEY_DUELLING, "Duelling", 0x8B0000, ROLE_GROUP_SYSTEM),
+        ]
+    )
+
+    defs.extend(
+        [
+            ManagedRoleDefinition("age_below_21", "Below 21", 0xA8DADC, ROLE_GROUP_AGES),
+            ManagedRoleDefinition("age_21_25", "21-25", 0x8ECAE6, ROLE_GROUP_AGES),
+            ManagedRoleDefinition("age_26_30", "26-30", 0x219EBC, ROLE_GROUP_AGES),
+            ManagedRoleDefinition("age_31_35", "31-35", 0x126782, ROLE_GROUP_AGES),
+            ManagedRoleDefinition("age_36_40", "36-40", 0x6D597A, ROLE_GROUP_AGES),
+            ManagedRoleDefinition("age_41_45", "41-45", 0xB56576, ROLE_GROUP_AGES),
+            ManagedRoleDefinition("age_46_plus", "46+", 0xE56B6F, ROLE_GROUP_AGES),
+        ]
+    )
+
+    defs.extend(
+        [
+            ManagedRoleDefinition("pronouns_she_her", "She/Her", 0xFFAFCC, ROLE_GROUP_PRONOUNS),
+            ManagedRoleDefinition("pronouns_she_they", "She/They", 0xFFC8DD, ROLE_GROUP_PRONOUNS),
+            ManagedRoleDefinition("pronouns_he_him", "He/Him", 0xA2D2FF, ROLE_GROUP_PRONOUNS),
+            ManagedRoleDefinition("pronouns_he_they", "He/They", 0xBDE0FE, ROLE_GROUP_PRONOUNS),
+            ManagedRoleDefinition("pronouns_they_them", "They/Them", 0xCDEAC0, ROLE_GROUP_PRONOUNS),
+            ManagedRoleDefinition("pronouns_ask", "Ask Pronouns", 0xD9D9D9, ROLE_GROUP_PRONOUNS),
+        ]
+    )
+
+    defs.extend(
+        [
+            ManagedRoleDefinition("gender_male", "Male", 0x7B8CFF, ROLE_GROUP_GENDER_IDENTITY),
+            ManagedRoleDefinition("gender_female", "Female", 0xFF73E6, ROLE_GROUP_GENDER_IDENTITY),
+            ManagedRoleDefinition("gender_transgender", "Transgender", 0xFF3B30, ROLE_GROUP_GENDER_IDENTITY),
+            ManagedRoleDefinition("gender_bigender", "Bigender", 0xB65DFF, ROLE_GROUP_GENDER_IDENTITY),
+            ManagedRoleDefinition("gender_genderfluid", "Genderfluid", 0x00D84A, ROLE_GROUP_GENDER_IDENTITY),
+            ManagedRoleDefinition("gender_demigender", "Demigender", 0x11C5D9, ROLE_GROUP_GENDER_IDENTITY),
+            ManagedRoleDefinition("gender_nonbinary", "Nonbinary", 0xF2D200, ROLE_GROUP_GENDER_IDENTITY),
+        ]
+    )
+
+    defs.extend(
+        [
+            ManagedRoleDefinition("continent_africa", "Africa", 0xF4A261, ROLE_GROUP_CONTINENTS),
+            ManagedRoleDefinition("continent_antarctica", "Antarctica", 0xD9EDFF, ROLE_GROUP_CONTINENTS),
+            ManagedRoleDefinition("continent_asia", "Asia", 0xE76F51, ROLE_GROUP_CONTINENTS),
+            ManagedRoleDefinition("continent_australia_oceania", "Australia & Oceania", 0x2A9D8F, ROLE_GROUP_CONTINENTS),
+            ManagedRoleDefinition("continent_europe", "Europe", 0x3A86FF, ROLE_GROUP_CONTINENTS),
+            ManagedRoleDefinition("continent_north_america", "North America", 0x8ECAE6, ROLE_GROUP_CONTINENTS),
+            ManagedRoleDefinition("continent_south_america", "South America", 0x6A994E, ROLE_GROUP_CONTINENTS),
+        ]
+    )
+
+    defs.extend(
+        [
+            ManagedRoleDefinition("sexuality_lesbian", "Lesbian", 0xD62828, ROLE_GROUP_SEXUALITY),
+            ManagedRoleDefinition("sexuality_gay", "Gay", 0x2A9D8F, ROLE_GROUP_SEXUALITY),
+            ManagedRoleDefinition("sexuality_bisexual", "Bisexual", 0x9D4EDD, ROLE_GROUP_SEXUALITY),
+            ManagedRoleDefinition("sexuality_pansexual", "Pansexual", 0xFFB703, ROLE_GROUP_SEXUALITY),
+            ManagedRoleDefinition("sexuality_omnisexual", "Omnisexual", 0x8338EC, ROLE_GROUP_SEXUALITY),
+            ManagedRoleDefinition("sexuality_asexual", "Asexual", 0x6C757D, ROLE_GROUP_SEXUALITY),
+            ManagedRoleDefinition("sexuality_aromantic", "Aromantic", 0x588157, ROLE_GROUP_SEXUALITY),
+            ManagedRoleDefinition("sexuality_demisexual", "Demisexual", 0x495057, ROLE_GROUP_SEXUALITY),
+            ManagedRoleDefinition("sexuality_demiromantic", "Demiromantic", 0x7F5539, ROLE_GROUP_SEXUALITY),
+            ManagedRoleDefinition("sexuality_heterosexual", "Heterosexual", 0x457B9D, ROLE_GROUP_SEXUALITY),
+            ManagedRoleDefinition("sexuality_abrosexual", "Abrosexual", 0x52B788, ROLE_GROUP_SEXUALITY),
+            ManagedRoleDefinition("sexuality_polyamorous", "Polyamorous", 0xE63946, ROLE_GROUP_SEXUALITY),
+            ManagedRoleDefinition("sexuality_questioning", "Questioning", 0xADB5BD, ROLE_GROUP_SEXUALITY),
+        ]
+    )
+
+    defs.extend(
+        [
+            ManagedRoleDefinition("dm_open", "Open DM", 0x52B788, ROLE_GROUP_DM),
+            ManagedRoleDefinition("dm_closed", "Closed DM", 0xD62828, ROLE_GROUP_DM),
+            ManagedRoleDefinition("dm_ask", "Ask DM", 0xADB5BD, ROLE_GROUP_DM),
+        ]
+    )
+
+    defs.extend(
+        [
+            ManagedRoleDefinition("relationship_taken", "Taken", 0xE63946, ROLE_GROUP_RELATIONSHIP),
+            ManagedRoleDefinition("relationship_single", "Single", 0x2A9D8F, ROLE_GROUP_RELATIONSHIP),
+            ManagedRoleDefinition("relationship_complicated", "It's Complicated", 0x9D4EDD, ROLE_GROUP_RELATIONSHIP),
+        ]
+    )
+
+    defs.extend(
+        [
+            ManagedRoleDefinition(ROLE_KEY_QUIDDITCH_KEEPER, "Keeper", 0x8B5E3C, ROLE_GROUP_QUIDDITCH_POSITIONS),
+            ManagedRoleDefinition(ROLE_KEY_QUIDDITCH_SEEKER, "Seeker", 0xD4AF37, ROLE_GROUP_QUIDDITCH_POSITIONS),
+            ManagedRoleDefinition(ROLE_KEY_QUIDDITCH_BEATER, "Beater", 0x6B4F3A, ROLE_GROUP_QUIDDITCH_POSITIONS),
+            ManagedRoleDefinition(ROLE_KEY_QUIDDITCH_CHASER, "Chaser", 0xA05A2C, ROLE_GROUP_QUIDDITCH_POSITIONS),
+        ]
+    )
+
+    defs.extend(
+        [
+            ManagedRoleDefinition(ROLE_KEY_HOUSE_GRYFFINDOR, "Gryffindor", 0xD02126, ROLE_GROUP_HOUSE, hoist=True),
+            ManagedRoleDefinition(ROLE_KEY_HOUSE_HUFFLEPUFF, "Hufflepuff", 0xE0B426, ROLE_GROUP_HOUSE, hoist=True),
+            ManagedRoleDefinition(ROLE_KEY_HOUSE_RAVENCLAW, "Ravenclaw", 0x0178A3, ROLE_GROUP_HOUSE, hoist=True),
+            ManagedRoleDefinition(ROLE_KEY_HOUSE_SLYTHERIN, "Slytherin", 0x29A24B, ROLE_GROUP_HOUSE, hoist=True),
+        ]
+    )
+
+    defs.extend(
+        [
+            ManagedRoleDefinition("gryff_color_crimson", "Gryffindor • Crimson", 0x7F1D1D, ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR),
+            ManagedRoleDefinition("gryff_color_scarlet", "Gryffindor • Scarlet", 0xB91C1C, ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR),
+            ManagedRoleDefinition("gryff_color_ember", "Gryffindor • Ember", 0xDC2626, ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR),
+            ManagedRoleDefinition("gryff_color_ruby", "Gryffindor • Ruby", 0xBE123C, ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR),
+            ManagedRoleDefinition("gryff_color_garnet", "Gryffindor • Garnet", 0x9F1239, ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR),
+            ManagedRoleDefinition("gryff_color_burgundy", "Gryffindor • Burgundy", 0x881337, ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR),
+            ManagedRoleDefinition("gryff_color_wine", "Gryffindor • Wine", 0x7A1F2A, ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR),
+            ManagedRoleDefinition("gryff_color_rosewood", "Gryffindor • Rosewood", 0xA61E4D, ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR),
+            ManagedRoleDefinition("gryff_color_brick", "Gryffindor • Brick", 0xB45309, ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR),
+            ManagedRoleDefinition("gryff_color_phoenix", "Gryffindor • Phoenix", 0xE85D04, ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR),
+        ]
+    )
+
+    defs.extend(
+        [
+            ManagedRoleDefinition("huff_color_gold", "Hufflepuff • Gold", 0xD4A017, ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF),
+            ManagedRoleDefinition("huff_color_honey", "Hufflepuff • Honey", 0xE9B949, ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF),
+            ManagedRoleDefinition("huff_color_amber", "Hufflepuff • Amber", 0xFFB703, ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF),
+            ManagedRoleDefinition("huff_color_mustard", "Hufflepuff • Mustard", 0xC99700, ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF),
+            ManagedRoleDefinition("huff_color_saffron", "Hufflepuff • Saffron", 0xF4A261, ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF),
+            ManagedRoleDefinition("huff_color_sunburst", "Hufflepuff • Sunburst", 0xF6BD60, ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF),
+            ManagedRoleDefinition("huff_color_wheat", "Hufflepuff • Wheat", 0xE9C46A, ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF),
+            ManagedRoleDefinition("huff_color_butter", "Hufflepuff • Butter", 0xF7E08C, ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF),
+            ManagedRoleDefinition("huff_color_bronze", "Hufflepuff • Bronze", 0xB08968, ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF),
+            ManagedRoleDefinition("huff_color_caramel", "Hufflepuff • Caramel", 0xBC6C25, ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF),
+        ]
+    )
+
+    defs.extend(
+        [
+            ManagedRoleDefinition("raven_color_royal", "Ravenclaw • Royal Blue", 0x1D4ED8, ROLE_GROUP_HOUSE_COLOR_RAVENCLAW),
+            ManagedRoleDefinition("raven_color_sapphire", "Ravenclaw • Sapphire", 0x2563EB, ROLE_GROUP_HOUSE_COLOR_RAVENCLAW),
+            ManagedRoleDefinition("raven_color_cobalt", "Ravenclaw • Cobalt", 0x1E40AF, ROLE_GROUP_HOUSE_COLOR_RAVENCLAW),
+            ManagedRoleDefinition("raven_color_azure", "Ravenclaw • Azure", 0x3A86FF, ROLE_GROUP_HOUSE_COLOR_RAVENCLAW),
+            ManagedRoleDefinition("raven_color_cerulean", "Ravenclaw • Cerulean", 0x219EBC, ROLE_GROUP_HOUSE_COLOR_RAVENCLAW),
+            ManagedRoleDefinition("raven_color_midnight", "Ravenclaw • Midnight", 0x1E3A8A, ROLE_GROUP_HOUSE_COLOR_RAVENCLAW),
+            ManagedRoleDefinition("raven_color_storm", "Ravenclaw • Storm Blue", 0x4C6FFF, ROLE_GROUP_HOUSE_COLOR_RAVENCLAW),
+            ManagedRoleDefinition("raven_color_ice", "Ravenclaw • Ice Blue", 0x90CAF9, ROLE_GROUP_HOUSE_COLOR_RAVENCLAW),
+            ManagedRoleDefinition("raven_color_steel", "Ravenclaw • Steel Blue", 0x577590, ROLE_GROUP_HOUSE_COLOR_RAVENCLAW),
+            ManagedRoleDefinition("raven_color_twilight", "Ravenclaw • Twilight", 0x5E60CE, ROLE_GROUP_HOUSE_COLOR_RAVENCLAW),
+        ]
+    )
+
+    defs.extend(
+        [
+            ManagedRoleDefinition("slyth_color_emerald", "Slytherin • Emerald", 0x10B981, ROLE_GROUP_HOUSE_COLOR_SLYTHERIN),
+            ManagedRoleDefinition("slyth_color_jade", "Slytherin • Jade", 0x00A86B, ROLE_GROUP_HOUSE_COLOR_SLYTHERIN),
+            ManagedRoleDefinition("slyth_color_forest", "Slytherin • Forest", 0x166534, ROLE_GROUP_HOUSE_COLOR_SLYTHERIN),
+            ManagedRoleDefinition("slyth_color_moss", "Slytherin • Moss", 0x4CAF50, ROLE_GROUP_HOUSE_COLOR_SLYTHERIN),
+            ManagedRoleDefinition("slyth_color_serpent", "Slytherin • Serpent", 0x2D6A4F, ROLE_GROUP_HOUSE_COLOR_SLYTHERIN),
+            ManagedRoleDefinition("slyth_color_pine", "Slytherin • Pine", 0x1B4332, ROLE_GROUP_HOUSE_COLOR_SLYTHERIN),
+            ManagedRoleDefinition("slyth_color_olive", "Slytherin • Olive", 0x6B8E23, ROLE_GROUP_HOUSE_COLOR_SLYTHERIN),
+            ManagedRoleDefinition("slyth_color_malachite", "Slytherin • Malachite", 0x0BDA51, ROLE_GROUP_HOUSE_COLOR_SLYTHERIN),
+            ManagedRoleDefinition("slyth_color_sea", "Slytherin • Sea Green", 0x2A9D8F, ROLE_GROUP_HOUSE_COLOR_SLYTHERIN),
+            ManagedRoleDefinition("slyth_color_sage", "Slytherin • Sage", 0x84A98C, ROLE_GROUP_HOUSE_COLOR_SLYTHERIN),
+        ]
+    )
+
+    return defs
 
 
-def get_reaction_role_groups() -> list[ReactionRoleGroup]:
-    return list(REACTION_ROLE_GROUPS)
+ALL_ROLE_DEFINITIONS = _build_role_definitions()
+ROLE_DEFINITION_BY_KEY = {role.key: role for role in ALL_ROLE_DEFINITIONS}
 
 
-def get_reaction_role_group(group_key: str) -> ReactionRoleGroup:
-    return REACTION_ROLE_GROUP_BY_KEY[group_key]
+def get_all_managed_role_definitions() -> list[ManagedRoleDefinition]:
+    return list(ALL_ROLE_DEFINITIONS)
+
+
+def get_role_definition(role_key: str) -> ManagedRoleDefinition:
+    return ROLE_DEFINITION_BY_KEY[role_key]
+
+
+def role_names_for_group(group: str) -> set[str]:
+    return {role.name for role in ALL_ROLE_DEFINITIONS if role.group == group}
+
+
+def role_keys_for_group(group: str) -> list[str]:
+    return [role.key for role in ALL_ROLE_DEFINITIONS if role.group == group]
+
+
+def zodiac_role_key_for_sign(sign: str) -> str:
+    return ZODIAC_ROLE_KEYS_BY_SIGN[sign]
+
+
+def year_role_key_for_level(level: int) -> str:
+    return YEAR_ROLE_KEYS_BY_LEVEL[level]
+
+
+def house_role_key_for_name(house_name: str) -> str:
+    return HOUSE_ROLE_KEYS_BY_NAME[house_name]
+
+
+def house_name_for_role_key(role_key: str) -> str:
+    return HOUSE_ROLE_NAMES_BY_KEY[role_key]
+
+
+def house_color_group_for_name(house_name: str) -> str:
+    return HOUSE_COLOR_GROUP_BY_NAME[house_name]
+
+
+def house_role_names() -> set[str]:
+    return set(HOUSE_NAMES)
