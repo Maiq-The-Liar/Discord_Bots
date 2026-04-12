@@ -1,5 +1,5 @@
-import sqlite3
 from datetime import datetime, timezone
+import sqlite3
 
 
 def current_year_month() -> str:
@@ -33,6 +33,28 @@ class ContributionRepository:
         )
         self.conn.commit()
 
+    def add_house_bonus_points(
+        self,
+        house_name: str,
+        points: int,
+        year_month: str | None = None,
+    ) -> None:
+        if year_month is None:
+            year_month = current_year_month()
+
+        self.conn.execute(
+            """
+            INSERT INTO house_monthly_bonus_points (house_name, year_month, points)
+            VALUES (?, ?, ?)
+            ON CONFLICT(house_name, year_month)
+            DO UPDATE SET
+                points = points + excluded.points,
+                updated_at = CURRENT_TIMESTAMP
+            """,
+            (house_name, year_month, points),
+        )
+        self.conn.commit()
+
     def get_monthly_points_for_user_house(
         self,
         user_id: int,
@@ -61,7 +83,7 @@ class ContributionRepository:
         if year_month is None:
             year_month = current_year_month()
 
-        row = self.conn.execute(
+        contribution_row = self.conn.execute(
             """
             SELECT COALESCE(SUM(points), 0) AS total
             FROM user_house_monthly_contributions
@@ -70,7 +92,18 @@ class ContributionRepository:
             (house_name, year_month),
         ).fetchone()
 
-        return int(row["total"]) if row else 0
+        bonus_row = self.conn.execute(
+            """
+            SELECT COALESCE(points, 0) AS total
+            FROM house_monthly_bonus_points
+            WHERE house_name = ? AND year_month = ?
+            """,
+            (house_name, year_month),
+        ).fetchone()
+
+        contribution_total = int(contribution_row["total"]) if contribution_row else 0
+        bonus_total = int(bonus_row["total"]) if bonus_row else 0
+        return contribution_total + bonus_total
 
     def get_all_house_totals(
         self,
@@ -141,6 +174,13 @@ class ContributionRepository:
         self.conn.execute(
             """
             DELETE FROM user_house_monthly_contributions
+            WHERE year_month = ?
+            """,
+            (year_month,),
+        )
+        self.conn.execute(
+            """
+            DELETE FROM house_monthly_bonus_points
             WHERE year_month = ?
             """,
             (year_month,),

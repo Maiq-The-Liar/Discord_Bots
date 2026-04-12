@@ -39,6 +39,15 @@ CREATE TABLE IF NOT EXISTS user_house_monthly_contributions (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS house_monthly_bonus_points (
+    house_name TEXT NOT NULL,
+    year_month TEXT NOT NULL,
+    points INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (house_name, year_month)
+);
+
 CREATE TABLE IF NOT EXISTS user_role_snapshots (
     user_id INTEGER NOT NULL,
     role_id INTEGER NOT NULL,
@@ -342,3 +351,6 @@ ON quidditch_house_position_rotation(guild_id, house_name, position_key);
 
 CREATE INDEX IF NOT EXISTS idx_quidditch_cheers_match
 ON quidditch_match_cheers(match_scope, match_id, cheering_house);
+
+CREATE INDEX IF NOT EXISTS idx_house_monthly_bonus_points_month
+ON house_monthly_bonus_points(year_month, house_name);

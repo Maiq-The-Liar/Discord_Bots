@@ -418,6 +418,20 @@ class Database:
                 """
             )
 
+        if "house_monthly_bonus_points" not in existing_tables:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS house_monthly_bonus_points (
+                    house_name TEXT NOT NULL,
+                    year_month TEXT NOT NULL,
+                    points INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (house_name, year_month)
+                )
+                """
+            )
+
     def _ensure_indexes(self, conn: sqlite3.Connection) -> None:
         conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_media_posts_open_by_channel "
@@ -480,4 +494,9 @@ class Database:
         conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_quidditch_cheers_match "
             "ON quidditch_match_cheers(match_scope, match_id, cheering_house)"
+        )
+
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_house_monthly_bonus_points_month "
+            "ON house_monthly_bonus_points(year_month, house_name)"
         )

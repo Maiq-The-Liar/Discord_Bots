@@ -849,3 +849,19 @@ class QuidditchRepository:
 
         elapsed = now - last_cheered_at
         return elapsed.total_seconds() >= cooldown_minutes * 60
+    
+    def update_fixture_matchup(
+        self,
+        fixture_id: int,
+        *,
+        home_house: str,
+        away_house: str,
+    ) -> None:
+        self.conn.execute(
+            """
+            UPDATE quidditch_fixtures
+            SET home_house = ?, away_house = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """,
+            (home_house, away_house, fixture_id),
+        )

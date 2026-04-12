@@ -1,25 +1,1331 @@
 from __future__ import annotations
 
+import asyncio
+import random
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any
+from zoneinfo import ZoneInfo
+
 import discord
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 from db.database import Database
+from domain.role_registry import (
+    ROLE_KEY_QUIDDITCH_BEATER,
+    ROLE_KEY_QUIDDITCH_CHASER,
+    ROLE_KEY_QUIDDITCH_KEEPER,
+    ROLE_KEY_QUIDDITCH_SEEKER,
+)
+from repositories.bot_state_repository import BotStateRepository
+from repositories.contribution_repository import ContributionRepository
+from repositories.guild_role_repository import GuildRoleRepository
+from repositories.quidditch_progress_repository import QuidditchProgressRepository
 from repositories.quidditch_repository import QuidditchRepository
+from services.house_cup_board_service import HouseCupBoardService
 from services.quidditch_image_service import QuidditchImageService
+from services.quidditch_live_engine import QuidditchLiveEngine
 from services.quidditch_service import QuidditchService
+from services.role_service import RoleService
+
+
+class CheerButton(discord.ui.Button):
+    def __init__(
+        self,
+        *,
+        cog: "QuidditchCog",
+        match_scope: str,
+        match_id: int,
+        cheering_house: str,
+        style: discord.ButtonStyle,
+    ) -> None:
+        super().__init__(
+            label=f"Cheer for {cheering_house}",
+            style=style,
+            custom_id=f"quidditch_cheer:{match_scope}:{match_id}:{cheering_house}",
+        )
+        self.cog = cog
+        self.match_scope = match_scope
+        self.match_id = match_id
+        self.cheering_house = cheering_house
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        await self.cog.handle_cheer(
+            interaction=interaction,
+            match_scope=self.match_scope,
+            match_id=self.match_id,
+            cheering_house=self.cheering_house,
+        )
+
+
+class CheerView(discord.ui.View):
+    def __init__(
+        self,
+        *,
+        cog: "QuidditchCog",
+        match_scope: str,
+        match_id: int,
+        home_house: str,
+        away_house: str,
+    ) -> None:
+        super().__init__(timeout=None)
+        self.add_item(
+            CheerButton(
+                cog=cog,
+                match_scope=match_scope,
+                match_id=match_id,
+                cheering_house=home_house,
+                style=discord.ButtonStyle.danger,
+            )
+        )
+        self.add_item(
+            CheerButton(
+                cog=cog,
+                match_scope=match_scope,
+                match_id=match_id,
+                cheering_house=away_house,
+                style=discord.ButtonStyle.primary,
+            )
+        )
 
 
 class QuidditchCog(commands.Cog):
+    TZ = ZoneInfo("Europe/Zurich")
+    POSITION_ROLE_KEYS = {
+        "keeper": ROLE_KEY_QUIDDITCH_KEEPER,
+        "seeker": ROLE_KEY_QUIDDITCH_SEEKER,
+        "beater": ROLE_KEY_QUIDDITCH_BEATER,
+        "chaser": ROLE_KEY_QUIDDITCH_CHASER,
+    }
+    REQUIRED_COUNTS = {
+        "keeper": 1,
+        "seeker": 1,
+        "beater": 2,
+        "chaser": 3,
+    }
+
     def __init__(self, bot: commands.Bot, database: Database):
         self.bot = bot
         self.database = database
+        self.image_service = QuidditchImageService()
+        self.engine = QuidditchLiveEngine()
+
+    async def cog_load(self) -> None:
+        if not self.quidditch_loop.is_running():
+            self.quidditch_loop.start()
+
+    async def cog_unload(self) -> None:
+        if self.quidditch_loop.is_running():
+            self.quidditch_loop.cancel()
 
     def is_admin(self, interaction: discord.Interaction) -> bool:
         return (
             isinstance(interaction.user, discord.Member)
             and interaction.user.guild_permissions.administrator
         )
+
+    def _now(self) -> datetime:
+        return datetime.now(self.TZ)
+
+    def _position_display(self, position_key: str) -> str:
+        return position_key.capitalize()
+
+    def _trim_name(self, raw_name: str, limit: int = 18) -> str:
+        name = raw_name.strip()
+        return name if len(name) <= limit else f"{name[:limit - 1]}…"
+
+    def _visible_log_text(self, full_log: list[str]) -> str:
+        visible = full_log[-10:]
+        return "\n".join(visible) if visible else "No events yet."
+
+    def _build_embed(
+        self,
+        *,
+        title: str,
+        home_house: str,
+        away_house: str,
+        home_score: int,
+        away_score: int,
+        full_log: list[str],
+        footer_text: str,
+        image_filename: str,
+        is_test: bool,
+        ended: bool,
+    ) -> discord.Embed:
+        color = 0x5865F2 if is_test else 0xD4AF37
+        status_line = "Finished" if ended else "Live — simulated minute ticks"
+        embed = discord.Embed(
+            title=title,
+            description=f"**{home_house} vs {away_house}**\n{status_line}",
+            color=color,
+        )
+        embed.add_field(name=home_house, value=str(home_score), inline=True)
+        embed.add_field(name=away_house, value=str(away_score), inline=True)
+        embed.add_field(
+            name="Match Log",
+            value=self._visible_log_text(full_log),
+            inline=False,
+        )
+        embed.set_footer(text=footer_text)
+        embed.set_image(url=f"attachment://{image_filename}")
+        return embed
+
+    async def _render_match_image(
+        self,
+        *,
+        home_house: str,
+        away_house: str,
+        home_score: int,
+        away_score: int,
+        home_lineup: list[dict[str, Any]],
+        away_lineup: list[dict[str, Any]],
+    ) -> Path:
+        return await asyncio.to_thread(
+            self.image_service.render_match_image,
+            home_house=home_house,
+            away_house=away_house,
+            home_score=home_score,
+            away_score=away_score,
+            home_lineup=home_lineup,
+            away_lineup=away_lineup,
+        )
+
+    def _build_role_service(self, conn) -> RoleService:
+        return RoleService(GuildRoleRepository(conn))
+
+    def _member_house(
+        self,
+        role_service: RoleService,
+        guild: discord.Guild,
+        member: discord.Member,
+    ) -> str | None:
+        return role_service.get_member_house(guild, member)
+
+    def _member_has_position(
+        self,
+        role_service: RoleService,
+        guild: discord.Guild,
+        member: discord.Member,
+        position_key: str,
+    ) -> bool:
+        role = role_service.get_role(guild, self.POSITION_ROLE_KEYS[position_key])
+        if role is None:
+            return False
+        return role in member.roles
+
+    def _build_real_player(
+        self,
+        *,
+        member: discord.Member,
+        position_key: str,
+        progress_repo: QuidditchProgressRepository,
+    ) -> dict[str, Any]:
+        progress_repo.ensure_user_positions(member.id)
+        progress = progress_repo.get_progress(member.id, position_key)
+        display_name = self._trim_name(member.display_name)
+        return {
+            "user_id": member.id,
+            "username": member.display_name,
+            "display_name": display_name,
+            "position": position_key,
+            "level": int(progress["level"]),
+            "token": f"user:{member.id}",
+            "is_npc": False,
+            "house_name": None,
+        }
+
+    def _build_npc_player(
+        self,
+        *,
+        house_name: str,
+        position_key: str,
+        target_level: int,
+        used_names: set[str],
+    ) -> dict[str, Any]:
+        pool = self.engine.NPC_POOLS.get(house_name, {}).get(position_key, [])
+        if not pool:
+            pool = [f"{house_name} {position_key.title()} NPC"]
+
+        choices = [name for name in pool if name not in used_names]
+        npc_name = random.choice(choices or pool)
+        used_names.add(npc_name)
+
+        level = max(1, min(120, random.randint(max(1, target_level - 6), min(120, target_level + 6))))
+        return {
+            "user_id": None,
+            "username": npc_name,
+            "display_name": self._trim_name(npc_name),
+            "position": position_key,
+            "level": level,
+            "token": f"npc:{house_name}:{position_key}:{npc_name}",
+            "is_npc": True,
+            "house_name": house_name,
+        }
+
+    def _normalize_rotation_queue(
+        self,
+        *,
+        available_ids: list[int],
+        stored_cycle: list[int],
+    ) -> list[int]:
+        available_set = set(available_ids)
+        normalized = [user_id for user_id in stored_cycle if user_id in available_set]
+        missing = [user_id for user_id in available_ids if user_id not in normalized]
+        random.shuffle(missing)
+        normalized.extend(missing)
+        return normalized
+
+    def _take_rotating_members(
+        self,
+        *,
+        available_members: list[discord.Member],
+        needed: int,
+        repo: QuidditchRepository,
+        guild_id: int,
+        house_name: str,
+        position_key: str,
+    ) -> list[discord.Member]:
+        if not available_members:
+            repo.save_rotation_cycle(guild_id, house_name, position_key, [])
+            return []
+
+        member_by_id = {member.id: member for member in available_members}
+        available_ids = list(member_by_id.keys())
+
+        cycle = self._normalize_rotation_queue(
+            available_ids=available_ids,
+            stored_cycle=repo.get_rotation_cycle(guild_id, house_name, position_key),
+        )
+
+        selected_ids: list[int] = []
+        queue = list(cycle)
+
+        max_unique = min(needed, len(available_ids))
+        while len(selected_ids) < max_unique:
+            if not queue:
+                queue = list(available_ids)
+                random.shuffle(queue)
+
+            next_id = queue.pop(0)
+            if next_id in selected_ids:
+                continue
+            selected_ids.append(next_id)
+
+        repo.save_rotation_cycle(guild_id, house_name, position_key, queue)
+        return [member_by_id[user_id] for user_id in selected_ids]
+
+    def _eligible_members_for_house_position(
+        self,
+        *,
+        guild: discord.Guild,
+        role_service: RoleService,
+        house_name: str,
+        position_key: str,
+    ) -> list[discord.Member]:
+        eligible: list[discord.Member] = []
+        for member in guild.members:
+            if member.bot:
+                continue
+            if self._member_house(role_service, guild, member) != house_name:
+                continue
+            if not self._member_has_position(role_service, guild, member, position_key):
+                continue
+            eligible.append(member)
+        return eligible
+
+    def _build_house_roster(
+        self,
+        *,
+        guild: discord.Guild,
+        house_name: str,
+        repo: QuidditchRepository,
+        role_service: RoleService,
+        progress_repo: QuidditchProgressRepository,
+        opponent_hint_levels: dict[str, int],
+    ) -> list[dict[str, Any]]:
+        roster: list[dict[str, Any]] = []
+        used_npc_names: set[str] = set()
+
+        for position_key, needed in self.REQUIRED_COUNTS.items():
+            eligible_members = self._eligible_members_for_house_position(
+                guild=guild,
+                role_service=role_service,
+                house_name=house_name,
+                position_key=position_key,
+            )
+
+            selected_members = self._take_rotating_members(
+                available_members=eligible_members,
+                needed=needed,
+                repo=repo,
+                guild_id=guild.id,
+                house_name=house_name,
+                position_key=position_key,
+            )
+
+            for member in selected_members:
+                roster.append(
+                    self._build_real_player(
+                        member=member,
+                        position_key=position_key,
+                        progress_repo=progress_repo,
+                    )
+                )
+
+            missing = needed - len(selected_members)
+            target_level = opponent_hint_levels.get(position_key, 18)
+            for _ in range(missing):
+                roster.append(
+                    self._build_npc_player(
+                        house_name=house_name,
+                        position_key=position_key,
+                        target_level=target_level,
+                        used_names=used_npc_names,
+                    )
+                )
+
+        return roster
+
+    def _average_position_levels(
+        self,
+        roster: list[dict[str, Any]],
+    ) -> dict[str, int]:
+        result: dict[str, int] = {}
+        for position_key in self.REQUIRED_COUNTS.keys():
+            players = [p for p in roster if p["position"] == position_key]
+            if not players:
+                result[position_key] = 18
+                continue
+            result[position_key] = max(
+                1,
+                round(sum(int(p["level"]) for p in players) / len(players)),
+            )
+        return result
+
+    def _build_lineups(
+        self,
+        *,
+        guild: discord.Guild,
+        home_house: str,
+        away_house: str,
+        repo: QuidditchRepository,
+        role_service: RoleService,
+        progress_repo: QuidditchProgressRepository,
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        home_seed = self._build_house_roster(
+            guild=guild,
+            house_name=home_house,
+            repo=repo,
+            role_service=role_service,
+            progress_repo=progress_repo,
+            opponent_hint_levels={},
+        )
+        away_seed = self._build_house_roster(
+            guild=guild,
+            house_name=away_house,
+            repo=repo,
+            role_service=role_service,
+            progress_repo=progress_repo,
+            opponent_hint_levels=self._average_position_levels(home_seed),
+        )
+
+        home_avg = self._average_position_levels(away_seed)
+        final_home = self._build_house_roster(
+            guild=guild,
+            house_name=home_house,
+            repo=repo,
+            role_service=role_service,
+            progress_repo=progress_repo,
+            opponent_hint_levels=home_avg,
+        )
+        return final_home, away_seed
+
+    def _participant_user_ids(self, state: dict[str, Any]) -> set[int]:
+        participant_ids: set[int] = set()
+        for side_key in ("home_lineup", "away_lineup"):
+            for player in state.get(side_key, []):
+                user_id = player.get("user_id")
+                if user_id is not None:
+                    participant_ids.add(int(user_id))
+        return participant_ids
+
+    def _spectator_names(
+        self,
+        *,
+        guild: discord.Guild,
+        participant_ids: set[int],
+    ) -> list[str]:
+        names = [
+            self._trim_name(member.display_name)
+            for member in guild.members
+            if not member.bot and member.id not in participant_ids
+        ]
+        return names
+
+    async def _update_scoreboard_message(
+        self,
+        *,
+        guild: discord.Guild,
+        repo: QuidditchRepository,
+        service: QuidditchService,
+        season_id: int,
+    ) -> None:
+        config = service.get_config(guild.id)
+        if config is None or config["scoreboard_channel_id"] is None:
+            return
+
+        season = None
+        latest = repo.get_latest_season(guild.id)
+        if latest is not None and int(latest["id"]) == season_id:
+            season = latest
+        else:
+            season = repo.conn.execute(
+                "SELECT * FROM quidditch_seasons WHERE id = ?",
+                (season_id,),
+            ).fetchone()
+
+        if season is None:
+            return
+
+        standings = repo.get_standings(season_id)
+        title, description = service.build_scoreboard_embed(season, standings)
+        channel = guild.get_channel(int(config["scoreboard_channel_id"]))
+        if not isinstance(channel, discord.TextChannel):
+            return
+
+        embed = discord.Embed(title=title, description=description, color=0xD4AF37)
+        scoreboard_message_id = config["scoreboard_message_id"]
+
+        if scoreboard_message_id is not None:
+            try:
+                message = await channel.fetch_message(int(scoreboard_message_id))
+                await message.edit(embed=embed)
+                return
+            except discord.HTTPException:
+                pass
+
+        message = await channel.send(embed=embed)
+        service.set_scoreboard_message_id(guild.id, message.id)
+
+    def _all_regular_fixtures_completed(self, fixtures: list[Any]) -> bool:
+        regulars = [fixture for fixture in fixtures if str(fixture["stage"]) == "regular"]
+        return bool(regulars) and all(str(fixture["status"]) == "completed" for fixture in regulars)
+
+    def _placement_fixtures_need_fill(self, fixtures: list[Any]) -> bool:
+        for fixture in fixtures:
+            if str(fixture["stage"]) in {"third_place", "final"}:
+                if str(fixture["home_house"]) == "TBD" or str(fixture["away_house"]) == "TBD":
+                    return True
+        return False
+
+    def _prepare_placement_matchups(
+        self,
+        *,
+        repo: QuidditchRepository,
+        season_id: int,
+    ) -> None:
+        fixtures = repo.list_fixtures_for_season(season_id)
+        if not self._all_regular_fixtures_completed(fixtures):
+            return
+        if not self._placement_fixtures_need_fill(fixtures):
+            return
+
+        standings = repo.get_standings(season_id)
+        ranked = [str(row["house_name"]) for row in standings]
+        if len(ranked) < 4:
+            return
+
+        third_place = next((f for f in fixtures if str(f["stage"]) == "third_place"), None)
+        final = next((f for f in fixtures if str(f["stage"]) == "final"), None)
+
+        if third_place is not None:
+            repo.update_fixture_matchup(
+                int(third_place["id"]),
+                home_house=ranked[2],
+                away_house=ranked[3],
+            )
+        if final is not None:
+            repo.update_fixture_matchup(
+                int(final["id"]),
+                home_house=ranked[0],
+                away_house=ranked[1],
+            )
+
+    async def _create_or_refresh_official_message(
+        self,
+        *,
+        guild: discord.Guild,
+        fixture,
+        live_state,
+        runtime_state: dict[str, Any],
+        full_log: list[str],
+        ended: bool,
+        preserve_started_manually: bool,
+    ) -> None:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            service = QuidditchService(repo)
+            config = service.get_config(guild.id)
+            if config is None or config["match_channel_id"] is None:
+                return
+
+            channel = guild.get_channel(int(config["match_channel_id"]))
+            if not isinstance(channel, discord.TextChannel):
+                return
+
+            image_path = await self._render_match_image(
+                home_house=str(fixture["home_house"]),
+                away_house=str(fixture["away_house"]),
+                home_score=int(runtime_state["home_score"]),
+                away_score=int(runtime_state["away_score"]),
+                home_lineup=runtime_state["home_lineup"],
+                away_lineup=runtime_state["away_lineup"],
+            )
+
+            embed = self._build_embed(
+                title=f"🏆 Quidditch Cup — Match Day {fixture['match_day']}",
+                home_house=str(fixture["home_house"]),
+                away_house=str(fixture["away_house"]),
+                home_score=int(runtime_state["home_score"]),
+                away_score=int(runtime_state["away_score"]),
+                full_log=full_log,
+                footer_text="Official Quidditch match",
+                image_filename="quidditch_live_match.png",
+                is_test=False,
+                ended=ended,
+            )
+
+            view = None if ended else CheerView(
+                cog=self,
+                match_scope="official",
+                match_id=int(fixture["id"]),
+                home_house=str(fixture["home_house"]),
+                away_house=str(fixture["away_house"]),
+            )
+            discord_file = discord.File(str(image_path), filename="quidditch_live_match.png")
+
+            if live_state is not None and live_state["channel_id"] and live_state["message_id"]:
+                try:
+                    message = await channel.fetch_message(int(live_state["message_id"]))
+                    await message.edit(embed=embed, attachments=[discord_file], view=view)
+                    repo.upsert_live_match_state(
+                        int(fixture["id"]),
+                        channel_id=channel.id,
+                        message_id=message.id,
+                        image_path=str(image_path),
+                        log_entries=full_log,
+                        started_at=live_state["started_at"],
+                        ends_at=live_state["ends_at"],
+                        snitch_unlocked_at=live_state["snitch_unlocked_at"],
+                        started_manually=preserve_started_manually,
+                    )
+                    conn.commit()
+                    return
+                except discord.HTTPException:
+                    pass
+
+            message = await channel.send(embed=embed, file=discord_file, view=view)
+            started_at = live_state["started_at"] if live_state is not None else self._now().isoformat()
+            ends_at = live_state["ends_at"] if live_state is not None else (self._now() + timedelta(hours=10)).isoformat()
+            snitch_unlocked_at = (
+                live_state["snitch_unlocked_at"]
+                if live_state is not None
+                else (self._now() + timedelta(hours=8)).isoformat()
+            )
+            repo.upsert_live_match_state(
+                int(fixture["id"]),
+                channel_id=channel.id,
+                message_id=message.id,
+                image_path=str(image_path),
+                log_entries=full_log,
+                started_at=started_at,
+                ends_at=ends_at,
+                snitch_unlocked_at=snitch_unlocked_at,
+                started_manually=preserve_started_manually,
+            )
+            conn.commit()
+
+    async def _create_or_refresh_test_message(
+        self,
+        *,
+        guild: discord.Guild,
+        test_match,
+        runtime_state: dict[str, Any],
+        full_log: list[str],
+        ended: bool,
+    ) -> None:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+
+            channel = guild.get_channel(int(test_match["channel_id"])) if test_match["channel_id"] else None
+            if not isinstance(channel, discord.TextChannel):
+                config = repo.get_config(guild.id)
+                if config is None or config["match_channel_id"] is None:
+                    return
+                channel = guild.get_channel(int(config["match_channel_id"]))
+                if not isinstance(channel, discord.TextChannel):
+                    return
+
+            image_path = await self._render_match_image(
+                home_house=str(test_match["home_house"]),
+                away_house=str(test_match["away_house"]),
+                home_score=int(runtime_state["home_score"]),
+                away_score=int(runtime_state["away_score"]),
+                home_lineup=runtime_state["home_lineup"],
+                away_lineup=runtime_state["away_lineup"],
+            )
+
+            embed = self._build_embed(
+                title="🧪 Quidditch Test Game",
+                home_house=str(test_match["home_house"]),
+                away_house=str(test_match["away_house"]),
+                home_score=int(runtime_state["home_score"]),
+                away_score=int(runtime_state["away_score"]),
+                full_log=full_log,
+                footer_text="Unofficial test match",
+                image_filename="quidditch_test_match.png",
+                is_test=True,
+                ended=ended,
+            )
+
+            view = None if ended else CheerView(
+                cog=self,
+                match_scope="test",
+                match_id=int(test_match["id"]),
+                home_house=str(test_match["home_house"]),
+                away_house=str(test_match["away_house"]),
+            )
+            discord_file = discord.File(str(image_path), filename="quidditch_test_match.png")
+
+            if test_match["message_id"]:
+                try:
+                    message = await channel.fetch_message(int(test_match["message_id"]))
+                    await message.edit(embed=embed, attachments=[discord_file], view=view)
+                    repo.update_test_match_message(
+                        int(test_match["id"]),
+                        channel_id=channel.id,
+                        message_id=message.id,
+                    )
+                    repo.set_test_match_image_path(int(test_match["id"]), str(image_path))
+                    conn.commit()
+                    return
+                except discord.HTTPException:
+                    pass
+
+            message = await channel.send(embed=embed, file=discord_file, view=view)
+            repo.update_test_match_message(
+                int(test_match["id"]),
+                channel_id=channel.id,
+                message_id=message.id,
+            )
+            repo.set_test_match_image_path(int(test_match["id"]), str(image_path))
+            conn.commit()
+
+    async def _ensure_official_match_initialized(
+        self,
+        *,
+        guild: discord.Guild,
+        fixture_id: int,
+    ) -> None:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            fixture = repo.get_fixture(fixture_id)
+            if fixture is None:
+                return
+
+            live_state = repo.get_live_match_state(fixture_id)
+            runtime_state = repo.get_runtime_state("official", fixture_id)
+            if runtime_state is not None:
+                full_log = []
+                if live_state is not None:
+                    try:
+                        full_log = list(eval("[]"))  # placeholder never used
+                    except Exception:
+                        full_log = []
+                try:
+                    full_log = __import__("json").loads(str(live_state["log_json"])) if live_state is not None else []
+                except Exception:
+                    full_log = []
+            else:
+                role_service = self._build_role_service(conn)
+                progress_repo = QuidditchProgressRepository(conn)
+                home_lineup, away_lineup = self._build_lineups(
+                    guild=guild,
+                    home_house=str(fixture["home_house"]),
+                    away_house=str(fixture["away_house"]),
+                    repo=repo,
+                    role_service=role_service,
+                    progress_repo=progress_repo,
+                )
+
+                started_at_dt = (
+                    datetime.fromisoformat(str(live_state["started_at"])).astimezone(self.TZ)
+                    if live_state is not None and live_state["started_at"]
+                    else self._now()
+                )
+                runtime_state = self.engine.build_initial_state(
+                    home_house=str(fixture["home_house"]),
+                    away_house=str(fixture["away_house"]),
+                    home_lineup=home_lineup,
+                    away_lineup=away_lineup,
+                    now=started_at_dt,
+                    is_test=False,
+                )
+                repo.upsert_runtime_state("official", fixture_id, runtime_state)
+
+                kickoff_log = [
+                    f"{started_at_dt.strftime('%H:%M')} — The players launch into the air. Official Quidditch is underway.",
+                    f"{started_at_dt.strftime('%H:%M')} — {fixture['home_house']} face {fixture['away_house']} in a live simulated match.",
+                ]
+                repo.replace_live_match_log(fixture_id, kickoff_log)
+                full_log = kickoff_log
+                conn.commit()
+
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            fixture = repo.get_fixture(fixture_id)
+            live_state = repo.get_live_match_state(fixture_id)
+            runtime_state = repo.get_runtime_state("official", fixture_id)
+            try:
+                full_log = __import__("json").loads(str(live_state["log_json"])) if live_state is not None else []
+            except Exception:
+                full_log = []
+            started_manually = bool(live_state["started_manually"]) if live_state is not None else False
+
+        if fixture is not None and runtime_state is not None:
+            await self._create_or_refresh_official_message(
+                guild=guild,
+                fixture=fixture,
+                live_state=live_state,
+                runtime_state=runtime_state,
+                full_log=full_log,
+                ended=False,
+                preserve_started_manually=started_manually,
+            )
+
+    async def _ensure_test_match_initialized(
+        self,
+        *,
+        guild: discord.Guild,
+        test_match_id: int,
+    ) -> None:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            test_match = repo.get_test_match(test_match_id)
+            if test_match is None:
+                return
+
+            runtime_state = repo.get_runtime_state("test", test_match_id)
+            if runtime_state is None:
+                role_service = self._build_role_service(conn)
+                progress_repo = QuidditchProgressRepository(conn)
+                home_lineup, away_lineup = self._build_lineups(
+                    guild=guild,
+                    home_house=str(test_match["home_house"]),
+                    away_house=str(test_match["away_house"]),
+                    repo=repo,
+                    role_service=role_service,
+                    progress_repo=progress_repo,
+                )
+                started_at_dt = datetime.fromisoformat(str(test_match["started_at"])).astimezone(self.TZ)
+                runtime_state = self.engine.build_initial_state(
+                    home_house=str(test_match["home_house"]),
+                    away_house=str(test_match["away_house"]),
+                    home_lineup=home_lineup,
+                    away_lineup=away_lineup,
+                    now=started_at_dt,
+                    is_test=True,
+                )
+                repo.upsert_runtime_state("test", test_match_id, runtime_state)
+
+                full_log = [
+                    f"{started_at_dt.strftime('%H:%M')} — Unofficial test game started.",
+                    f"{started_at_dt.strftime('%H:%M')} — This match does not affect standings or House Cup points.",
+                ]
+                repo.replace_test_match_log(test_match_id, full_log)
+                conn.commit()
+
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            test_match = repo.get_test_match(test_match_id)
+            runtime_state = repo.get_runtime_state("test", test_match_id)
+            try:
+                full_log = __import__("json").loads(str(test_match["log_json"])) if test_match is not None else []
+            except Exception:
+                full_log = []
+
+        if test_match is not None and runtime_state is not None:
+            await self._create_or_refresh_test_message(
+                guild=guild,
+                test_match=test_match,
+                runtime_state=runtime_state,
+                full_log=full_log,
+                ended=False,
+            )
+
+    async def _finalize_official_match(
+        self,
+        *,
+        guild: discord.Guild,
+        fixture_id: int,
+        runtime_state: dict[str, Any],
+    ) -> None:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            service = QuidditchService(repo)
+            fixture = repo.get_fixture(fixture_id)
+            live_state = repo.get_live_match_state(fixture_id)
+            if fixture is None or live_state is None:
+                return
+
+            try:
+                full_log = __import__("json").loads(str(live_state["log_json"]))
+            except Exception:
+                full_log = []
+
+            winner_house = str(runtime_state["winner_house"])
+            repo.apply_fixture_result(
+                fixture_id,
+                home_score=int(runtime_state["home_score"]),
+                away_score=int(runtime_state["away_score"]),
+                winner_house=winner_house,
+            )
+            repo.delete_runtime_state("official", fixture_id)
+            repo.clear_match_cheers("official", fixture_id)
+
+            contribution_repo = ContributionRepository(conn)
+            contribution_repo.add_house_bonus_points(winner_house, 150)
+
+            self._prepare_placement_matchups(repo=repo, season_id=int(fixture["season_id"]))
+            conn.commit()
+
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            fixture = repo.get_fixture(fixture_id)
+            live_state = repo.get_live_match_state(fixture_id)
+            if fixture is None or live_state is None:
+                return
+            try:
+                full_log = __import__("json").loads(str(live_state["log_json"]))
+            except Exception:
+                full_log = []
+
+        await self._create_or_refresh_official_message(
+            guild=guild,
+            fixture=fixture,
+            live_state=live_state,
+            runtime_state=runtime_state,
+            full_log=full_log,
+            ended=True,
+            preserve_started_manually=bool(live_state["started_manually"]),
+        )
+
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            service = QuidditchService(repo)
+            await self._update_scoreboard_message(
+                guild=guild,
+                repo=repo,
+                service=service,
+                season_id=int(fixture["season_id"]),
+            )
+
+            bot_state_repo = BotStateRepository(conn)
+            contribution_repo = ContributionRepository(conn)
+            board_service = HouseCupBoardService(bot_state_repo, contribution_repo)
+            await board_service.create_or_update_board(guild)
+
+    async def _finalize_test_match(
+        self,
+        *,
+        guild: discord.Guild,
+        test_match_id: int,
+        runtime_state: dict[str, Any],
+    ) -> None:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            test_match = repo.get_test_match(test_match_id)
+            if test_match is None:
+                return
+            repo.complete_test_match(test_match_id)
+            repo.delete_runtime_state("test", test_match_id)
+            repo.clear_match_cheers("test", test_match_id)
+            conn.commit()
+
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            test_match = repo.get_test_match(test_match_id)
+            if test_match is None:
+                return
+            try:
+                full_log = __import__("json").loads(str(test_match["log_json"]))
+            except Exception:
+                full_log = []
+
+        await self._create_or_refresh_test_message(
+            guild=guild,
+            test_match=test_match,
+            runtime_state=runtime_state,
+            full_log=full_log,
+            ended=True,
+        )
+
+    async def _tick_official_fixture(
+        self,
+        *,
+        guild: discord.Guild,
+        fixture_id: int,
+    ) -> None:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            fixture = repo.get_fixture(fixture_id)
+            live_state = repo.get_live_match_state(fixture_id)
+            runtime_state = repo.get_runtime_state("official", fixture_id)
+            if fixture is None or live_state is None or runtime_state is None:
+                return
+
+            try:
+                full_log = __import__("json").loads(str(live_state["log_json"]))
+            except Exception:
+                full_log = []
+
+            old_home = int(runtime_state["home_score"])
+            old_away = int(runtime_state["away_score"])
+
+            result = self.engine.tick(
+                runtime_state,
+                now=self._now(),
+                spectator_names=self._spectator_names(
+                    guild=guild,
+                    participant_ids=self._participant_user_ids(runtime_state),
+                ),
+            )
+            runtime_state = result.state
+            repo.upsert_runtime_state("official", fixture_id, runtime_state)
+
+            if result.new_logs:
+                full_log.extend(result.new_logs)
+                repo.replace_live_match_log(fixture_id, full_log)
+
+            score_changed = result.score_changed or (
+                int(runtime_state["home_score"]) != old_home
+                or int(runtime_state["away_score"]) != old_away
+            )
+
+            conn.commit()
+
+        if result.new_logs or score_changed or result.ended:
+            with self.database.connect() as conn:
+                repo = QuidditchRepository(conn)
+                fixture = repo.get_fixture(fixture_id)
+                live_state = repo.get_live_match_state(fixture_id)
+                runtime_state = repo.get_runtime_state("official", fixture_id)
+                if fixture is None or live_state is None or runtime_state is None:
+                    return
+                try:
+                    full_log = __import__("json").loads(str(live_state["log_json"]))
+                except Exception:
+                    full_log = []
+
+            await self._create_or_refresh_official_message(
+                guild=guild,
+                fixture=fixture,
+                live_state=live_state,
+                runtime_state=runtime_state,
+                full_log=full_log,
+                ended=result.ended,
+                preserve_started_manually=bool(live_state["started_manually"]),
+            )
+
+        if result.ended:
+            await self._finalize_official_match(
+                guild=guild,
+                fixture_id=fixture_id,
+                runtime_state=runtime_state,
+            )
+
+    async def _tick_test_match(
+        self,
+        *,
+        guild: discord.Guild,
+        test_match_id: int,
+    ) -> None:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            test_match = repo.get_test_match(test_match_id)
+            runtime_state = repo.get_runtime_state("test", test_match_id)
+            if test_match is None or runtime_state is None:
+                return
+
+            try:
+                full_log = __import__("json").loads(str(test_match["log_json"]))
+            except Exception:
+                full_log = []
+
+            old_home = int(runtime_state["home_score"])
+            old_away = int(runtime_state["away_score"])
+
+            result = self.engine.tick(
+                runtime_state,
+                now=self._now(),
+                spectator_names=self._spectator_names(
+                    guild=guild,
+                    participant_ids=self._participant_user_ids(runtime_state),
+                ),
+            )
+            runtime_state = result.state
+            repo.upsert_runtime_state("test", test_match_id, runtime_state)
+
+            if result.new_logs:
+                full_log.extend(result.new_logs)
+                repo.replace_test_match_log(test_match_id, full_log)
+
+            score_changed = result.score_changed or (
+                int(runtime_state["home_score"]) != old_home
+                or int(runtime_state["away_score"]) != old_away
+            )
+            conn.commit()
+
+        if result.new_logs or score_changed or result.ended:
+            with self.database.connect() as conn:
+                repo = QuidditchRepository(conn)
+                test_match = repo.get_test_match(test_match_id)
+                runtime_state = repo.get_runtime_state("test", test_match_id)
+                if test_match is None or runtime_state is None:
+                    return
+                try:
+                    full_log = __import__("json").loads(str(test_match["log_json"]))
+                except Exception:
+                    full_log = []
+
+            await self._create_or_refresh_test_message(
+                guild=guild,
+                test_match=test_match,
+                runtime_state=runtime_state,
+                full_log=full_log,
+                ended=result.ended,
+            )
+
+        if result.ended:
+            await self._finalize_test_match(
+                guild=guild,
+                test_match_id=test_match_id,
+                runtime_state=runtime_state,
+            )
+
+    async def handle_cheer(
+        self,
+        *,
+        interaction: discord.Interaction,
+        match_scope: str,
+        match_id: int,
+        cheering_house: str,
+    ) -> None:
+        if interaction.guild is None or not isinstance(interaction.user, discord.Member):
+            await interaction.response.send_message(
+                "This can only be used in the server.",
+                ephemeral=True,
+            )
+            return
+
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            runtime_state = repo.get_runtime_state(match_scope, match_id)
+            if runtime_state is None:
+                await interaction.response.send_message(
+                    "That match is no longer active.",
+                    ephemeral=True,
+                )
+                return
+
+            participant_ids = self._participant_user_ids(runtime_state)
+            if interaction.user.id in participant_ids:
+                await interaction.response.send_message(
+                    "Players in the current match cannot cheer.",
+                    ephemeral=True,
+                )
+                return
+
+            now = self._now()
+            if not repo.can_user_cheer_again(match_scope, match_id, interaction.user.id, now):
+                await interaction.response.send_message(
+                    "You can cheer only once every 20 minutes for this match.",
+                    ephemeral=True,
+                )
+                return
+
+            log_line = self.engine.apply_cheer(
+                runtime_state,
+                cheering_house=cheering_house,
+                now=now,
+            )
+            repo.upsert_runtime_state(match_scope, match_id, runtime_state)
+            repo.record_cheer(
+                match_scope,
+                match_id,
+                interaction.user.id,
+                cheering_house,
+                now.isoformat(),
+            )
+
+            if match_scope == "official":
+                live_state = repo.get_live_match_state(match_id)
+                full_log = []
+                if live_state is not None:
+                    try:
+                        full_log = __import__("json").loads(str(live_state["log_json"]))
+                    except Exception:
+                        full_log = []
+                full_log.append(log_line)
+                repo.replace_live_match_log(match_id, full_log)
+                conn.commit()
+            else:
+                test_match = repo.get_test_match(match_id)
+                full_log = []
+                if test_match is not None:
+                    try:
+                        full_log = __import__("json").loads(str(test_match["log_json"]))
+                    except Exception:
+                        full_log = []
+                full_log.append(log_line)
+                repo.replace_test_match_log(match_id, full_log)
+                conn.commit()
+
+        if match_scope == "official":
+            with self.database.connect() as conn:
+                repo = QuidditchRepository(conn)
+                fixture = repo.get_fixture(match_id)
+                live_state = repo.get_live_match_state(match_id)
+                runtime_state = repo.get_runtime_state("official", match_id)
+                if fixture is None or live_state is None or runtime_state is None:
+                    await interaction.response.send_message("Cheer recorded.", ephemeral=True)
+                    return
+                try:
+                    full_log = __import__("json").loads(str(live_state["log_json"]))
+                except Exception:
+                    full_log = []
+
+            await self._create_or_refresh_official_message(
+                guild=interaction.guild,
+                fixture=fixture,
+                live_state=live_state,
+                runtime_state=runtime_state,
+                full_log=full_log,
+                ended=False,
+                preserve_started_manually=bool(live_state["started_manually"]),
+            )
+        else:
+            with self.database.connect() as conn:
+                repo = QuidditchRepository(conn)
+                test_match = repo.get_test_match(match_id)
+                runtime_state = repo.get_runtime_state("test", match_id)
+                if test_match is None or runtime_state is None:
+                    await interaction.response.send_message("Cheer recorded.", ephemeral=True)
+                    return
+                try:
+                    full_log = __import__("json").loads(str(test_match["log_json"]))
+                except Exception:
+                    full_log = []
+
+            await self._create_or_refresh_test_message(
+                guild=interaction.guild,
+                test_match=test_match,
+                runtime_state=runtime_state,
+                full_log=full_log,
+                ended=False,
+            )
+
+        if interaction.response.is_done():
+            await interaction.followup.send(f"You cheered for **{cheering_house}**!", ephemeral=True)
+        else:
+            await interaction.response.send_message(
+                f"You cheered for **{cheering_house}**!",
+                ephemeral=True,
+            )
+
+    @tasks.loop(minutes=1)
+    async def quidditch_loop(self) -> None:
+        now = self._now()
+
+        for guild in self.bot.guilds:
+            try:
+                with self.database.connect() as conn:
+                    repo = QuidditchRepository(conn)
+                    service = QuidditchService(repo)
+
+                    latest_season = repo.get_latest_season(guild.id)
+                    if latest_season is not None:
+                        self._prepare_placement_matchups(
+                            repo=repo,
+                            season_id=int(latest_season["id"]),
+                        )
+                        conn.commit()
+
+                        active_fixture = repo.get_active_fixture(int(latest_season["id"]))
+                    else:
+                        active_fixture = None
+
+                    active_test = repo.get_active_test_match(guild.id)
+
+                    if active_fixture is None and active_test is None and latest_season is not None and service.is_loop_enabled(guild.id):
+                        next_fixture = repo.get_next_scheduled_fixture(int(latest_season["id"]))
+                        if next_fixture is not None:
+                            starts_at = datetime.fromisoformat(str(next_fixture["starts_at"])).astimezone(self.TZ)
+                            if (
+                                starts_at <= now
+                                and str(next_fixture["home_house"]) != "TBD"
+                                and str(next_fixture["away_house"]) != "TBD"
+                            ):
+                                repo.set_fixture_active(int(next_fixture["id"]), starts_at=starts_at.isoformat())
+                                repo.upsert_live_match_state(
+                                    int(next_fixture["id"]),
+                                    channel_id=None,
+                                    message_id=None,
+                                    image_path=None,
+                                    log_entries=[],
+                                    started_at=starts_at.isoformat(),
+                                    ends_at=(starts_at + timedelta(hours=10)).isoformat(),
+                                    snitch_unlocked_at=(starts_at + timedelta(hours=8)).isoformat(),
+                                    started_manually=False,
+                                )
+                                conn.commit()
+                                active_fixture = repo.get_fixture(int(next_fixture["id"]))
+
+                with self.database.connect() as conn:
+                    repo = QuidditchRepository(conn)
+                    latest_season = repo.get_latest_season(guild.id)
+                    if latest_season is not None:
+                        active_fixture = repo.get_active_fixture(int(latest_season["id"]))
+                    else:
+                        active_fixture = None
+                    active_test = repo.get_active_test_match(guild.id)
+
+                if active_fixture is not None:
+                    await self._ensure_official_match_initialized(
+                        guild=guild,
+                        fixture_id=int(active_fixture["id"]),
+                    )
+                    await self._tick_official_fixture(
+                        guild=guild,
+                        fixture_id=int(active_fixture["id"]),
+                    )
+
+                if active_test is not None:
+                    await self._ensure_test_match_initialized(
+                        guild=guild,
+                        test_match_id=int(active_test["id"]),
+                    )
+                    await self._tick_test_match(
+                        guild=guild,
+                        test_match_id=int(active_test["id"]),
+                    )
+            except Exception:
+                continue
+
+    @quidditch_loop.before_loop
+    async def before_quidditch_loop(self) -> None:
+        await self.bot.wait_until_ready()
 
     @app_commands.command(
         name="setup_quidditch",
@@ -237,11 +1543,15 @@ class QuidditchCog(commands.Cog):
                 await interaction.response.send_message(str(exc), ephemeral=True)
                 return
 
+        await self._ensure_official_match_initialized(
+            guild=interaction.guild,
+            fixture_id=int(result["fixture"]["id"]),
+        )
+
         fixture = result["fixture"]
         await interaction.response.send_message(
             f"Manual Quidditch start activated.\n"
-            f"**{fixture['home_house']} vs {fixture['away_house']}** has started now.\n"
-            f"It will return to normal scheduled behavior tomorrow unless you stop it with `/quidditch_now_stop`.",
+            f"**{fixture['home_house']} vs {fixture['away_house']}** has started now.",
             ephemeral=True,
         )
 
@@ -271,17 +1581,33 @@ class QuidditchCog(commands.Cog):
             repo = QuidditchRepository(conn)
             service = QuidditchService(repo)
 
+            latest = repo.get_latest_season(interaction.guild.id)
+            active_fixture = repo.get_active_fixture(int(latest["id"])) if latest is not None else None
+            live_state = repo.get_live_match_state(int(active_fixture["id"])) if active_fixture is not None else None
+
             try:
                 result = service.stop_manual_now(guild_id=interaction.guild.id)
+                if active_fixture is not None:
+                    repo.delete_runtime_state("official", int(active_fixture["id"]))
+                    repo.clear_match_cheers("official", int(active_fixture["id"]))
                 conn.commit()
             except ValueError as exc:
                 await interaction.response.send_message(str(exc), ephemeral=True)
                 return
 
+        if live_state is not None and live_state["channel_id"] and live_state["message_id"]:
+            channel = interaction.guild.get_channel(int(live_state["channel_id"]))
+            if isinstance(channel, discord.TextChannel):
+                try:
+                    message = await channel.fetch_message(int(live_state["message_id"]))
+                    await message.delete()
+                except discord.HTTPException:
+                    pass
+
         fixture = result["fixture"]
         await interaction.response.send_message(
             f"Manual Quidditch game stopped.\n"
-            f"**{fixture['home_house']} vs {fixture['away_house']}** has been reset and will wait for the normal 13:00 Swiss start.",
+            f"**{fixture['home_house']} vs {fixture['away_house']}** was reset to the normal scheduled start.",
             ephemeral=True,
         )
 
@@ -310,60 +1636,20 @@ class QuidditchCog(commands.Cog):
         with self.database.connect() as conn:
             repo = QuidditchRepository(conn)
             service = QuidditchService(repo)
-
-            config = service.get_config(interaction.guild.id)
-            if config is None or config["match_channel_id"] is None:
-                await interaction.response.send_message(
-                    "Set up the Quidditch match channel first with `/setup_quidditch`.",
-                    ephemeral=True,
-                )
-                return
-
-            match_channel = interaction.guild.get_channel(int(config["match_channel_id"]))
-            if not isinstance(match_channel, discord.TextChannel):
-                await interaction.response.send_message(
-                    "Configured Quidditch match channel could not be found.",
-                    ephemeral=True,
-                )
-                return
-
             try:
                 result = service.start_test_game(guild_id=interaction.guild.id)
+                conn.commit()
             except ValueError as exc:
                 await interaction.response.send_message(str(exc), ephemeral=True)
                 return
 
-            embed = discord.Embed(
-                title="🧪 Quidditch Test Game",
-                description=(
-                    f"**{result['home_house']} vs {result['away_house']}**\n\n"
-                    f"This is an **unofficial** Quidditch test game.\n"
-                    f"It lasts **10 hours** and does **not** affect:\n"
-                    f"- season standings\n"
-                    f"- Quidditch Cup ranking\n"
-                    f"- House Cup points"
-                ),
-                color=0x5865F2,
-            )
-            embed.add_field(name=result["home_house"], value="0", inline=True)
-            embed.add_field(name=result["away_house"], value="0", inline=True)
-            embed.add_field(
-                name="Match Log",
-                value="No events yet.\nTest game initialized successfully.",
-                inline=False,
-            )
-            embed.set_footer(text="Unofficial test match")
-
-            message = await match_channel.send(embed=embed)
-            repo.set_test_match_message(
-                int(result["test_match_id"]),
-                channel_id=match_channel.id,
-                message_id=message.id,
-            )
-            conn.commit()
+        await self._ensure_test_match_initialized(
+            guild=interaction.guild,
+            test_match_id=int(result["test_match_id"]),
+        )
 
         await interaction.response.send_message(
-            f"Unofficial Quidditch test game created in {match_channel.mention}.",
+            "Unofficial Quidditch test game started.",
             ephemeral=True,
         )
 
@@ -391,14 +1677,13 @@ class QuidditchCog(commands.Cog):
             )
             return
 
-        image_service = QuidditchImageService()
         home_house = "Gryffindor"
         away_house = "Ravenclaw"
 
-        home_lineup = image_service.build_demo_lineup(home_house)
-        away_lineup = image_service.build_demo_lineup(away_house)
+        home_lineup = self.image_service.build_demo_lineup(home_house)
+        away_lineup = self.image_service.build_demo_lineup(away_house)
 
-        image_path = image_service.render_match_image(
+        image_path = await self._render_match_image(
             home_house=home_house,
             away_house=away_house,
             home_score=score_team1,
@@ -463,20 +1748,21 @@ class QuidditchCog(commands.Cog):
 
             try:
                 result = service.stop_test_game(guild_id=interaction.guild.id)
+                repo.delete_runtime_state("test", int(active_test["id"]))
+                repo.clear_match_cheers("test", int(active_test["id"]))
+                conn.commit()
             except ValueError as exc:
                 await interaction.response.send_message(str(exc), ephemeral=True)
                 return
 
-            if channel_id is not None and message_id is not None:
-                channel = interaction.guild.get_channel(int(channel_id))
-                if isinstance(channel, discord.TextChannel):
-                    try:
-                        message = await channel.fetch_message(int(message_id))
-                        await message.delete()
-                    except discord.HTTPException:
-                        pass
-
-            conn.commit()
+        if channel_id is not None and message_id is not None:
+            channel = interaction.guild.get_channel(int(channel_id))
+            if isinstance(channel, discord.TextChannel):
+                try:
+                    message = await channel.fetch_message(int(message_id))
+                    await message.delete()
+                except discord.HTTPException:
+                    pass
 
         test_match = result["test_match"]
         await interaction.response.send_message(
