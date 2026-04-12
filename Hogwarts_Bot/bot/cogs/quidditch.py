@@ -140,17 +140,19 @@ class QuidditchCog(commands.Cog):
     def _format_log_block(self, full_log: list[str]) -> str:
         lines = self._visible_log_lines(full_log)
         if not lines:
-            return "`--:--` No events yet."
+            return "```text\n--:-- | No events yet.\n```"
 
         formatted: list[str] = []
         for line in lines:
             if " " in line:
                 timestamp, rest = line.split(" ", 1)
-                formatted.append(f"`{timestamp}` {rest}")
+                formatted.append(f"{timestamp} | {rest}")
             else:
-                formatted.append(f"`--:--` {line}")
+                formatted.append(f"--:-- | {line}")
 
-        return "\n".join(formatted)
+        separator = "\n" + ("-" * 46) + "\n"
+        body = separator.join(formatted)
+        return f"```text\n{body}\n```"
 
     def _roster_block_for_house(self, house_name: str, lineup: list[dict[str, Any]]) -> str:
         by_pos: dict[str, list[dict[str, Any]]] = {
