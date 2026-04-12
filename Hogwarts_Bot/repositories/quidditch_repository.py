@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import json
 import sqlite3
-from typing import Iterable
 
 
 class QuidditchRepository:
@@ -67,6 +67,39 @@ class QuidditchRepository:
             """,
             (guild_id,),
         ).fetchone()
+
+    def ensure_loop_control(self, guild_id: int) -> None:
+        self.conn.execute(
+            """
+            INSERT INTO quidditch_loop_control (guild_id, is_enabled)
+            VALUES (?, 1)
+            ON CONFLICT(guild_id) DO NOTHING
+            """,
+            (guild_id,),
+        )
+
+    def set_loop_enabled(self, guild_id: int, is_enabled: bool) -> None:
+        self.ensure_loop_control(guild_id)
+        self.conn.execute(
+            """
+            UPDATE quidditch_loop_control
+            SET is_enabled = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE guild_id = ?
+            """,
+            (1 if is_enabled else 0, guild_id),
+        )
+
+    def is_loop_enabled(self, guild_id: int) -> bool:
+        self.ensure_loop_control(guild_id)
+        row = self.conn.execute(
+            """
+            SELECT is_enabled
+            FROM quidditch_loop_control
+            WHERE guild_id = ?
+            """,
+            (guild_id,),
+        ).fetchone()
+        return bool(row["is_enabled"]) if row is not None else True
 
     def create_season(
         self,
@@ -193,6 +226,64 @@ class QuidditchRepository:
         ).fetchall()
         return list(rows)
 
+    def get_next_scheduled_fixture(self, season_id: int) -> sqlite3.Row | None:
+        return self.conn.execute(
+            """
+            SELECT *
+            FROM quidditch_fixtures
+            WHERE season_id = ? AND status = 'scheduled'
+            ORDER BY match_day ASC, starts_at ASC, id ASC
+            LIMIT 1
+            """,
+            (season_id,),
+        ).fetchone()
+
+    def get_active_fixture(self, season_id: int) -> sqlite3.Row | None:
+        return self.conn.execute(
+            """
+            SELECT *
+            FROM quidditch_fixtures
+            WHERE season_id = ? AND status = 'active'
+            ORDER BY match_day ASC, starts_at ASC, id ASC
+            LIMIT 1
+            """,
+            (season_id,),
+        ).fetchone()
+
+    def get_fixture(self, fixture_id: int) -> sqlite3.Row | None:
+        return self.conn.execute(
+            """
+            SELECT *
+            FROM quidditch_fixtures
+            WHERE id = ?
+            """,
+            (fixture_id,),
+        ).fetchone()
+
+    def set_fixture_active(self, fixture_id: int, *, starts_at: str) -> None:
+        self.conn.execute(
+            """
+            UPDATE quidditch_fixtures
+            SET status = 'active',
+                starts_at = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """,
+            (starts_at, fixture_id),
+        )
+
+    def set_fixture_scheduled(self, fixture_id: int, *, starts_at: str) -> None:
+        self.conn.execute(
+            """
+            UPDATE quidditch_fixtures
+            SET status = 'scheduled',
+                starts_at = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """,
+            (starts_at, fixture_id),
+        )
+
     def apply_fixture_result(
         self,
         fixture_id: int,
@@ -250,4 +341,75 @@ class QuidditchRepository:
             WHERE season_id = ? AND house_name = ?
             """,
             (away_score, home_score, int(fixture["season_id"]), str(fixture["away_house"])),
+        )
+
+    def upsert_live_match_state(
+        self,
+        fixture_id: int,
+        *,
+        channel_id: int | None,
+        message_id: int | None,
+        image_path: str | None,
+        log_entries: list[str],
+        started_at: str | None,
+        ends_at: str | None,
+        snitch_unlocked_at: str | None,
+        started_manually: bool,
+    ) -> None:
+        self.conn.execute(
+            """
+            INSERT INTO quidditch_live_match_state (
+                fixture_id,
+                channel_id,
+                message_id,
+                image_path,
+                log_json,
+                started_at,
+                ends_at,
+                snitch_unlocked_at,
+                started_manually,
+                updated_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(fixture_id) DO UPDATE SET
+                channel_id = excluded.channel_id,
+                message_id = excluded.message_id,
+                image_path = excluded.image_path,
+                log_json = excluded.log_json,
+                started_at = excluded.started_at,
+                ends_at = excluded.ends_at,
+                snitch_unlocked_at = excluded.snitch_unlocked_at,
+                started_manually = excluded.started_manually,
+                updated_at = CURRENT_TIMESTAMP
+            """,
+            (
+                fixture_id,
+                channel_id,
+                message_id,
+                image_path,
+                json.dumps(log_entries),
+                started_at,
+                ends_at,
+                snitch_unlocked_at,
+                1 if started_manually else 0,
+            ),
+        )
+
+    def get_live_match_state(self, fixture_id: int) -> sqlite3.Row | None:
+        return self.conn.execute(
+            """
+            SELECT *
+            FROM quidditch_live_match_state
+            WHERE fixture_id = ?
+            """,
+            (fixture_id,),
+        ).fetchone()
+
+    def delete_live_match_state(self, fixture_id: int) -> None:
+        self.conn.execute(
+            """
+            DELETE FROM quidditch_live_match_state
+            WHERE fixture_id = ?
+            """,
+            (fixture_id,),
         )

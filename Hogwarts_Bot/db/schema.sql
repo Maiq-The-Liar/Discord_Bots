@@ -190,6 +190,12 @@ CREATE TABLE IF NOT EXISTS quidditch_config (
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS quidditch_loop_control (
+    guild_id INTEGER PRIMARY KEY,
+    is_enabled INTEGER NOT NULL DEFAULT 1,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS quidditch_seasons (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     guild_id INTEGER NOT NULL,
@@ -240,9 +246,32 @@ CREATE TABLE IF NOT EXISTS quidditch_live_match_state (
     started_at TEXT NULL,
     ends_at TEXT NULL,
     snitch_unlocked_at TEXT NULL,
+    started_manually INTEGER NOT NULL DEFAULT 0,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (fixture_id) REFERENCES quidditch_fixtures(id) ON DELETE CASCADE
 );
+
+
+CREATE INDEX IF NOT EXISTS idx_media_posts_open_by_channel
+ON media_posts(channel_id, author_user_id, is_closed);
+
+CREATE INDEX IF NOT EXISTS idx_media_posts_expiry
+ON media_posts(is_closed, closes_at);
+
+CREATE INDEX IF NOT EXISTS idx_media_votes_window
+ON media_votes(voter_user_id, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_reaction_role_messages_message_id
+ON reaction_role_messages(message_id);
+
+CREATE INDEX IF NOT EXISTS idx_reaction_role_memberships_group
+ON reaction_role_memberships(guild_id, group_key, role_key);
+
+CREATE INDEX IF NOT EXISTS idx_quidditch_position_progress_user
+ON quidditch_position_progress(user_id, position_key);
+
+CREATE INDEX IF NOT EXISTS idx_quidditch_loop_control_guild
+ON quidditch_loop_control(guild_id);
 
 CREATE INDEX IF NOT EXISTS idx_quidditch_seasons_guild
 ON quidditch_seasons(guild_id, season_key);
@@ -255,11 +284,3 @@ ON quidditch_fixtures(status, starts_at);
 
 CREATE INDEX IF NOT EXISTS idx_quidditch_standings_season
 ON quidditch_house_standings(season_id, house_name);
-
-CREATE INDEX IF NOT EXISTS idx_media_posts_open_by_channel ON media_posts(channel_id, author_user_id, is_closed);
-CREATE INDEX IF NOT EXISTS idx_media_posts_expiry ON media_posts(is_closed, closes_at);
-CREATE INDEX IF NOT EXISTS idx_media_votes_window ON media_votes(voter_user_id, created_at);
-CREATE INDEX IF NOT EXISTS idx_reaction_role_messages_message_id ON reaction_role_messages(message_id);
-CREATE INDEX IF NOT EXISTS idx_reaction_role_memberships_group ON reaction_role_memberships(guild_id, group_key, role_key);
-CREATE INDEX IF NOT EXISTS idx_quidditch_position_progress_user
-ON quidditch_position_progress(user_id, position_key);

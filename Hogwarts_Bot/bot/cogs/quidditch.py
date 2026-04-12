@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime
-
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -127,6 +125,8 @@ class QuidditchCog(commands.Cog):
                 return
 
             result = service.build_month_schedule(guild_id=interaction.guild.id)
+            service.enable_loop(interaction.guild.id)
+
             season = repo.get_season_by_key(interaction.guild.id, result["season_key"])
             standings = repo.get_standings(int(season["id"]))
             title, description = service.build_scoreboard_embed(season, standings)
@@ -165,6 +165,121 @@ class QuidditchCog(commands.Cog):
         await interaction.followup.send(
             f"Quidditch season `{result['season_key']}` started.\n"
             f"Format: **{season_kind}**\n"
-            f"Fixtures created: **{fixture_count}**",
+            f"Fixtures created: **{fixture_count}**\n"
+            f"Loop enabled: **yes**",
+            ephemeral=True,
+        )
+
+    @app_commands.command(
+        name="stop_loop",
+        description="Admin: stop the automatic Quidditch loop.",
+    )
+    async def stop_loop(
+        self,
+        interaction: discord.Interaction,
+    ) -> None:
+        if not self.is_admin(interaction):
+            await interaction.response.send_message(
+                "You do not have permission to use this command.",
+                ephemeral=True,
+            )
+            return
+
+        if interaction.guild is None:
+            await interaction.response.send_message(
+                "This command can only be used in a server.",
+                ephemeral=True,
+            )
+            return
+
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            service = QuidditchService(repo)
+            service.stop_loop(interaction.guild.id)
+            conn.commit()
+
+        await interaction.response.send_message(
+            "Quidditch loop stopped. No scheduled games will auto-start until you enable it again with `/start_quidditch_loop`.",
+            ephemeral=True,
+        )
+
+    @app_commands.command(
+        name="quidditch_now",
+        description="Admin: start today's scheduled Quidditch game immediately if it is still before 13:00 Swiss time.",
+    )
+    async def quidditch_now(
+        self,
+        interaction: discord.Interaction,
+    ) -> None:
+        if not self.is_admin(interaction):
+            await interaction.response.send_message(
+                "You do not have permission to use this command.",
+                ephemeral=True,
+            )
+            return
+
+        if interaction.guild is None:
+            await interaction.response.send_message(
+                "This command can only be used in a server.",
+                ephemeral=True,
+            )
+            return
+
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            service = QuidditchService(repo)
+
+            try:
+                result = service.start_manual_now(guild_id=interaction.guild.id)
+                conn.commit()
+            except ValueError as exc:
+                await interaction.response.send_message(str(exc), ephemeral=True)
+                return
+
+        fixture = result["fixture"]
+        await interaction.response.send_message(
+            f"Manual Quidditch start activated.\n"
+            f"**{fixture['home_house']} vs {fixture['away_house']}** has started now.\n"
+            f"It will return to normal scheduled behavior tomorrow unless you stop it with `/quidditch_now_stop`.",
+            ephemeral=True,
+        )
+
+    @app_commands.command(
+        name="quidditch_now_stop",
+        description="Admin: stop the current manually-started Quidditch game and restore the scheduled start.",
+    )
+    async def quidditch_now_stop(
+        self,
+        interaction: discord.Interaction,
+    ) -> None:
+        if not self.is_admin(interaction):
+            await interaction.response.send_message(
+                "You do not have permission to use this command.",
+                ephemeral=True,
+            )
+            return
+
+        if interaction.guild is None:
+            await interaction.response.send_message(
+                "This command can only be used in a server.",
+                ephemeral=True,
+            )
+            return
+
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            service = QuidditchService(repo)
+
+            try:
+                result = service.stop_manual_now(guild_id=interaction.guild.id)
+                conn.commit()
+            except ValueError as exc:
+                await interaction.response.send_message(str(exc), ephemeral=True)
+                return
+
+        fixture = result["fixture"]
+        await interaction.response.send_message(
+            f"Manual Quidditch game stopped.\n"
+            f"**{fixture['home_house']} vs {fixture['away_house']}** has been reset and will wait for the normal 13:00 Swiss start.",
             ephemeral=True,
         )

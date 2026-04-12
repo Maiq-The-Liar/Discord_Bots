@@ -16,11 +16,11 @@ from bot.cogs.help import HelpCog
 from bot.cogs.leveling import LevelingCog
 from bot.cogs.media import MediaCog
 from bot.cogs.duel import DuelCog
+from bot.cogs.quidditch import QuidditchCog
 from repositories.guild_role_repository import GuildRoleRepository
 from services.role_service import RoleService
 from bot.cogs.reaction_roles import ReactionRolesCog
 from bot.cogs.housing_quiz import HousingQuizCog
-from bot.cogs.quidditch import QuidditchCog
 
 logging.basicConfig(level=logging.INFO)
 
@@ -57,9 +57,9 @@ class HogwartsBot(commands.Bot):
         await self.add_cog(LevelingCog(self, database))
         await self.add_cog(MediaCog(self, database))
         await self.add_cog(DuelCog(self, database))
+        await self.add_cog(QuidditchCog(self, database))
         await self.add_cog(ReactionRolesCog(self, database))
         await self.add_cog(HousingQuizCog(self, database))
-        await self.add_cog(QuidditchCog(self, database))
 
         self.tree.copy_global_to(guild=guild)
         synced = await self.tree.sync(guild=guild)
