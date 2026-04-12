@@ -134,6 +134,9 @@ class QuidditchService:
         if active is not None:
             return False, "There is already an active Quidditch game."
 
+        if self.repo.get_active_test_match(guild_id) is not None:
+            return False, "There is already an active Quidditch test game."
+
         next_fixture = self.repo.get_next_scheduled_fixture(int(season["id"]))
         if next_fixture is None:
             return False, "There is no scheduled Quidditch game left this month."
@@ -216,6 +219,48 @@ class QuidditchService:
         return {
             "season": season,
             "fixture": self.repo.get_fixture(int(active["id"])),
+        }
+
+    def start_test_game(
+        self,
+        *,
+        guild_id: int,
+        now: datetime | None = None,
+    ) -> dict:
+        current = now.astimezone(self.TZ) if now else datetime.now(self.TZ)
+
+        active_test = self.repo.get_active_test_match(guild_id)
+        if active_test is not None:
+            raise ValueError("There is already an active Quidditch test game.")
+
+        season = self.repo.get_season_by_key(guild_id, self.season_key_for(current.year, current.month))
+        if season is not None and self.repo.get_active_fixture(int(season["id"])) is not None:
+            raise ValueError("There is already an active official Quidditch game.")
+
+        home_house, away_house = self.repo.random_house_pair()
+        started_at = current.isoformat()
+        ends_at = (current + timedelta(hours=10)).isoformat()
+        snitch_unlocked_at = (current + timedelta(hours=8)).isoformat()
+
+        test_match_id = self.repo.create_test_match(
+            guild_id=guild_id,
+            home_house=home_house,
+            away_house=away_house,
+            started_at=started_at,
+            ends_at=ends_at,
+            snitch_unlocked_at=snitch_unlocked_at,
+            log_entries=[
+                f"{current.strftime('%H:%M')} — Unofficial test game started.",
+                f"{current.strftime('%H:%M')} — This game will not affect standings or House Cup points.",
+            ],
+        )
+
+        return {
+            "test_match_id": test_match_id,
+            "home_house": home_house,
+            "away_house": away_house,
+            "started_at": started_at,
+            "ends_at": ends_at,
         }
 
     def build_scoreboard_embed(self, season_row, standings_rows) -> tuple[str, str]:

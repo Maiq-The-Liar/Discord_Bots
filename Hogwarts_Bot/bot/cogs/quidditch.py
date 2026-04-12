@@ -283,3 +283,43 @@ class QuidditchCog(commands.Cog):
             f"**{fixture['home_house']} vs {fixture['away_house']}** has been reset and will wait for the normal 13:00 Swiss start.",
             ephemeral=True,
         )
+
+    @app_commands.command(
+        name="quidditch_testgame",
+        description="Admin: start an unofficial 10-hour Quidditch test game that does not affect standings.",
+    )
+    async def quidditch_testgame(
+        self,
+        interaction: discord.Interaction,
+    ) -> None:
+        if not self.is_admin(interaction):
+            await interaction.response.send_message(
+                "You do not have permission to use this command.",
+                ephemeral=True,
+            )
+            return
+
+        if interaction.guild is None:
+            await interaction.response.send_message(
+                "This command can only be used in a server.",
+                ephemeral=True,
+            )
+            return
+
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            service = QuidditchService(repo)
+
+            try:
+                result = service.start_test_game(guild_id=interaction.guild.id)
+                conn.commit()
+            except ValueError as exc:
+                await interaction.response.send_message(str(exc), ephemeral=True)
+                return
+
+        await interaction.response.send_message(
+            f"Unofficial Quidditch test game started.\n"
+            f"**{result['home_house']} vs {result['away_house']}**\n"
+            f"This game lasts 10 hours and will not affect the season, standings, or House Cup points.",
+            ephemeral=True,
+        )

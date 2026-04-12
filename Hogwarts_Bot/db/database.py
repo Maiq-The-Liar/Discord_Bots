@@ -352,6 +352,28 @@ class Database:
                     "ADD COLUMN started_manually INTEGER NOT NULL DEFAULT 0"
                 )
 
+        if "quidditch_test_matches" not in existing_tables:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS quidditch_test_matches (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    guild_id INTEGER NOT NULL,
+                    channel_id INTEGER NULL,
+                    message_id INTEGER NULL,
+                    home_house TEXT NOT NULL,
+                    away_house TEXT NOT NULL,
+                    status TEXT NOT NULL DEFAULT 'active',
+                    log_json TEXT NOT NULL DEFAULT '[]',
+                    image_path TEXT NULL,
+                    started_at TEXT NOT NULL,
+                    ends_at TEXT NOT NULL,
+                    snitch_unlocked_at TEXT NOT NULL,
+                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+                """
+            )
+
     def _ensure_indexes(self, conn: sqlite3.Connection) -> None:
         conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_media_posts_open_by_channel "
@@ -396,4 +418,8 @@ class Database:
         conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_quidditch_standings_season "
             "ON quidditch_house_standings(season_id, house_name)"
+        )
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_quidditch_test_matches_guild_status "
+            "ON quidditch_test_matches(guild_id, status, started_at)"
         )

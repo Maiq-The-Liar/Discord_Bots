@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import random
 import sqlite3
 
 
@@ -413,3 +414,78 @@ class QuidditchRepository:
             """,
             (fixture_id,),
         )
+
+    def get_active_test_match(self, guild_id: int) -> sqlite3.Row | None:
+        return self.conn.execute(
+            """
+            SELECT *
+            FROM quidditch_test_matches
+            WHERE guild_id = ? AND status = 'active'
+            ORDER BY id DESC
+            LIMIT 1
+            """,
+            (guild_id,),
+        ).fetchone()
+
+    def create_test_match(
+        self,
+        *,
+        guild_id: int,
+        home_house: str,
+        away_house: str,
+        started_at: str,
+        ends_at: str,
+        snitch_unlocked_at: str,
+        channel_id: int | None = None,
+        message_id: int | None = None,
+        image_path: str | None = None,
+        log_entries: list[str] | None = None,
+    ) -> int:
+        cur = self.conn.execute(
+            """
+            INSERT INTO quidditch_test_matches (
+                guild_id,
+                channel_id,
+                message_id,
+                home_house,
+                away_house,
+                status,
+                log_json,
+                image_path,
+                started_at,
+                ends_at,
+                snitch_unlocked_at
+            )
+            VALUES (?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?)
+            """,
+            (
+                guild_id,
+                channel_id,
+                message_id,
+                home_house,
+                away_house,
+                json.dumps(log_entries or []),
+                image_path,
+                started_at,
+                ends_at,
+                snitch_unlocked_at,
+            ),
+        )
+        return int(cur.lastrowid)
+
+    def complete_test_match(self, test_match_id: int) -> None:
+        self.conn.execute(
+            """
+            UPDATE quidditch_test_matches
+            SET status = 'completed',
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """,
+            (test_match_id,),
+        )
+
+    def random_house_pair(self) -> tuple[str, str]:
+        houses = list(self.HOUSES)
+        home = random.choice(houses)
+        away = random.choice([h for h in houses if h != home])
+        return home, away
