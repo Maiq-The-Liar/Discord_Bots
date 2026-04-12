@@ -150,7 +150,7 @@ class QuidditchCog(commands.Cog):
             else:
                 formatted.append(f"--:-- | {line}")
 
-        separator = "\n" + ("-" * 46) + "\n"
+        separator = "\n" + ("-" * 34) + "\n"
         body = separator.join(formatted)
         return f"```text\n{body}\n```"
 
