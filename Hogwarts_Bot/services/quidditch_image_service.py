@@ -11,27 +11,23 @@ class QuidditchImageService:
     RESOURCE_DIR = Path(__file__).resolve().parent.parent / "resources" / "stands_matchup"
     FONT_DIR = Path(__file__).resolve().parent.parent / "resources" / "house_banners"
 
-    LEFT_COORDS = {
-        "seeker": (240, 250),
-        "chaser_1": (120, 405),
-        "chaser_2": (240, 470),
-        "chaser_3": (360, 405),
-        "beater_1": (170, 585),
-        "beater_2": (310, 585),
-        "keeper": (240, 760),
-    }
-    RIGHT_COORDS = {
-        "seeker": (784, 250),
-        "chaser_1": (664, 405),
-        "chaser_2": (784, 470),
-        "chaser_3": (904, 405),
-        "beater_1": (714, 585),
-        "beater_2": (854, 585),
-        "keeper": (784, 760),
-    }
+    # Left/right columns
+    LEFT_X = 250
+    RIGHT_X = 790
 
-    SCORE_LEFT = (360, 72)
-    SCORE_RIGHT = (664, 72)
+    # Vertical layout
+    SEEKER_Y = 300
+    CHASER_1_Y = 430
+    CHASER_2_Y = 485
+    CHASER_3_Y = 540
+    BEATER_1_Y = 650
+    BEATER_2_Y = 705
+    KEEPER_Y = 885
+
+    SCORE_LEFT = (362, 76)
+    SCORE_RIGHT = (670, 76)
+
+    SIDE_TEXT_MAX_WIDTH = 420
 
     def render_match_image(
         self,
@@ -43,22 +39,55 @@ class QuidditchImageService:
         home_lineup: list[dict[str, Any]],
         away_lineup: list[dict[str, Any]],
     ) -> Path:
-        base_path = self._resolve_matchup_path(home_house, away_house)
+        base_path, reverse_sides = self._resolve_matchup_path(home_house, away_house)
+
         image = Image.open(base_path).convert("RGBA")
         draw = ImageDraw.Draw(image)
 
-        score_font = self._load_score_font(78)
-        name_font = self._load_name_font(18)
+        if reverse_sides:
+            left_house = away_house
+            right_house = home_house
+            left_score = away_score
+            right_score = home_score
+            left_lineup = away_lineup
+            right_lineup = home_lineup
+        else:
+            left_house = home_house
+            right_house = away_house
+            left_score = home_score
+            right_score = away_score
+            left_lineup = home_lineup
+            right_lineup = away_lineup
 
-        self._draw_centered_text(draw, self.SCORE_LEFT, f"{home_score:04d}", score_font)
-        self._draw_centered_text(draw, self.SCORE_RIGHT, f"{away_score:04d}", score_font)
+        score_font = self._load_score_font(82)
 
-        self._draw_lineup(draw, home_lineup, self.LEFT_COORDS, name_font)
-        self._draw_lineup(draw, away_lineup, self.RIGHT_COORDS, name_font)
+        self._draw_centered_text(
+            draw,
+            self.SCORE_LEFT,
+            self._format_score(left_score),
+            score_font,
+        )
+        self._draw_centered_text(
+            draw,
+            self.SCORE_RIGHT,
+            self._format_score(right_score),
+            score_font,
+        )
+
+        self._draw_side_lineup(
+            draw=draw,
+            lineup=left_lineup,
+            x_center=self.LEFT_X,
+        )
+        self._draw_side_lineup(
+            draw=draw,
+            lineup=right_lineup,
+            x_center=self.RIGHT_X,
+        )
 
         output_path = (
             Path(tempfile.gettempdir())
-            / f"quidditch_{home_house}_{away_house}_{home_score}_{away_score}.png"
+            / f"quidditch_{left_house}_{right_house}_{left_score}_{right_score}.png"
         )
         image.save(output_path)
         return output_path
@@ -75,47 +104,63 @@ class QuidditchImageService:
             {"username": f"{prefix}_wall", "position": "keeper", "level": 28},
         ]
 
-    def _resolve_matchup_path(self, home_house: str, away_house: str) -> Path:
-        candidates = [
-            f"{home_house}_{away_house}.png",
-            f"{home_house}-{away_house}.png",
-            f"{away_house}_{home_house}.png",
-            f"{away_house}-{home_house}.png",
+    def _resolve_matchup_path(self, home_house: str, away_house: str) -> tuple[Path, bool]:
+        exact_candidates = [
+            self.RESOURCE_DIR / f"{home_house}_{away_house}.png",
+            self.RESOURCE_DIR / f"{home_house}-{away_house}.png",
         ]
-
-        for name in candidates:
-            path = self.RESOURCE_DIR / name
+        for path in exact_candidates:
             if path.exists():
-                return path
+                return path, False
+
+        reverse_candidates = [
+            self.RESOURCE_DIR / f"{away_house}_{home_house}.png",
+            self.RESOURCE_DIR / f"{away_house}-{home_house}.png",
+        ]
+        for path in reverse_candidates:
+            if path.exists():
+                return path, True
 
         raise FileNotFoundError(
             f"No Quidditch matchup image found for {home_house} vs {away_house}."
         )
 
-    def _draw_lineup(
+    def _draw_side_lineup(
         self,
+        *,
         draw: ImageDraw.ImageDraw,
         lineup: list[dict[str, Any]],
-        coord_map: dict[str, tuple[int, int]],
-        font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
+        x_center: int,
     ) -> None:
         ordered = self._order_lineup(lineup)
+
         slots = [
-            "seeker",
-            "chaser_1",
-            "chaser_2",
-            "chaser_3",
-            "beater_1",
-            "beater_2",
-            "keeper",
+            self.SEEKER_Y,
+            self.CHASER_1_Y,
+            self.CHASER_2_Y,
+            self.CHASER_3_Y,
+            self.BEATER_1_Y,
+            self.BEATER_2_Y,
+            self.KEEPER_Y,
         ]
 
-        for slot, player in zip(slots, ordered):
-            label = (
-                f"{player['username']} "
-                f"({str(player['position']).lower()} lv. {int(player['level'])})"
-            )
-            self._draw_centered_text(draw, coord_map[slot], label, font)
+        for player, y in zip(ordered, slots):
+            label = self._player_label(player)
+            font = self._fit_name_font(draw, label, self.SIDE_TEXT_MAX_WIDTH, start_size=24, min_size=18)
+            self._draw_centered_text(draw, (x_center, y), label, font)
+
+    def _player_label(self, player: dict[str, Any]) -> str:
+        username = str(
+            player.get("display_name")
+            or player.get("username")
+            or player.get("name")
+            or "Unknown"
+        ).strip()
+
+        position = str(player.get("position", "")).lower().strip()
+        level = int(player.get("level", 1))
+
+        return f"{username} ({position} lv. {level})"
 
     def _order_lineup(self, lineup: list[dict[str, Any]]) -> list[dict[str, Any]]:
         seekers = [p for p in lineup if str(p.get("position", "")).lower() == "seeker"]
@@ -123,6 +168,9 @@ class QuidditchImageService:
         beaters = [p for p in lineup if str(p.get("position", "")).lower() == "beater"]
         keepers = [p for p in lineup if str(p.get("position", "")).lower() == "keeper"]
         return seekers[:1] + chasers[:3] + beaters[:2] + keepers[:1]
+
+    def _format_score(self, score: int) -> str:
+        return " ".join(f"{score:04d}")
 
     def _load_score_font(self, size: int):
         harry_font = self.FONT_DIR / "HARRYP__.TTF"
@@ -138,6 +186,25 @@ class QuidditchImageService:
             except OSError:
                 continue
         return ImageFont.load_default()
+
+    def _fit_name_font(
+        self,
+        draw: ImageDraw.ImageDraw,
+        text: str,
+        max_width: int,
+        *,
+        start_size: int,
+        min_size: int,
+    ):
+        size = start_size
+        while size >= min_size:
+            font = self._load_name_font(size)
+            bbox = draw.textbbox((0, 0), text, font=font, stroke_width=2)
+            width = bbox[2] - bbox[0]
+            if width <= max_width:
+                return font
+            size -= 1
+        return self._load_name_font(min_size)
 
     def _draw_centered_text(self, draw, center, text, font) -> None:
         bbox = draw.textbbox((0, 0), text, font=font, stroke_width=2)
