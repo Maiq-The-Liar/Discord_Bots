@@ -182,6 +182,79 @@ CREATE TABLE IF NOT EXISTS quidditch_position_progress (
     PRIMARY KEY (user_id, position_key)
 );
 
+CREATE TABLE IF NOT EXISTS quidditch_config (
+    guild_id INTEGER PRIMARY KEY,
+    match_channel_id INTEGER NULL,
+    scoreboard_channel_id INTEGER NULL,
+    scoreboard_message_id INTEGER NULL,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS quidditch_seasons (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    guild_id INTEGER NOT NULL,
+    season_key TEXT NOT NULL,
+    year INTEGER NOT NULL,
+    month INTEGER NOT NULL,
+    is_reduced INTEGER NOT NULL DEFAULT 0,
+    status TEXT NOT NULL DEFAULT 'scheduled',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(guild_id, season_key)
+);
+
+CREATE TABLE IF NOT EXISTS quidditch_fixtures (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    season_id INTEGER NOT NULL,
+    match_day INTEGER NOT NULL,
+    stage TEXT NOT NULL,
+    starts_at TEXT NOT NULL,
+    home_house TEXT NOT NULL,
+    away_house TEXT NOT NULL,
+    home_score INTEGER NOT NULL DEFAULT 0,
+    away_score INTEGER NOT NULL DEFAULT 0,
+    winner_house TEXT NULL,
+    status TEXT NOT NULL DEFAULT 'scheduled',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (season_id) REFERENCES quidditch_seasons(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS quidditch_house_standings (
+    season_id INTEGER NOT NULL,
+    house_name TEXT NOT NULL,
+    points_scored INTEGER NOT NULL DEFAULT 0,
+    points_conceded INTEGER NOT NULL DEFAULT 0,
+    matches_played INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (season_id, house_name),
+    FOREIGN KEY (season_id) REFERENCES quidditch_seasons(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS quidditch_live_match_state (
+    fixture_id INTEGER PRIMARY KEY,
+    message_id INTEGER NULL,
+    channel_id INTEGER NULL,
+    image_path TEXT NULL,
+    log_json TEXT NOT NULL DEFAULT '[]',
+    started_at TEXT NULL,
+    ends_at TEXT NULL,
+    snitch_unlocked_at TEXT NULL,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (fixture_id) REFERENCES quidditch_fixtures(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_quidditch_seasons_guild
+ON quidditch_seasons(guild_id, season_key);
+
+CREATE INDEX IF NOT EXISTS idx_quidditch_fixtures_season
+ON quidditch_fixtures(season_id, match_day);
+
+CREATE INDEX IF NOT EXISTS idx_quidditch_fixtures_status
+ON quidditch_fixtures(status, starts_at);
+
+CREATE INDEX IF NOT EXISTS idx_quidditch_standings_season
+ON quidditch_house_standings(season_id, house_name);
 
 CREATE INDEX IF NOT EXISTS idx_media_posts_open_by_channel ON media_posts(channel_id, author_user_id, is_closed);
 CREATE INDEX IF NOT EXISTS idx_media_posts_expiry ON media_posts(is_closed, closes_at);
