@@ -2452,33 +2452,17 @@
     "question": "What can influence the Sorting Hat's final decision about which house to place a student in?",
     "image_url": null,
     "answer_groups": [
+
       [
-        "students",
-        "own",
-        "preference"
-      ],
-      [
-        "student",
-        "preference"
-      ],
-      [
-        "their",
-        "own",
-        "preference"
-      ],
-      [
-        "what",
-        "the",
-        "student",
         "wants"
       ],
       [
-        "the",
-        "students",
-        "request"
+        "preference"
       ],
       [
-        "students",
+        "wants"
+      ],
+      [
         "request"
       ]
     ]
