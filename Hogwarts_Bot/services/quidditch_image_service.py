@@ -63,7 +63,7 @@ class QuidditchImageService:
             left_lineup = home_lineup
             right_lineup = away_lineup
 
-        score_font = self._load_score_font(100)
+        score_font = self._load_score_font(98)
 
         self._draw_centered_text(
             draw,
