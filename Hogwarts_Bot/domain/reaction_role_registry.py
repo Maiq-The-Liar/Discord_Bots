@@ -138,7 +138,9 @@ REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
         multi_select=False,
         banner_filename="gryffindor_colours.png",
         house_name="Gryffindor",
-        options=(ReactionRoleOption(ROLE_KEY_HOUSE_GRYFFINDOR, emoji_unicode="🦁"),),
+        options=(
+            ReactionRoleOption(ROLE_KEY_HOUSE_GRYFFINDOR, emoji_unicode="🦁"),
+        ),
     ),
     ReactionRoleGroup(
         key="hufflepuff_colors",
@@ -165,7 +167,9 @@ REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
         multi_select=False,
         banner_filename="hufflepuff_colours.png",
         house_name="Hufflepuff",
-        options=(ReactionRoleOption(ROLE_KEY_HOUSE_HUFFLEPUFF, emoji_unicode="🦡"),),
+        options=(
+            ReactionRoleOption(ROLE_KEY_HOUSE_HUFFLEPUFF, emoji_unicode="🦡"),
+        ),
     ),
     ReactionRoleGroup(
         key="ravenclaw_colors",
@@ -192,7 +196,9 @@ REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
         multi_select=False,
         banner_filename="ravenclaw_colours.png",
         house_name="Ravenclaw",
-        options=(ReactionRoleOption(ROLE_KEY_HOUSE_RAVENCLAW, emoji_unicode="🦅"),),
+        options=(
+            ReactionRoleOption(ROLE_KEY_HOUSE_RAVENCLAW, emoji_unicode="🦅"),
+        ),
     ),
     ReactionRoleGroup(
         key="slytherin_colors",
@@ -219,7 +225,9 @@ REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
         multi_select=False,
         banner_filename="slytherin_colours.png",
         house_name="Slytherin",
-        options=(ReactionRoleOption(ROLE_KEY_HOUSE_SLYTHERIN, emoji_unicode="🐍"),),
+        options=(
+            ReactionRoleOption(ROLE_KEY_HOUSE_SLYTHERIN, emoji_unicode="🐍"),
+        ),
     ),
     ReactionRoleGroup(
         key="quidditch_positions",
@@ -227,10 +235,26 @@ REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
         multi_select=False,
         banner_filename="Quidditch_Position.png",
         options=(
-            ReactionRoleOption(ROLE_KEY_QUIDDITCH_KEEPER, "keeper", QUIDDITCH_POSITION_EMOJIS["keeper"]),
-            ReactionRoleOption(ROLE_KEY_QUIDDITCH_SEEKER, "seeker", QUIDDITCH_POSITION_EMOJIS["seeker"]),
-            ReactionRoleOption(ROLE_KEY_QUIDDITCH_BEATER, "beater", QUIDDITCH_POSITION_EMOJIS["beater"]),
-            ReactionRoleOption(ROLE_KEY_QUIDDITCH_CHASER, "chaser", QUIDDITCH_POSITION_EMOJIS["chaser"]),
+            ReactionRoleOption(
+                ROLE_KEY_QUIDDITCH_KEEPER,
+                "keeper",
+                QUIDDITCH_POSITION_EMOJIS["keeper"],
+            ),
+            ReactionRoleOption(
+                ROLE_KEY_QUIDDITCH_SEEKER,
+                "seeker",
+                QUIDDITCH_POSITION_EMOJIS["seeker"],
+            ),
+            ReactionRoleOption(
+                ROLE_KEY_QUIDDITCH_BEATER,
+                "beater",
+                QUIDDITCH_POSITION_EMOJIS["beater"],
+            ),
+            ReactionRoleOption(
+                ROLE_KEY_QUIDDITCH_CHASER,
+                "chaser",
+                QUIDDITCH_POSITION_EMOJIS["chaser"],
+            ),
         ),
     ),
     ReactionRoleGroup(

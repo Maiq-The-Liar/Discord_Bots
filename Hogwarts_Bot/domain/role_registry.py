@@ -43,31 +43,28 @@ ROLE_KEY_QUIDDITCH_SEEKER = "quidditch_seeker"
 ROLE_KEY_QUIDDITCH_BEATER = "quidditch_beater"
 ROLE_KEY_QUIDDITCH_CHASER = "quidditch_chaser"
 
-ROLE_KEY_BIRTHDAY = "birthday"
-ROLE_KEY_DUEL_PING = "duel_ping"
-ROLE_KEY_EVENT_PING = "event_ping"
-ROLE_KEY_CHAT_REVIVE = "chat_revive"
-ROLE_KEY_DUELLING = "duelling"
-
 HOUSE_NAMES = ["Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin"]
-
 HOUSE_ROLE_KEYS_BY_NAME: dict[str, str] = {
     "Gryffindor": ROLE_KEY_HOUSE_GRYFFINDOR,
     "Hufflepuff": ROLE_KEY_HOUSE_HUFFLEPUFF,
     "Ravenclaw": ROLE_KEY_HOUSE_RAVENCLAW,
     "Slytherin": ROLE_KEY_HOUSE_SLYTHERIN,
 }
-
 HOUSE_ROLE_NAMES_BY_KEY: dict[str, str] = {
     value: key for key, value in HOUSE_ROLE_KEYS_BY_NAME.items()
 }
-
 HOUSE_COLOR_GROUP_BY_NAME: dict[str, str] = {
     "Gryffindor": ROLE_GROUP_HOUSE_COLOR_GRYFFINDOR,
     "Hufflepuff": ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF,
     "Ravenclaw": ROLE_GROUP_HOUSE_COLOR_RAVENCLAW,
     "Slytherin": ROLE_GROUP_HOUSE_COLOR_SLYTHERIN,
 }
+
+ROLE_KEY_BIRTHDAY = "birthday"
+ROLE_KEY_DUEL_PING = "duel_ping"
+ROLE_KEY_EVENT_PING = "event_ping"
+ROLE_KEY_CHAT_REVIVE = "chat_revive"
+ROLE_KEY_DUELLING = "duelling"
 
 YEAR_ROLE_KEYS_BY_LEVEL: dict[int, str] = {
     1: "year_1",
@@ -259,10 +256,30 @@ def _build_role_definitions() -> list[ManagedRoleDefinition]:
 
     defs.extend(
         [
-            ManagedRoleDefinition(ROLE_KEY_QUIDDITCH_KEEPER, "Keeper", 0x8B5E3C, ROLE_GROUP_QUIDDITCH_POSITIONS),
-            ManagedRoleDefinition(ROLE_KEY_QUIDDITCH_SEEKER, "Seeker", 0xD4AF37, ROLE_GROUP_QUIDDITCH_POSITIONS),
-            ManagedRoleDefinition(ROLE_KEY_QUIDDITCH_BEATER, "Beater", 0x6B4F3A, ROLE_GROUP_QUIDDITCH_POSITIONS),
-            ManagedRoleDefinition(ROLE_KEY_QUIDDITCH_CHASER, "Chaser", 0xA05A2C, ROLE_GROUP_QUIDDITCH_POSITIONS),
+            ManagedRoleDefinition(
+                ROLE_KEY_QUIDDITCH_KEEPER,
+                "Keeper",
+                0x8B5E3C,
+                ROLE_GROUP_QUIDDITCH_POSITIONS,
+            ),
+            ManagedRoleDefinition(
+                ROLE_KEY_QUIDDITCH_SEEKER,
+                "Seeker",
+                0xD4AF37,
+                ROLE_GROUP_QUIDDITCH_POSITIONS,
+            ),
+            ManagedRoleDefinition(
+                ROLE_KEY_QUIDDITCH_BEATER,
+                "Beater",
+                0x6B4F3A,
+                ROLE_GROUP_QUIDDITCH_POSITIONS,
+            ),
+            ManagedRoleDefinition(
+                ROLE_KEY_QUIDDITCH_CHASER,
+                "Chaser",
+                0xA05A2C,
+                ROLE_GROUP_QUIDDITCH_POSITIONS,
+            ),
         ]
     )
 
@@ -351,11 +368,19 @@ def get_role_definition(role_key: str) -> ManagedRoleDefinition:
 
 
 def role_names_for_group(group: str) -> set[str]:
-    return {role.name for role in ALL_ROLE_DEFINITIONS if role.group == group}
+    return {
+        role.name
+        for role in ALL_ROLE_DEFINITIONS
+        if role.group == group
+    }
 
 
 def role_keys_for_group(group: str) -> list[str]:
-    return [role.key for role in ALL_ROLE_DEFINITIONS if role.group == group]
+    return [
+        role.key
+        for role in ALL_ROLE_DEFINITIONS
+        if role.group == group
+    ]
 
 
 def zodiac_role_key_for_sign(sign: str) -> str:
