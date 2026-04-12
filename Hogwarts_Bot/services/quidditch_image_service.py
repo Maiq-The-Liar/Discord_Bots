@@ -27,6 +27,12 @@ class QuidditchImageService:
 
     SIDE_TEXT_MAX_WIDTH = 470
 
+    def get_display_order(self, home_house: str, away_house: str) -> tuple[str, str]:
+        _, reverse_sides = self._resolve_matchup_path(home_house, away_house)
+        if reverse_sides:
+            return away_house, home_house
+        return home_house, away_house
+
     def render_match_image(
         self,
         *,
@@ -57,7 +63,7 @@ class QuidditchImageService:
             left_lineup = home_lineup
             right_lineup = away_lineup
 
-        score_font = self._load_score_font(90)
+        score_font = self._load_score_font(96)
 
         self._draw_centered_text(
             draw,

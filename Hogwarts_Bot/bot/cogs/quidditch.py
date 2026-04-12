@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import random
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -12,6 +13,7 @@ from discord import app_commands
 from discord.ext import commands, tasks
 
 from db.database import Database
+from domain.constants import HOUSE_EMOJIS
 from domain.role_registry import (
     ROLE_KEY_QUIDDITCH_BEATER,
     ROLE_KEY_QUIDDITCH_CHASER,
@@ -128,25 +130,79 @@ class QuidditchCog(commands.Cog):
     def _now(self) -> datetime:
         return datetime.now(self.TZ)
 
-    def _position_display(self, position_key: str) -> str:
-        return position_key.capitalize()
-
     def _trim_name(self, raw_name: str, limit: int = 18) -> str:
         name = raw_name.strip()
         return name if len(name) <= limit else f"{name[:limit - 1]}…"
 
-    def _visible_log_text(self, full_log: list[str]) -> str:
-        visible = full_log[-10:]
-        return "\n".join(visible) if visible else "No events yet."
+    def _visible_log_lines(self, full_log: list[str]) -> list[str]:
+        return full_log[-3:]
+
+    def _format_log_block(self, full_log: list[str]) -> str:
+        lines = self._visible_log_lines(full_log)
+        if not lines:
+            return "`--:--` No events yet."
+
+        formatted: list[str] = []
+        for line in lines:
+            if " " in line:
+                timestamp, rest = line.split(" ", 1)
+                formatted.append(f"`{timestamp}` {rest}")
+            else:
+                formatted.append(f"`--:--` {line}")
+
+        return "\n".join(formatted)
+
+    def _roster_block_for_house(self, house_name: str, lineup: list[dict[str, Any]]) -> str:
+        by_pos: dict[str, list[dict[str, Any]]] = {
+            "seeker": [],
+            "chaser": [],
+            "beater": [],
+            "keeper": [],
+        }
+        for player in lineup:
+            pos = str(player.get("position", "")).lower()
+            if pos in by_pos:
+                by_pos[pos].append(player)
+
+        def fmt_player(player: dict[str, Any]) -> str:
+            name = str(
+                player.get("display_name")
+                or player.get("username")
+                or player.get("name")
+                or "Unknown"
+            )
+            return f"{name} lv. {int(player.get('level', 1))}"
+
+        lines: list[str] = []
+        lines.append(f"{HOUSE_EMOJIS.get(house_name, '🏰')} **{house_name}'s Roster**")
+        lines.append("")
+        lines.append("**Seeker**")
+        for player in by_pos["seeker"][:1]:
+            lines.append(fmt_player(player))
+        lines.append("")
+        lines.append("**Chaser**")
+        for player in by_pos["chaser"][:3]:
+            lines.append(fmt_player(player))
+        lines.append("")
+        lines.append("**Beater**")
+        for player in by_pos["beater"][:2]:
+            lines.append(fmt_player(player))
+        lines.append("")
+        lines.append("**Keeper**")
+        for player in by_pos["keeper"][:1]:
+            lines.append(fmt_player(player))
+
+        return "\n".join(lines)
 
     def _build_embed(
         self,
         *,
-        title: str,
         home_house: str,
         away_house: str,
         home_score: int,
         away_score: int,
+        home_lineup: list[dict[str, Any]],
+        away_lineup: list[dict[str, Any]],
         full_log: list[str],
         footer_text: str,
         image_filename: str,
@@ -154,17 +210,37 @@ class QuidditchCog(commands.Cog):
         ended: bool,
     ) -> discord.Embed:
         color = 0x5865F2 if is_test else 0xD4AF37
-        status_line = "Finished" if ended else "Live — simulated minute ticks"
+
+        left_house, right_house = self.image_service.get_display_order(home_house, away_house)
+
+        if left_house == home_house:
+            left_lineup = home_lineup
+            right_lineup = away_lineup
+        else:
+            left_lineup = away_lineup
+            right_lineup = home_lineup
+
+        status_line = "Finished" if ended else "Live match"
+        heading = f"## **{left_house} vs {right_house}**"
+
         embed = discord.Embed(
-            title=title,
-            description=f"**{home_house} vs {away_house}**\n{status_line}",
+            description=f"{heading}\n*{status_line}*",
             color=color,
         )
-        embed.add_field(name=home_house, value=str(home_score), inline=True)
-        embed.add_field(name=away_house, value=str(away_score), inline=True)
+
         embed.add_field(
-            name="Match Log",
-            value=self._visible_log_text(full_log),
+            name="\u200b",
+            value=self._roster_block_for_house(left_house, left_lineup),
+            inline=True,
+        )
+        embed.add_field(
+            name="\u200b",
+            value=self._roster_block_for_house(right_house, right_lineup),
+            inline=True,
+        )
+        embed.add_field(
+            name="📜 Match Log",
+            value=self._format_log_block(full_log),
             inline=False,
         )
         embed.set_footer(text=footer_text)
@@ -456,12 +532,11 @@ class QuidditchCog(commands.Cog):
         guild: discord.Guild,
         participant_ids: set[int],
     ) -> list[str]:
-        names = [
+        return [
             self._trim_name(member.display_name)
             for member in guild.members
             if not member.bot and member.id not in participant_ids
         ]
-        return names
 
     async def _update_scoreboard_message(
         self,
@@ -584,11 +659,12 @@ class QuidditchCog(commands.Cog):
             )
 
             embed = self._build_embed(
-                title=f"🏆 Quidditch Cup — Match Day {fixture['match_day']}",
                 home_house=str(fixture["home_house"]),
                 away_house=str(fixture["away_house"]),
                 home_score=int(runtime_state["home_score"]),
                 away_score=int(runtime_state["away_score"]),
+                home_lineup=runtime_state["home_lineup"],
+                away_lineup=runtime_state["away_lineup"],
                 full_log=full_log,
                 footer_text="Official Quidditch match",
                 image_filename="quidditch_live_match.png",
@@ -677,11 +753,12 @@ class QuidditchCog(commands.Cog):
             )
 
             embed = self._build_embed(
-                title="🧪 Quidditch Test Game",
                 home_house=str(test_match["home_house"]),
                 away_house=str(test_match["away_house"]),
                 home_score=int(runtime_state["home_score"]),
                 away_score=int(runtime_state["away_score"]),
+                home_lineup=runtime_state["home_lineup"],
+                away_lineup=runtime_state["away_lineup"],
                 full_log=full_log,
                 footer_text="Unofficial test match",
                 image_filename="quidditch_test_match.png",
@@ -736,18 +813,8 @@ class QuidditchCog(commands.Cog):
 
             live_state = repo.get_live_match_state(fixture_id)
             runtime_state = repo.get_runtime_state("official", fixture_id)
-            if runtime_state is not None:
-                full_log = []
-                if live_state is not None:
-                    try:
-                        full_log = list(eval("[]"))  # placeholder never used
-                    except Exception:
-                        full_log = []
-                try:
-                    full_log = __import__("json").loads(str(live_state["log_json"])) if live_state is not None else []
-                except Exception:
-                    full_log = []
-            else:
+
+            if runtime_state is None:
                 role_service = self._build_role_service(conn)
                 progress_repo = QuidditchProgressRepository(conn)
                 home_lineup, away_lineup = self._build_lineups(
@@ -774,12 +841,15 @@ class QuidditchCog(commands.Cog):
                 )
                 repo.upsert_runtime_state("official", fixture_id, runtime_state)
 
+                left_house, right_house = self.image_service.get_display_order(
+                    str(fixture["home_house"]),
+                    str(fixture["away_house"]),
+                )
                 kickoff_log = [
-                    f"{started_at_dt.strftime('%H:%M')} — The players launch into the air. Official Quidditch is underway.",
-                    f"{started_at_dt.strftime('%H:%M')} — {fixture['home_house']} face {fixture['away_house']} in a live simulated match.",
+                    f"{started_at_dt.strftime('%H:%M')} And the game is off! {left_house} vs {right_house} is underway.",
+                    f"{started_at_dt.strftime('%H:%M')} Brooms kick skyward and the crowd erupts around the pitch.",
                 ]
                 repo.replace_live_match_log(fixture_id, kickoff_log)
-                full_log = kickoff_log
                 conn.commit()
 
         with self.database.connect() as conn:
@@ -787,22 +857,24 @@ class QuidditchCog(commands.Cog):
             fixture = repo.get_fixture(fixture_id)
             live_state = repo.get_live_match_state(fixture_id)
             runtime_state = repo.get_runtime_state("official", fixture_id)
+            if fixture is None or runtime_state is None:
+                return
+
             try:
-                full_log = __import__("json").loads(str(live_state["log_json"])) if live_state is not None else []
+                full_log = json.loads(str(live_state["log_json"])) if live_state is not None else []
             except Exception:
                 full_log = []
             started_manually = bool(live_state["started_manually"]) if live_state is not None else False
 
-        if fixture is not None and runtime_state is not None:
-            await self._create_or_refresh_official_message(
-                guild=guild,
-                fixture=fixture,
-                live_state=live_state,
-                runtime_state=runtime_state,
-                full_log=full_log,
-                ended=False,
-                preserve_started_manually=started_manually,
-            )
+        await self._create_or_refresh_official_message(
+            guild=guild,
+            fixture=fixture,
+            live_state=live_state,
+            runtime_state=runtime_state,
+            full_log=full_log,
+            ended=False,
+            preserve_started_manually=started_manually,
+        )
 
     async def _ensure_test_match_initialized(
         self,
@@ -839,9 +911,13 @@ class QuidditchCog(commands.Cog):
                 )
                 repo.upsert_runtime_state("test", test_match_id, runtime_state)
 
+                left_house, right_house = self.image_service.get_display_order(
+                    str(test_match["home_house"]),
+                    str(test_match["away_house"]),
+                )
                 full_log = [
-                    f"{started_at_dt.strftime('%H:%M')} — Unofficial test game started.",
-                    f"{started_at_dt.strftime('%H:%M')} — This match does not affect standings or House Cup points.",
+                    f"{started_at_dt.strftime('%H:%M')} And the game is off! {left_house} vs {right_house} test match underway.",
+                    f"{started_at_dt.strftime('%H:%M')} This one is unofficial and will not affect standings.",
                 ]
                 repo.replace_test_match_log(test_match_id, full_log)
                 conn.commit()
@@ -850,19 +926,20 @@ class QuidditchCog(commands.Cog):
             repo = QuidditchRepository(conn)
             test_match = repo.get_test_match(test_match_id)
             runtime_state = repo.get_runtime_state("test", test_match_id)
+            if test_match is None or runtime_state is None:
+                return
             try:
-                full_log = __import__("json").loads(str(test_match["log_json"])) if test_match is not None else []
+                full_log = json.loads(str(test_match["log_json"]))
             except Exception:
                 full_log = []
 
-        if test_match is not None and runtime_state is not None:
-            await self._create_or_refresh_test_message(
-                guild=guild,
-                test_match=test_match,
-                runtime_state=runtime_state,
-                full_log=full_log,
-                ended=False,
-            )
+        await self._create_or_refresh_test_message(
+            guild=guild,
+            test_match=test_match,
+            runtime_state=runtime_state,
+            full_log=full_log,
+            ended=False,
+        )
 
     async def _finalize_official_match(
         self,
@@ -873,14 +950,13 @@ class QuidditchCog(commands.Cog):
     ) -> None:
         with self.database.connect() as conn:
             repo = QuidditchRepository(conn)
-            service = QuidditchService(repo)
             fixture = repo.get_fixture(fixture_id)
             live_state = repo.get_live_match_state(fixture_id)
             if fixture is None or live_state is None:
                 return
 
             try:
-                full_log = __import__("json").loads(str(live_state["log_json"]))
+                full_log = json.loads(str(live_state["log_json"]))
             except Exception:
                 full_log = []
 
@@ -907,7 +983,7 @@ class QuidditchCog(commands.Cog):
             if fixture is None or live_state is None:
                 return
             try:
-                full_log = __import__("json").loads(str(live_state["log_json"]))
+                full_log = json.loads(str(live_state["log_json"]))
             except Exception:
                 full_log = []
 
@@ -959,7 +1035,7 @@ class QuidditchCog(commands.Cog):
             if test_match is None:
                 return
             try:
-                full_log = __import__("json").loads(str(test_match["log_json"]))
+                full_log = json.loads(str(test_match["log_json"]))
             except Exception:
                 full_log = []
 
@@ -986,7 +1062,7 @@ class QuidditchCog(commands.Cog):
                 return
 
             try:
-                full_log = __import__("json").loads(str(live_state["log_json"]))
+                full_log = json.loads(str(live_state["log_json"]))
             except Exception:
                 full_log = []
 
@@ -1024,7 +1100,7 @@ class QuidditchCog(commands.Cog):
                 if fixture is None or live_state is None or runtime_state is None:
                     return
                 try:
-                    full_log = __import__("json").loads(str(live_state["log_json"]))
+                    full_log = json.loads(str(live_state["log_json"]))
                 except Exception:
                     full_log = []
 
@@ -1059,7 +1135,7 @@ class QuidditchCog(commands.Cog):
                 return
 
             try:
-                full_log = __import__("json").loads(str(test_match["log_json"]))
+                full_log = json.loads(str(test_match["log_json"]))
             except Exception:
                 full_log = []
 
@@ -1095,7 +1171,7 @@ class QuidditchCog(commands.Cog):
                 if test_match is None or runtime_state is None:
                     return
                 try:
-                    full_log = __import__("json").loads(str(test_match["log_json"]))
+                    full_log = json.loads(str(test_match["log_json"]))
                 except Exception:
                     full_log = []
 
@@ -1174,7 +1250,7 @@ class QuidditchCog(commands.Cog):
                 full_log = []
                 if live_state is not None:
                     try:
-                        full_log = __import__("json").loads(str(live_state["log_json"]))
+                        full_log = json.loads(str(live_state["log_json"]))
                     except Exception:
                         full_log = []
                 full_log.append(log_line)
@@ -1185,7 +1261,7 @@ class QuidditchCog(commands.Cog):
                 full_log = []
                 if test_match is not None:
                     try:
-                        full_log = __import__("json").loads(str(test_match["log_json"]))
+                        full_log = json.loads(str(test_match["log_json"]))
                     except Exception:
                         full_log = []
                 full_log.append(log_line)
@@ -1202,7 +1278,7 @@ class QuidditchCog(commands.Cog):
                     await interaction.response.send_message("Cheer recorded.", ephemeral=True)
                     return
                 try:
-                    full_log = __import__("json").loads(str(live_state["log_json"]))
+                    full_log = json.loads(str(live_state["log_json"]))
                 except Exception:
                     full_log = []
 
@@ -1224,7 +1300,7 @@ class QuidditchCog(commands.Cog):
                     await interaction.response.send_message("Cheer recorded.", ephemeral=True)
                     return
                 try:
-                    full_log = __import__("json").loads(str(test_match["log_json"]))
+                    full_log = json.loads(str(test_match["log_json"]))
                 except Exception:
                     full_log = []
 
@@ -1290,15 +1366,11 @@ class QuidditchCog(commands.Cog):
                                     started_manually=False,
                                 )
                                 conn.commit()
-                                active_fixture = repo.get_fixture(int(next_fixture["id"]))
 
                 with self.database.connect() as conn:
                     repo = QuidditchRepository(conn)
                     latest_season = repo.get_latest_season(guild.id)
-                    if latest_season is not None:
-                        active_fixture = repo.get_active_fixture(int(latest_season["id"]))
-                    else:
-                        active_fixture = None
+                    active_fixture = repo.get_active_fixture(int(latest_season["id"])) if latest_season is not None else None
                     active_test = repo.get_active_test_match(guild.id)
 
                 if active_fixture is not None:
@@ -1692,16 +1764,23 @@ class QuidditchCog(commands.Cog):
             away_lineup=away_lineup,
         )
 
-        embed = discord.Embed(
-            title="🧪 Quidditch Pitch Render Test",
-            description=(
-                f"**{home_house} vs {away_house}**\n"
-                f"Rendered with mock/demo lineups for layout tuning.\n"
-                f"Score preview: **{score_team1:04d} – {score_team2:04d}**"
-            ),
-            color=0x5865F2,
+        embed = self._build_embed(
+            home_house=home_house,
+            away_house=away_house,
+            home_score=score_team1,
+            away_score=score_team2,
+            home_lineup=home_lineup,
+            away_lineup=away_lineup,
+            full_log=[
+                "13:00 And the game is off! Gryffindor vs Ravenclaw is underway.",
+                "13:01 A roar sweeps through the stands as both sides settle in.",
+                "13:02 The commentator is already losing their mind in the best way.",
+            ],
+            footer_text="Pitch render test",
+            image_filename="quidditch_test_pitch.png",
+            is_test=True,
+            ended=False,
         )
-        embed.set_image(url="attachment://quidditch_test_pitch.png")
 
         await interaction.response.send_message(
             embed=embed,
