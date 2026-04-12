@@ -168,9 +168,9 @@ class QuidditchImageService:
         beaters = [p for p in lineup if str(p.get("position", "")).lower() == "beater"]
         keepers = [p for p in lineup if str(p.get("position", "")).lower() == "keeper"]
         return seekers[:1] + chasers[:3] + beaters[:2] + keepers[:1]
-
+    
     def _format_score(self, score: int) -> str:
-        return f"{score:04d}"
+        return "  ".join(f"{score:04d}")
 
     def _load_score_font(self, size: int):
         harry_font = self.FONT_DIR / "HARRYP__.TTF"
