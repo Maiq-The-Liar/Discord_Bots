@@ -427,6 +427,16 @@ class QuidditchRepository:
             (guild_id,),
         ).fetchone()
 
+    def get_test_match(self, test_match_id: int) -> sqlite3.Row | None:
+        return self.conn.execute(
+            """
+            SELECT *
+            FROM quidditch_test_matches
+            WHERE id = ?
+            """,
+            (test_match_id,),
+        ).fetchone()
+
     def create_test_match(
         self,
         *,
@@ -473,11 +483,38 @@ class QuidditchRepository:
         )
         return int(cur.lastrowid)
 
+    def set_test_match_message(
+        self,
+        test_match_id: int,
+        *,
+        channel_id: int,
+        message_id: int,
+    ) -> None:
+        self.conn.execute(
+            """
+            UPDATE quidditch_test_matches
+            SET channel_id = ?, message_id = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """,
+            (channel_id, message_id, test_match_id),
+        )
+
     def complete_test_match(self, test_match_id: int) -> None:
         self.conn.execute(
             """
             UPDATE quidditch_test_matches
             SET status = 'completed',
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """,
+            (test_match_id,),
+        )
+
+    def cancel_test_match(self, test_match_id: int) -> None:
+        self.conn.execute(
+            """
+            UPDATE quidditch_test_matches
+            SET status = 'cancelled',
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
             """,

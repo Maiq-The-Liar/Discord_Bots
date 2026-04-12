@@ -354,18 +354,75 @@ class QuidditchCog(commands.Cog):
             embed.set_footer(text="Unofficial test match")
 
             message = await match_channel.send(embed=embed)
-
-            conn.execute(
-                """
-                UPDATE quidditch_test_matches
-                SET channel_id = ?, message_id = ?, updated_at = CURRENT_TIMESTAMP
-                WHERE id = ?
-                """,
-                (match_channel.id, message.id, int(result["test_match_id"])),
+            repo.set_test_match_message(
+                int(result["test_match_id"]),
+                channel_id=match_channel.id,
+                message_id=message.id,
             )
             conn.commit()
 
         await interaction.response.send_message(
             f"Unofficial Quidditch test game created in {match_channel.mention}.",
+            ephemeral=True,
+        )
+
+    @app_commands.command(
+        name="quidditch_testgame_stop",
+        description="Admin: stop the current unofficial Quidditch test game.",
+    )
+    async def quidditch_testgame_stop(
+        self,
+        interaction: discord.Interaction,
+    ) -> None:
+        if not self.is_admin(interaction):
+            await interaction.response.send_message(
+                "You do not have permission to use this command.",
+                ephemeral=True,
+            )
+            return
+
+        if interaction.guild is None:
+            await interaction.response.send_message(
+                "This command can only be used in a server.",
+                ephemeral=True,
+            )
+            return
+
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            service = QuidditchService(repo)
+
+            active_test = repo.get_active_test_match(interaction.guild.id)
+            if active_test is None:
+                await interaction.response.send_message(
+                    "There is no active Quidditch test game.",
+                    ephemeral=True,
+                )
+                return
+
+            channel_id = active_test["channel_id"]
+            message_id = active_test["message_id"]
+
+            try:
+                result = service.stop_test_game(guild_id=interaction.guild.id)
+            except ValueError as exc:
+                await interaction.response.send_message(str(exc), ephemeral=True)
+                return
+
+            if channel_id is not None and message_id is not None:
+                channel = interaction.guild.get_channel(int(channel_id))
+                if isinstance(channel, discord.TextChannel):
+                    try:
+                        message = await channel.fetch_message(int(message_id))
+                        await message.delete()
+                    except discord.HTTPException:
+                        pass
+
+            conn.commit()
+
+        test_match = result["test_match"]
+        await interaction.response.send_message(
+            f"Unofficial Quidditch test game stopped.\n"
+            f"**{test_match['home_house']} vs {test_match['away_house']}** was cancelled.",
             ephemeral=True,
         )
