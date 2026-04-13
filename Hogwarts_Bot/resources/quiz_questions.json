@@ -3305,7 +3305,7 @@
   },
   {
     "id": 231,
-    "question": "What is the first name of Ginny Weasley?",
+    "question": "What is the first name of youngest Weasley?",
     "image_url": null,
     "answer_groups": [
       [
@@ -3326,35 +3326,27 @@
   },
   {
     "id": 232,
-    "question": "What is the first name of Neville Longbottom?",
+    "question": "What is the first name of Longbottom?",
     "image_url": null,
     "answer_groups": [
       [
         "neville"
-      ],
-      [
-        "neville",
-        "longbottom"
       ]
     ]
   },
   {
     "id": 233,
-    "question": "What is the first name of Hermione Granger?",
+    "question": "Finnish the quote: \"I hope you're pleased with yourselves. We could all have been killed — or worse, ...\"",
     "image_url": null,
     "answer_groups": [
       [
-        "hermione"
-      ],
-      [
-        "hermione",
-        "granger"
+        "expelled"
       ]
     ]
   },
   {
     "id": 234,
-    "question": "What is the first name of Cho Chang?",
+    "question": "What is the first name of Chang?",
     "image_url": null,
     "answer_groups": [
       [
@@ -3368,7 +3360,7 @@
   },
   {
     "id": 235,
-    "question": "What is the first name of Cedric Diggory?",
+    "question": "Who is Hufflepuff's champion of the Triwizard Tournament?",
     "image_url": null,
     "answer_groups": [
       [
@@ -3382,7 +3374,7 @@
   },
   {
     "id": 236,
-    "question": "What is the first name of Fleur Delacour?",
+    "question": "Who is Beauxbaton's champion of the Triwizard Tournament?",
     "image_url": null,
     "answer_groups": [
       [
@@ -3396,7 +3388,7 @@
   },
   {
     "id": 237,
-    "question": "What is the first name of Viktor Krum?",
+    "question": "Who is Durmstrang's champion of the Triwizard Tournament?",
     "image_url": null,
     "answer_groups": [
       [
