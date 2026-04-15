@@ -411,9 +411,9 @@ class PrivateGameView(discord.ui.View):
             )
             return
 
-        if guess not in WORDS:
+        if not guess.isalpha():
             await interaction.response.send_message(
-                "That word is not in the Harry Potter word list.",
+                "Your guess can only contain letters.",
                 ephemeral=True
             )
             return
