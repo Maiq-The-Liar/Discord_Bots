@@ -584,15 +584,7 @@ def safe_partial_or_fallback(
     emoji_str: str,
 ) -> discord.PartialEmoji | str:
     parsed = discord.PartialEmoji.from_str(emoji_str)
-
-    if parsed.id is None:
-        return emoji_str
-
-    real_emoji = bot.get_emoji(parsed.id)
-    if real_emoji is not None:
-        return real_emoji
-
-    return "🧦"
+    return parsed if parsed.id is not None else emoji_str
 
 # =========================================================
 # EVENT STATE
@@ -752,17 +744,22 @@ class DobbyEvent:
             if self.message:
                 try:
                     missed_embed = discord.Embed(
-                        title=EVENT_TITLE,
-                        description=DOBBY_MISSED_DESCRIPTION,
+                        title="You just missed Dobby!",
+                        description=(
+                            "He vanished before anyone could hand him another sock.\n\n"
+                            "But knowing Dobby, he will surely be back again soon..."
+                        ),
                         color=discord.Color.dark_grey(),
                     )
                     missed_embed.set_footer(text="Dobby has already left.")
-                    await self.message.edit(embed=missed_embed, view=self.view)
+                    await self.message.edit(embed=missed_embed, view=None)
                 except discord.NotFound:
                     pass
                 except discord.HTTPException:
-                    log.exception("Failed to edit finished Dobby message in channel=%s", self.channel_id)
-
+                    log.exception(
+                        "Failed to edit finished Dobby message in channel=%s",
+                        self.channel_id,
+                    )
 # =========================================================
 # BUTTON VIEW
 # =========================================================
