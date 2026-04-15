@@ -4,7 +4,7 @@ import json
 import sqlite3
 import hashlib
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 import discord
 from discord.ext import commands, tasks
@@ -19,7 +19,6 @@ from PIL import Image, ImageDraw, ImageFont
 load_dotenv()
 
 TOKEN = os.getenv("DISCORD_TOKEN")
-DAILY_CHANNEL_ID = int(os.getenv("DAILY_CHANNEL_ID", "0"))
 GUILD_ID = int(os.getenv("GUILD_ID", "0"))
 
 WORDS_FILE = Path("hp_words.json")
@@ -32,12 +31,20 @@ intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
 tree = bot.tree
 
+
 # =========================================================
 # DATABASE
 # =========================================================
 
 conn = sqlite3.connect(DB_FILE)
 conn.row_factory = sqlite3.Row
+
+conn.execute("""
+CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+)
+""")
 
 conn.execute("""
 CREATE TABLE IF NOT EXISTS daily_posts (
@@ -63,6 +70,30 @@ CREATE TABLE IF NOT EXISTS game_results (
 """)
 
 conn.commit()
+
+
+# =========================================================
+# SETTINGS HELPERS
+# =========================================================
+
+def get_setting(key: str, default: str | None = None) -> str | None:
+    row = conn.execute("SELECT value FROM settings WHERE key = ?", (key,)).fetchone()
+    return row["value"] if row else default
+
+
+def set_setting(key: str, value: str):
+    conn.execute("""
+    INSERT INTO settings(key, value)
+    VALUES (?, ?)
+    ON CONFLICT(key) DO UPDATE SET value = excluded.value
+    """, (key, value))
+    conn.commit()
+
+
+def delete_setting(key: str):
+    conn.execute("DELETE FROM settings WHERE key = ?", (key,))
+    conn.commit()
+
 
 # =========================================================
 # WORDS
@@ -91,8 +122,9 @@ def load_words():
 WORDS = load_words()
 
 
-def get_day_key():
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+def get_day_key(dt: datetime | None = None) -> str:
+    dt = dt or datetime.now(timezone.utc)
+    return dt.strftime("%Y-%m-%d")
 
 
 def get_daily_word(day_key: str) -> str:
@@ -100,15 +132,12 @@ def get_daily_word(day_key: str) -> str:
     index = int(digest, 16) % len(WORDS)
     return WORDS[index]
 
+
 # =========================================================
 # GAME LOGIC
 # =========================================================
 
 def score_guess(guess: str, target: str):
-    """
-    Returns a list like:
-    ['correct', 'present', 'absent', ...]
-    """
     result = ["absent"] * len(target)
     remaining = list(target)
 
@@ -127,6 +156,7 @@ def score_guess(guess: str, target: str):
             remaining[remaining.index(ch)] = None
 
     return result
+
 
 # =========================================================
 # PNG GENERATION
@@ -198,6 +228,7 @@ def render_board_png(target: str, guesses: list[str]) -> bytes:
     buffer.seek(0)
     return buffer.read()
 
+
 # =========================================================
 # DATABASE HELPERS
 # =========================================================
@@ -225,6 +256,16 @@ def save_daily_post(day_key: str, channel_id: int, message_id: int, word: str):
         word,
         datetime.now(timezone.utc).isoformat()
     ))
+    conn.commit()
+
+
+def delete_daily_post(day_key: str):
+    conn.execute("DELETE FROM daily_posts WHERE day_key = ?", (day_key,))
+    conn.commit()
+
+
+def delete_game_results(day_key: str):
+    conn.execute("DELETE FROM game_results WHERE day_key = ?", (day_key,))
     conn.commit()
 
 
@@ -265,6 +306,7 @@ def get_leaderboard(day_key: str, limit: int = 10):
     ORDER BY tries ASC, solved_at ASC
     LIMIT ?
     """, (day_key, limit)).fetchall()
+
 
 # =========================================================
 # EMBEDS
@@ -313,6 +355,7 @@ def make_private_embed(day_key: str, target: str, guesses: list[str], solved: bo
 
     return embed
 
+
 # =========================================================
 # UI
 # =========================================================
@@ -355,7 +398,7 @@ class PrivateGameView(discord.ui.View):
         solved = bool(row["solved"]) if row else False
 
         if solved or len(guesses) >= MAX_ROWS:
-            await interaction.response.send_message("Your game is already finished for today.", ephemeral=True)
+            await interaction.response.send_message("Your game is already finished for this challenge.", ephemeral=True)
             return
 
         await interaction.response.send_modal(GuessModal(self))
@@ -379,7 +422,7 @@ class PrivateGameView(discord.ui.View):
         guesses = json.loads(row["guesses_json"]) if row else []
 
         if len(guesses) >= MAX_ROWS:
-            await interaction.response.send_message("You have no tries left today.", ephemeral=True)
+            await interaction.response.send_message("You have no tries left for this challenge.", ephemeral=True)
             return
 
         guesses.append(guess)
@@ -419,14 +462,14 @@ class StartView(discord.ui.View):
 
     @discord.ui.button(label="Start Game", style=discord.ButtonStyle.success, custom_id="hpwordle:start")
     async def start_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        day_key = get_day_key()
-        target = get_daily_word(day_key)
+        current_day_key = get_current_active_day_key()
+        target = get_daily_word(current_day_key)
 
-        row = get_result(day_key, interaction.user.id)
+        row = get_result(current_day_key, interaction.user.id)
 
         if row is None:
             upsert_result(
-                day_key=day_key,
+                day_key=current_day_key,
                 user_id=interaction.user.id,
                 username=interaction.user.display_name,
                 solved=0,
@@ -444,8 +487,8 @@ class StartView(discord.ui.View):
 
         png_bytes = render_board_png(target, guesses)
         file = discord.File(io.BytesIO(png_bytes), filename="board.png")
-        embed = make_private_embed(day_key, target, guesses, solved, lost)
-        view = None if (solved or lost) else PrivateGameView(interaction.user.id, day_key, target)
+        embed = make_private_embed(current_day_key, target, guesses, solved, lost)
+        view = None if (solved or lost) else PrivateGameView(interaction.user.id, current_day_key, target)
 
         await interaction.response.send_message(
             embed=embed,
@@ -454,9 +497,58 @@ class StartView(discord.ui.View):
             ephemeral=True
         )
 
+
 # =========================================================
-# DAILY MESSAGE
+# ACTIVE CHALLENGE CONTROL
 # =========================================================
+
+def get_current_active_day_key() -> str:
+    forced_day_key = get_setting("active_day_key")
+    if forced_day_key:
+        return forced_day_key
+    return get_day_key()
+
+
+async def safe_delete_message(channel_id: int, message_id: int):
+    try:
+        channel = bot.get_channel(channel_id)
+        if channel is None:
+            channel = await bot.fetch_channel(channel_id)
+
+        message = await channel.fetch_message(message_id)
+        await message.delete()
+    except Exception:
+        pass
+
+
+async def create_new_challenge(channel_id: int, day_key: str):
+    word = get_daily_word(day_key)
+
+    channel = bot.get_channel(channel_id)
+    if channel is None:
+        channel = await bot.fetch_channel(channel_id)
+
+    embed = make_daily_embed(day_key, word)
+    message = await channel.send(embed=embed, view=StartView())
+
+    save_daily_post(day_key, channel.id, message.id, word)
+    set_setting("wordle_channel_id", str(channel.id))
+    set_setting("active_day_key", day_key)
+
+
+async def reset_and_create_new_challenge(channel_id: int):
+    old_day_key = get_setting("active_day_key")
+
+    if old_day_key:
+        old_post = get_daily_post(old_day_key)
+        if old_post:
+            await safe_delete_message(old_post["channel_id"], old_post["message_id"])
+            delete_daily_post(old_day_key)
+
+    new_day_key = datetime.now(timezone.utc).strftime("%Y-%m-%d-%H-%M-%S")
+    delete_game_results(new_day_key)
+    await create_new_challenge(channel_id, new_day_key)
+
 
 async def refresh_daily_post(day_key: str):
     post = get_daily_post(day_key)
@@ -476,50 +568,67 @@ async def refresh_daily_post(day_key: str):
     await message.edit(embed=embed, view=StartView())
 
 
-async def ensure_daily_post():
-    day_key = get_day_key()
-    existing = get_daily_post(day_key)
+async def rollover_if_needed():
+    channel_id_raw = get_setting("wordle_channel_id")
+    active_day_key = get_setting("active_day_key")
 
-    if existing:
+    if not channel_id_raw:
         return
 
-    word = get_daily_word(day_key)
+    today_key = get_day_key()
 
-    channel = bot.get_channel(DAILY_CHANNEL_ID)
-    if channel is None:
-        channel = await bot.fetch_channel(DAILY_CHANNEL_ID)
+    # If never set properly, create today's post
+    if not active_day_key:
+        await create_new_challenge(int(channel_id_raw), today_key)
+        return
 
-    embed = make_daily_embed(day_key, word)
-    message = await channel.send(embed=embed, view=StartView())
+    # Manual test keys look like YYYY-MM-DD-HH-MM-SS
+    # Daily rollover should only happen when the active key is not today's key.
+    if active_day_key != today_key:
+        old_post = get_daily_post(active_day_key)
+        if old_post:
+            await safe_delete_message(old_post["channel_id"], old_post["message_id"])
+            delete_daily_post(active_day_key)
 
-    save_daily_post(day_key, channel.id, message.id, word)
+        await create_new_challenge(int(channel_id_raw), today_key)
 
 
-@tasks.loop(minutes=5)
-async def daily_post_loop():
-    await ensure_daily_post()
+@tasks.loop(minutes=1)
+async def daily_rollover_loop():
+    await rollover_if_needed()
+
 
 # =========================================================
 # SLASH COMMANDS
 # =========================================================
 
-@tree.command(name="force_daily_post", description="Force-create today's public HP Wordle post")
+@tree.command(name="setup_wordle", description="Set up or reset the Wordle challenge in a channel")
+@app_commands.describe(channel="The channel where the public Wordle message should be posted")
 @app_commands.default_permissions(administrator=True)
-async def force_daily_post(interaction: discord.Interaction):
-    await ensure_daily_post()
-    await interaction.response.send_message("Checked today's daily post.", ephemeral=True)
+async def setup_wordle(interaction: discord.Interaction, channel: discord.TextChannel):
+    await interaction.response.defer(ephemeral=True)
+
+    await reset_and_create_new_challenge(channel.id)
+
+    active_day_key = get_setting("active_day_key")
+    await interaction.followup.send(
+        f"Wordle set up in {channel.mention}.\n"
+        f"New challenge key: `{active_day_key}`\n"
+        f"Running `/setup_wordle` again will delete the old one and create a fresh test challenge.",
+        ephemeral=True
+    )
 
 
 @tree.command(name="my_hp_wordle", description="Open your private HP Wordle game")
 async def my_hp_wordle(interaction: discord.Interaction):
-    day_key = get_day_key()
-    target = get_daily_word(day_key)
+    current_day_key = get_current_active_day_key()
+    target = get_daily_word(current_day_key)
 
-    row = get_result(day_key, interaction.user.id)
+    row = get_result(current_day_key, interaction.user.id)
 
     if row is None:
         upsert_result(
-            day_key=day_key,
+            day_key=current_day_key,
             user_id=interaction.user.id,
             username=interaction.user.display_name,
             solved=0,
@@ -537,8 +646,8 @@ async def my_hp_wordle(interaction: discord.Interaction):
 
     png_bytes = render_board_png(target, guesses)
     file = discord.File(io.BytesIO(png_bytes), filename="board.png")
-    embed = make_private_embed(day_key, target, guesses, solved, lost)
-    view = None if (solved or lost) else PrivateGameView(interaction.user.id, day_key, target)
+    embed = make_private_embed(current_day_key, target, guesses, solved, lost)
+    view = None if (solved or lost) else PrivateGameView(interaction.user.id, current_day_key, target)
 
     await interaction.response.send_message(
         embed=embed,
@@ -546,6 +655,7 @@ async def my_hp_wordle(interaction: discord.Interaction):
         view=view,
         ephemeral=True
     )
+
 
 # =========================================================
 # EVENTS
@@ -564,10 +674,9 @@ async def on_ready():
     else:
         await tree.sync()
 
-    if not daily_post_loop.is_running():
-        daily_post_loop.start()
+    if not daily_rollover_loop.is_running():
+        daily_rollover_loop.start()
 
-    await ensure_daily_post()
 
 # =========================================================
 # START
@@ -575,8 +684,5 @@ async def on_ready():
 
 if not TOKEN:
     raise RuntimeError("DISCORD_TOKEN is missing in .env")
-
-if not DAILY_CHANNEL_ID:
-    raise RuntimeError("DAILY_CHANNEL_ID is missing in .env")
 
 bot.run(TOKEN)
