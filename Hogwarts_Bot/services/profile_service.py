@@ -785,7 +785,6 @@ class ProfileService:
         else:
             banner_embed.title = f"{member.display_name}'s Profile"
 
-        banner_embed.set_footer(text=HOGWARTS_CREST_EMOJI)
 
         profile_embed = discord.Embed(color=color)
         profile_embed.set_thumbnail(url=member.display_avatar.url)
