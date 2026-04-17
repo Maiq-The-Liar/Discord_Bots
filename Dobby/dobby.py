@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import json
 import logging
 import os
@@ -64,7 +65,7 @@ BEANS_DIR = resolve_beans_dir()
 MAX_PARTICIPANTS = 5
 EVENT_DURATION_SECONDS = 20 * 60
 
-MIN_SPAWN_SECONDS = 3 * 60 * 60
+MIN_SPAWN_SECONDS = 4 * 60 * 60
 MAX_SPAWN_SECONDS = 10 * 60 * 60
 SPAWN_CHECK_INTERVAL_SECONDS = 60
 
@@ -670,6 +671,32 @@ class DobbyEvent:
         )
         return embed
 
+    def build_end_embed(self) -> discord.Embed:
+        if not self.participants:
+            embed = discord.Embed(
+                title="You just missed Dobby!",
+                description=(
+                    "He vanished before anyone could hand him another sock.\n\n"
+                    "But knowing Dobby, he will surely be back again soon..."
+                ),
+                color=discord.Color.dark_grey(),
+            )
+            embed.set_footer(text="Dobby has already left.")
+            return embed
+
+        names = "\n".join(f"• {info['name']}" for info in self.participants.values())
+        embed = discord.Embed(
+            title="Dobby has left!",
+            description=(
+                "Dobby inspected the socks and has now disappeared.\n\n"
+                f"**Participants:** {self.participant_count()}/{MAX_PARTICIPANTS}\n"
+                f"**People who interacted:**\n{names}"
+            ),
+            color=discord.Color.dark_grey(),
+        )
+        embed.set_footer(text="This Dobby event has ended.")
+        return embed
+
     async def send(self) -> None:
         self.view = DobbyView(self)
         self.message = await self.channel.send(embed=self.build_embed(), view=self.view)
@@ -735,31 +762,31 @@ class DobbyEvent:
                 for child in self.view.children:
                     if isinstance(child, discord.ui.Button):
                         child.disabled = True
+                self.view.stop()
 
-            if self.end_task and not self.end_task.done():
+            current_task = asyncio.current_task()
+            if self.end_task and self.end_task is not current_task and not self.end_task.done():
                 self.end_task.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await self.end_task
 
-            active_events.pop(self.channel_id, None)
+            try:
+                if self.message is not None:
+                    await self.message.edit(embed=self.build_end_embed(), view=None)
+            except discord.NotFound:
+                log.warning(
+                    "Could not edit finished Dobby message because it no longer exists in channel=%s",
+                    self.channel_id,
+                )
+            except discord.HTTPException:
+                log.exception(
+                    "Failed to edit finished Dobby message in channel=%s",
+                    self.channel_id,
+                )
+            finally:
+                active_events.pop(self.channel_id, None)
+                self.end_task = None
 
-            if self.message:
-                try:
-                    missed_embed = discord.Embed(
-                        title="You just missed Dobby!",
-                        description=(
-                            "He vanished before anyone could hand him another sock.\n\n"
-                            "But knowing Dobby, he will surely be back again soon..."
-                        ),
-                        color=discord.Color.dark_grey(),
-                    )
-                    missed_embed.set_footer(text="Dobby has already left.")
-                    await self.message.edit(embed=missed_embed, view=None)
-                except discord.NotFound:
-                    pass
-                except discord.HTTPException:
-                    log.exception(
-                        "Failed to edit finished Dobby message in channel=%s",
-                        self.channel_id,
-                    )
 # =========================================================
 # BUTTON VIEW
 # =========================================================
@@ -814,18 +841,20 @@ class DobbyView(discord.ui.View):
             rank, reward = self.event.add_participant(interaction.user, sock_emoji)
             total = get_bean_count(interaction.user.id)
             bean_word = "Bean" if reward == 1 else "Beans"
+            maxed = self.event.participant_count() >= MAX_PARTICIPANTS
 
-            await self.event.refresh_message()
+            try:
+                await self.event.refresh_message()
 
-            await interaction.followup.send(
-                f"{DOBBY_RESPONSE_BY_RANK[rank]}\n\n"
-                f"You received **{reward} Bertie Bott’s Every Flavoured {bean_word}**.\n"
-                f"You now have **{total} Bertie Bott’s Every Flavoured Beans**.",
-                ephemeral=True,
-            )
-
-            if self.event.participant_count() >= MAX_PARTICIPANTS:
-                await self.event.end(reason="max_participants")
+                await interaction.followup.send(
+                    f"{DOBBY_RESPONSE_BY_RANK[rank]}\n\n"
+                    f"You received **{reward} Bertie Bott’s Every Flavoured {bean_word}**.\n"
+                    f"You now have **{total} Bertie Bott’s Every Flavoured Beans**.",
+                    ephemeral=True,
+                )
+            finally:
+                if maxed and self.event.active:
+                    await self.event.end(reason="max_participants")
 
 # =========================================================
 # BOT CLASS
@@ -858,7 +887,7 @@ def validate_sock_emoji_pool() -> None:
 
     if unavailable:
         log.warning(
-            "Some sock emojis are not available to the bot and will fall back to 🧦: %s",
+            "Some sock emojis are not available to the bot and may not render correctly: %s",
             unavailable,
         )
 
