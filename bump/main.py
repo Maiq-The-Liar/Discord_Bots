@@ -18,7 +18,7 @@ load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 if not TOKEN:
-    raise RuntimeError("DISCORD_TOKEN was not found in the .env file.")
+    raise RuntimeError("DISC︱・ORD_TOKEN was not found in the .env file.")
 
 # =========================
 # CONFIG
@@ -27,8 +27,8 @@ if not TOKEN:
 DISBOARD_BOT_ID = 302050872383242240
 PING_ROLE_ID = 1494749646705262702
 
-READY_CHANNEL_NAME = "🔔 BUMP-US 🔔"
-COOLDOWN_CHANNEL_NAME = "bump-the-server"
+READY_CHANNEL_NAME = "︱・🔔 BUMP-US 🔔"
+COOLDOWN_CHANNEL_NAME = "︱・bumpy-sleepy-zzz"
 
 BUMP_COOLDOWN_SECONDS = 2 * 60 * 60  # 2 hours
 DATA_FILE = Path("bump_data.json")
