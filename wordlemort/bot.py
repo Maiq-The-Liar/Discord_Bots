@@ -1,688 +1,472 @@
-import os
-import io
+# bot.py
+# Python 3.10+
+# pip install -U discord.py
+
+import asyncio
 import json
-import sqlite3
-import hashlib
-from pathlib import Path
+import logging
+import os
 from datetime import datetime, timezone, timedelta
+from pathlib import Path
+from typing import Any
 
 import discord
-from discord.ext import commands, tasks
 from discord import app_commands
-from dotenv import load_dotenv
-from PIL import Image, ImageDraw, ImageFont
+from discord.ext import commands
 
-# =========================================================
-# CONFIG
-# =========================================================
+# =========================
+# Configuration
+# =========================
 
-load_dotenv()
+TOKEN = "PUT_YOUR_BOT_TOKEN_HERE"
 
-TOKEN = os.getenv("DISCORD_TOKEN")
-GUILD_ID = int(os.getenv("GUILD_ID", "0"))
+DISBOARD_BOT_ID = 302050872383242240
+PING_ROLE_ID = 1494749646705262702
 
-WORDS_FILE = Path("hp_words.json")
-DB_FILE = Path("hp_wordle.db")
+READY_CHANNEL_NAME = "🔔 BUMP-US 🔔"
+COOLDOWN_CHANNEL_NAME = "bump-the-server"
 
-MAX_ROWS = 5
-GAME_TIMEOUT_SECONDS = 900
+BUMP_COOLDOWN_SECONDS = 2 * 60 * 60  # 2 hours
+
+DATA_FILE = Path("bump_data.json")
+
+# Optional:
+# If you want faster slash-command registration while testing,
+# put your server ID here and uncomment sync logic in setup_hook.
+TEST_GUILD_ID = None  # example: 123456789012345678
+
+# =========================
+# Logging
+# =========================
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+)
+log = logging.getLogger("bump-bot")
+
+# =========================
+# Intents
+# =========================
 
 intents = discord.Intents.default()
-bot = commands.Bot(command_prefix="!", intents=intents)
-tree = bot.tree
+intents.guilds = True
+intents.messages = True
+intents.message_content = True  # needed to inspect DISBOARD's message/embed
+
+# =========================
+# Persistence helpers
+# =========================
 
 
-# =========================================================
-# DATABASE
-# =========================================================
-
-conn = sqlite3.connect(DB_FILE)
-conn.row_factory = sqlite3.Row
-
-conn.execute("""
-CREATE TABLE IF NOT EXISTS settings (
-    key TEXT PRIMARY KEY,
-    value TEXT NOT NULL
-)
-""")
-
-conn.execute("""
-CREATE TABLE IF NOT EXISTS daily_posts (
-    day_key TEXT PRIMARY KEY,
-    channel_id INTEGER NOT NULL,
-    message_id INTEGER NOT NULL,
-    word TEXT NOT NULL,
-    created_at TEXT NOT NULL
-)
-""")
-
-conn.execute("""
-CREATE TABLE IF NOT EXISTS game_results (
-    day_key TEXT NOT NULL,
-    user_id INTEGER NOT NULL,
-    username TEXT NOT NULL,
-    solved INTEGER NOT NULL DEFAULT 0,
-    tries INTEGER NOT NULL DEFAULT 0,
-    guesses_json TEXT NOT NULL DEFAULT '[]',
-    solved_at TEXT,
-    PRIMARY KEY (day_key, user_id)
-)
-""")
-
-conn.commit()
+def utc_now() -> datetime:
+    return datetime.now(timezone.utc)
 
 
-# =========================================================
-# SETTINGS HELPERS
-# =========================================================
-
-def get_setting(key: str, default: str | None = None) -> str | None:
-    row = conn.execute("SELECT value FROM settings WHERE key = ?", (key,)).fetchone()
-    return row["value"] if row else default
+def dt_to_iso(dt: datetime | None) -> str | None:
+    if dt is None:
+        return None
+    return dt.astimezone(timezone.utc).isoformat()
 
 
-def set_setting(key: str, value: str):
-    conn.execute("""
-    INSERT INTO settings(key, value)
-    VALUES (?, ?)
-    ON CONFLICT(key) DO UPDATE SET value = excluded.value
-    """, (key, value))
-    conn.commit()
+def iso_to_dt(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    return datetime.fromisoformat(value).astimezone(timezone.utc)
 
 
-def delete_setting(key: str):
-    conn.execute("DELETE FROM settings WHERE key = ?", (key,))
-    conn.commit()
+def default_data() -> dict[str, Any]:
+    return {"guilds": {}}
 
 
-# =========================================================
-# WORDS
-# =========================================================
-
-def load_words():
-    if not WORDS_FILE.exists():
-        raise RuntimeError("hp_words.json not found")
-
-    raw = json.loads(WORDS_FILE.read_text(encoding="utf-8"))
-    words = []
-
-    for word in raw:
-        word = str(word).strip().lower()
-        if word.isalpha() and 5 <= len(word) <= 10:
-            words.append(word)
-
-    words = sorted(set(words))
-
-    if not words:
-        raise RuntimeError("No valid 5-10 letter words found in hp_words.json")
-
-    return words
-
-
-WORDS = load_words()
-
-
-def get_day_key(dt: datetime | None = None) -> str:
-    dt = dt or datetime.now(timezone.utc)
-    return dt.strftime("%Y-%m-%d")
-
-
-def get_daily_word(day_key: str) -> str:
-    digest = hashlib.sha256(day_key.encode("utf-8")).hexdigest()
-    index = int(digest, 16) % len(WORDS)
-    return WORDS[index]
-
-
-# =========================================================
-# GAME LOGIC
-# =========================================================
-
-def score_guess(guess: str, target: str):
-    result = ["absent"] * len(target)
-    remaining = list(target)
-
-    # Greens first
-    for i, ch in enumerate(guess):
-        if ch == target[i]:
-            result[i] = "correct"
-            remaining[i] = None
-
-    # Yellows second
-    for i, ch in enumerate(guess):
-        if result[i] == "correct":
-            continue
-        if ch in remaining:
-            result[i] = "present"
-            remaining[remaining.index(ch)] = None
-
-    return result
-
-
-# =========================================================
-# PNG GENERATION
-# =========================================================
-
-def render_board_png(target: str, guesses: list[str]) -> bytes:
-    cols = len(target)
-    rows = MAX_ROWS
-
-    cell_size = 70
-    gap = 8
-    padding = 24
-
-    width = padding * 2 + cols * cell_size + (cols - 1) * gap
-    height = padding * 2 + rows * cell_size + (rows - 1) * gap
-
-    bg_color = (18, 18, 19)
-    empty_border = (90, 90, 95)
-    absent_color = (58, 58, 60)
-    present_color = (181, 159, 59)
-    correct_color = (83, 141, 78)
-    text_color = (255, 255, 255)
-
-    image = Image.new("RGB", (width, height), bg_color)
-    draw = ImageDraw.Draw(image)
+def load_data() -> dict[str, Any]:
+    if not DATA_FILE.exists():
+        return default_data()
 
     try:
-        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 34)
-    except Exception:
-        font = ImageFont.load_default()
+        with DATA_FILE.open("r", encoding="utf-8") as f:
+            raw = json.load(f)
+        if "guilds" not in raw or not isinstance(raw["guilds"], dict):
+            return default_data()
+        return raw
+    except Exception as e:
+        log.exception("Failed to load data file: %s", e)
+        return default_data()
 
-    for row in range(rows):
-        y = padding + row * (cell_size + gap)
 
-        if row < len(guesses):
-            guess = guesses[row]
-            states = score_guess(guess, target)
+def save_data(data: dict[str, Any]) -> None:
+    tmp = DATA_FILE.with_suffix(".tmp")
+    with tmp.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+    tmp.replace(DATA_FILE)
+
+
+# =========================
+# Bot
+# =========================
+
+class BumpBot(commands.Bot):
+    def __init__(self) -> None:
+        super().__init__(command_prefix="!", intents=intents)
+        self.data: dict[str, Any] = load_data()
+        self.reminder_tasks: dict[int, asyncio.Task] = {}
+
+    async def setup_hook(self) -> None:
+        # Register slash commands.
+        if TEST_GUILD_ID:
+            guild = discord.Object(id=TEST_GUILD_ID)
+            self.tree.copy_global_to(guild=guild)
+            synced = await self.tree.sync(guild=guild)
+            log.info("Synced %d test-guild command(s).", len(synced))
         else:
-            guess = None
-            states = None
+            synced = await self.tree.sync()
+            log.info("Synced %d global command(s).", len(synced))
 
-        for col in range(cols):
-            x = padding + col * (cell_size + gap)
-            rect = [x, y, x + cell_size, y + cell_size]
-
-            if guess:
-                state = states[col]
-                if state == "correct":
-                    fill = correct_color
-                elif state == "present":
-                    fill = present_color
-                else:
-                    fill = absent_color
-
-                draw.rounded_rectangle(rect, radius=8, fill=fill)
-
-                letter = guess[col].upper()
-                bbox = draw.textbbox((0, 0), letter, font=font)
-                tw = bbox[2] - bbox[0]
-                th = bbox[3] - bbox[1]
-                tx = x + (cell_size - tw) / 2
-                ty = y + (cell_size - th) / 2 - 2
-                draw.text((tx, ty), letter, fill=text_color, font=font)
-            else:
-                draw.rounded_rectangle(rect, radius=8, outline=empty_border, width=2)
-
-    buffer = io.BytesIO()
-    image.save(buffer, format="PNG")
-    buffer.seek(0)
-    return buffer.read()
-
-
-# =========================================================
-# DATABASE HELPERS
-# =========================================================
-
-def get_daily_post(day_key: str):
-    return conn.execute(
-        "SELECT * FROM daily_posts WHERE day_key = ?",
-        (day_key,)
-    ).fetchone()
-
-
-def save_daily_post(day_key: str, channel_id: int, message_id: int, word: str):
-    conn.execute("""
-    INSERT INTO daily_posts(day_key, channel_id, message_id, word, created_at)
-    VALUES (?, ?, ?, ?, ?)
-    ON CONFLICT(day_key) DO UPDATE SET
-        channel_id = excluded.channel_id,
-        message_id = excluded.message_id,
-        word = excluded.word,
-        created_at = excluded.created_at
-    """, (
-        day_key,
-        channel_id,
-        message_id,
-        word,
-        datetime.now(timezone.utc).isoformat()
-    ))
-    conn.commit()
-
-
-def delete_daily_post(day_key: str):
-    conn.execute("DELETE FROM daily_posts WHERE day_key = ?", (day_key,))
-    conn.commit()
-
-
-def delete_game_results(day_key: str):
-    conn.execute("DELETE FROM game_results WHERE day_key = ?", (day_key,))
-    conn.commit()
-
-
-def get_result(day_key: str, user_id: int):
-    return conn.execute(
-        "SELECT * FROM game_results WHERE day_key = ? AND user_id = ?",
-        (day_key, user_id)
-    ).fetchone()
-
-
-def upsert_result(day_key: str, user_id: int, username: str, solved: int, tries: int, guesses: list[str], solved_at: str | None):
-    conn.execute("""
-    INSERT INTO game_results(day_key, user_id, username, solved, tries, guesses_json, solved_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-    ON CONFLICT(day_key, user_id) DO UPDATE SET
-        username = excluded.username,
-        solved = excluded.solved,
-        tries = excluded.tries,
-        guesses_json = excluded.guesses_json,
-        solved_at = excluded.solved_at
-    """, (
-        day_key,
-        user_id,
-        username,
-        solved,
-        tries,
-        json.dumps(guesses),
-        solved_at
-    ))
-    conn.commit()
-
-
-def get_leaderboard(day_key: str, limit: int = 10):
-    return conn.execute("""
-    SELECT username, tries, solved_at
-    FROM game_results
-    WHERE day_key = ? AND solved = 1
-    ORDER BY tries ASC, solved_at ASC
-    LIMIT ?
-    """, (day_key, limit)).fetchall()
-
-
-# =========================================================
-# EMBEDS
-# =========================================================
-
-def build_leaderboard_text(day_key: str) -> str:
-    rows = get_leaderboard(day_key)
-
-    if not rows:
-        return "Nobody solved today's word yet."
-
-    lines = []
-    for i, row in enumerate(rows, start=1):
-        lines.append(f"**{i}.** {row['username']} — {row['tries']} tries")
-    return "\n".join(lines)
-
-
-def make_daily_embed(day_key: str, word: str) -> discord.Embed:
-    embed = discord.Embed(
-        title=f"⚡ Daily HP Wordle — {day_key}",
-        description=(
-            "Guess the Harry Potter word of the day.\n"
-            f"Today's word has **{len(word)}** letters.\n"
-            f"You get **{MAX_ROWS}** tries."
-        ),
-        color=discord.Color.blurple()
-    )
-    embed.add_field(name="Leaderboard", value=build_leaderboard_text(day_key), inline=False)
-    embed.set_footer(text="Click the button below to start your private game.")
-    return embed
-
-
-def make_private_embed(day_key: str, target: str, guesses: list[str], solved: bool, lost: bool) -> discord.Embed:
-    embed = discord.Embed(
-        title=f"🪄 Your HP Wordle — {day_key}",
-        description=f"Word length: **{len(target)}** | Tries: **{len(guesses)}/{MAX_ROWS}**",
-        color=discord.Color.dark_teal()
-    )
-
-    if solved:
-        embed.add_field(name="Status", value=f"✅ Solved in **{len(guesses)}** tries.", inline=False)
-    elif lost:
-        embed.add_field(name="Status", value=f"❌ Out of tries. The word was **{target.upper()}**.", inline=False)
-    else:
-        embed.add_field(name="Status", value="Press **Guess** to enter a word.", inline=False)
-
-    return embed
-
-
-# =========================================================
-# UI
-# =========================================================
-
-class GuessModal(discord.ui.Modal, title="Enter your guess"):
-    guess_input = discord.ui.TextInput(
-        label="Guess",
-        placeholder="Type your Harry Potter word",
-        required=True,
-        min_length=5,
-        max_length=10,
-    )
-
-    def __init__(self, game_view: "PrivateGameView"):
-        super().__init__()
-        self.game_view = game_view
-
-    async def on_submit(self, interaction: discord.Interaction):
-        guess = str(self.guess_input.value).strip().lower()
-        await self.game_view.handle_guess(interaction, guess)
-
-
-class PrivateGameView(discord.ui.View):
-    def __init__(self, user_id: int, day_key: str, target: str):
-        super().__init__(timeout=GAME_TIMEOUT_SECONDS)
-        self.user_id = user_id
-        self.day_key = day_key
-        self.target = target
-
-    async def interaction_check(self, interaction: discord.Interaction) -> bool:
-        if interaction.user.id != self.user_id:
-            await interaction.response.send_message("This is not your game.", ephemeral=True)
-            return False
-        return True
-
-    @discord.ui.button(label="Guess", style=discord.ButtonStyle.primary)
-    async def guess_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        row = get_result(self.day_key, self.user_id)
-        guesses = json.loads(row["guesses_json"]) if row else []
-        solved = bool(row["solved"]) if row else False
-
-        if solved or len(guesses) >= MAX_ROWS:
-            await interaction.response.send_message("Your game is already finished for this challenge.", ephemeral=True)
-            return
-
-        await interaction.response.send_modal(GuessModal(self))
-
-    async def handle_guess(self, interaction: discord.Interaction, guess: str):
-        if len(guess) != len(self.target):
-            await interaction.response.send_message(
-                f"Your guess must be exactly **{len(self.target)}** letters.",
-                ephemeral=True
-            )
-            return
-
-        if not guess.isalpha():
-            await interaction.response.send_message(
-                "Your guess can only contain letters.",
-                ephemeral=True
-            )
-            return
-
-        row = get_result(self.day_key, self.user_id)
-        guesses = json.loads(row["guesses_json"]) if row else []
-
-        if len(guesses) >= MAX_ROWS:
-            await interaction.response.send_message("You have no tries left for this challenge.", ephemeral=True)
-            return
-
-        guesses.append(guess)
-
-        solved = int(guess == self.target)
-        lost = len(guesses) >= MAX_ROWS and not solved
-        solved_at = datetime.now(timezone.utc).isoformat() if solved else None
-
-        upsert_result(
-            self.day_key,
-            self.user_id,
-            interaction.user.display_name,
-            solved,
-            len(guesses),
-            guesses,
-            solved_at
+    def guild_config(self, guild_id: int) -> dict[str, Any]:
+        gid = str(guild_id)
+        guilds = self.data.setdefault("guilds", {})
+        cfg = guilds.setdefault(
+            gid,
+            {
+                "channel_id": None,
+                "last_bump_at": None,
+                "last_bumped_by": None,
+                "last_disboard_message_id": None,
+            },
         )
+        return cfg
 
-        png_bytes = render_board_png(self.target, guesses)
-        file = discord.File(io.BytesIO(png_bytes), filename="board.png")
-        embed = make_private_embed(self.day_key, self.target, guesses, bool(solved), bool(lost))
+    def get_last_bump_dt(self, guild_id: int) -> datetime | None:
+        cfg = self.guild_config(guild_id)
+        return iso_to_dt(cfg.get("last_bump_at"))
 
-        new_view = None if (solved or lost) else PrivateGameView(self.user_id, self.day_key, self.target)
+    def set_last_bump_dt(self, guild_id: int, dt: datetime | None) -> None:
+        cfg = self.guild_config(guild_id)
+        cfg["last_bump_at"] = dt_to_iso(dt)
+        save_data(self.data)
 
-        await interaction.response.edit_message(
-            embed=embed,
-            attachments=[file],
-            view=new_view
-        )
+    def set_listen_channel(self, guild_id: int, channel_id: int) -> None:
+        cfg = self.guild_config(guild_id)
+        cfg["channel_id"] = channel_id
+        save_data(self.data)
 
-        await refresh_daily_post(self.day_key)
+    def get_listen_channel_id(self, guild_id: int) -> int | None:
+        cfg = self.guild_config(guild_id)
+        value = cfg.get("channel_id")
+        return int(value) if value else None
 
+    def cancel_reminder_task(self, guild_id: int) -> None:
+        task = self.reminder_tasks.pop(guild_id, None)
+        if task and not task.done():
+            task.cancel()
 
-class StartView(discord.ui.View):
-    def __init__(self):
-        super().__init__(timeout=None)
+    async def on_ready(self) -> None:
+        assert self.user is not None
+        log.info("Logged in as %s (%s)", self.user, self.user.id)
 
-    @discord.ui.button(label="Start Game", style=discord.ButtonStyle.success, custom_id="hpwordle:start")
-    async def start_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        current_day_key = get_current_active_day_key()
-        target = get_daily_word(current_day_key)
+        # Rebuild timers after restart.
+        for guild in self.guilds:
+            await self.restore_guild_schedule(guild)
 
-        row = get_result(current_day_key, interaction.user.id)
+    async def restore_guild_schedule(self, guild: discord.Guild) -> None:
+        channel_id = self.get_listen_channel_id(guild.id)
+        if not channel_id:
+            return
 
-        if row is None:
-            upsert_result(
-                day_key=current_day_key,
-                user_id=interaction.user.id,
-                username=interaction.user.display_name,
-                solved=0,
-                tries=0,
-                guesses=[],
-                solved_at=None
-            )
-            guesses = []
-            solved = False
+        channel = guild.get_channel(channel_id)
+        if not isinstance(channel, discord.TextChannel):
+            log.warning("Configured channel %s in guild %s is missing or not text.", channel_id, guild.id)
+            return
+
+        last_bump = self.get_last_bump_dt(guild.id)
+        if not last_bump:
+            return
+
+        elapsed = (utc_now() - last_bump).total_seconds()
+
+        if elapsed >= BUMP_COOLDOWN_SECONDS:
+            await self.make_channel_ready(channel, send_ping=False)
         else:
-            guesses = json.loads(row["guesses_json"])
-            solved = bool(row["solved"])
+            self.schedule_reminder(guild.id, channel, last_bump)
 
-        lost = len(guesses) >= MAX_ROWS and not solved
-
-        png_bytes = render_board_png(target, guesses)
-        file = discord.File(io.BytesIO(png_bytes), filename="board.png")
-        embed = make_private_embed(current_day_key, target, guesses, solved, lost)
-        view = None if (solved or lost) else PrivateGameView(interaction.user.id, current_day_key, target)
-
-        await interaction.response.send_message(
-            embed=embed,
-            file=file,
-            view=view,
-            ephemeral=True
+    def schedule_reminder(self, guild_id: int, channel: discord.TextChannel, last_bump: datetime) -> None:
+        self.cancel_reminder_task(guild_id)
+        self.reminder_tasks[guild_id] = asyncio.create_task(
+            self._reminder_worker(guild_id, channel, last_bump)
         )
 
+    async def _reminder_worker(self, guild_id: int, channel: discord.TextChannel, bump_time: datetime) -> None:
+        try:
+            target_time = bump_time + timedelta(seconds=BUMP_COOLDOWN_SECONDS)
+            sleep_for = (target_time - utc_now()).total_seconds()
+            if sleep_for > 0:
+                await asyncio.sleep(sleep_for)
 
-# =========================================================
-# ACTIVE CHALLENGE CONTROL
-# =========================================================
+            current_last_bump = self.get_last_bump_dt(guild_id)
+            if current_last_bump is None:
+                return
 
-def get_current_active_day_key() -> str:
-    forced_day_key = get_setting("active_day_key")
-    if forced_day_key:
-        return forced_day_key
-    return get_day_key()
+            # Ignore stale reminder tasks if a newer bump happened.
+            if abs((current_last_bump - bump_time).total_seconds()) > 1:
+                return
+
+            await self.make_channel_ready(channel, send_ping=True)
+
+        except asyncio.CancelledError:
+            pass
+        except Exception:
+            log.exception("Reminder worker failed for guild %s", guild_id)
+
+    async def make_channel_ready(self, channel: discord.TextChannel, send_ping: bool) -> None:
+        try:
+            if channel.name != READY_CHANNEL_NAME:
+                await channel.edit(name=READY_CHANNEL_NAME, reason="Bump cooldown finished")
+        except discord.Forbidden:
+            log.warning("Missing permission to rename channel %s", channel.id)
+        except discord.HTTPException:
+            log.exception("Failed to rename channel %s to ready state", channel.id)
+
+        if send_ping:
+            try:
+                await channel.send(f"<@&{PING_ROLE_ID}> DISBOARD is ready to be bumped again!")
+            except discord.Forbidden:
+                log.warning("Missing permission to send message in channel %s", channel.id)
+            except discord.HTTPException:
+                log.exception("Failed to send ready ping in channel %s", channel.id)
+
+    async def handle_successful_bump(
+        self,
+        guild: discord.Guild,
+        channel: discord.TextChannel,
+        disboard_message: discord.Message,
+    ) -> None:
+        cfg = self.guild_config(guild.id)
+
+        now = utc_now()
+        cfg["last_bump_at"] = dt_to_iso(now)
+        cfg["last_disboard_message_id"] = disboard_message.id
+
+        # Try to infer who used /bump from the message right before DISBOARD, if possible.
+        last_bumped_by = None
+        try:
+            async for msg in channel.history(limit=5, before=disboard_message):
+                if msg.author.bot:
+                    continue
+                if msg.interaction_metadata is not None:
+                    # A slash command invocation often leaves a system message, but
+                    # this is not guaranteed to be the source of the /bump.
+                    pass
+                last_bumped_by = msg.author.id
+                break
+        except Exception:
+            pass
+
+        cfg["last_bumped_by"] = last_bumped_by
+        save_data(self.data)
+
+        self.cancel_reminder_task(guild.id)
+
+        try:
+            if channel.name != COOLDOWN_CHANNEL_NAME:
+                await channel.edit(name=COOLDOWN_CHANNEL_NAME, reason="Successful DISBOARD bump detected")
+        except discord.Forbidden:
+            log.warning("Missing permission to rename channel %s", channel.id)
+        except discord.HTTPException:
+            log.exception("Failed to rename channel %s to cooldown state", channel.id)
+
+        self.schedule_reminder(guild.id, channel, now)
+
+    async def on_message(self, message: discord.Message) -> None:
+        if message.guild is None:
+            return
+
+        if not isinstance(message.channel, discord.TextChannel):
+            return
+
+        listen_channel_id = self.get_listen_channel_id(message.guild.id)
+        if not listen_channel_id or message.channel.id != listen_channel_id:
+            return
+
+        if message.author.id != DISBOARD_BOT_ID:
+            return
+
+        if self.is_successful_disboard_bump(message):
+            log.info("Successful bump detected in guild=%s channel=%s", message.guild.id, message.channel.id)
+            await self.handle_successful_bump(message.guild, message.channel, message)
+
+    @staticmethod
+    def is_successful_disboard_bump(message: discord.Message) -> bool:
+        """
+        DISBOARD usually sends an embed after /bump.
+        We check common success phrases in title/description.
+        """
+        texts: list[str] = []
+
+        if message.content:
+            texts.append(message.content.lower())
+
+        for embed in message.embeds:
+            if embed.title:
+                texts.append(embed.title.lower())
+            if embed.description:
+                texts.append(embed.description.lower())
+
+            # Footer sometimes contains useful text.
+            footer = getattr(embed, "footer", None)
+            if footer and footer.text:
+                texts.append(footer.text.lower())
+
+        haystack = "\n".join(texts)
+
+        success_markers = [
+            "bump done",
+            "server bumped",
+            "bumped successfully",
+            "successfully bumped",
+            "please wait another 2 hours",
+            "wait another 2 hours",
+        ]
+
+        return any(marker in haystack for marker in success_markers)
 
 
-async def safe_delete_message(channel_id: int, message_id: int):
-    try:
-        channel = bot.get_channel(channel_id)
-        if channel is None:
-            channel = await bot.fetch_channel(channel_id)
+bot = BumpBot()
 
-        message = await channel.fetch_message(message_id)
-        await message.delete()
-    except Exception:
-        pass
+# =========================
+# Checks
+# =========================
 
+def admin_only() -> app_commands.Check:
+    async def predicate(interaction: discord.Interaction) -> bool:
+        if interaction.guild is None:
+            raise app_commands.CheckFailure("This command can only be used in a server.")
+        member = interaction.user
+        if not isinstance(member, discord.Member):
+            raise app_commands.CheckFailure("Could not verify your permissions.")
+        if member.guild_permissions.administrator:
+            return True
+        raise app_commands.CheckFailure("You must be an administrator to use this command.")
+    return app_commands.check(predicate)
 
-async def create_new_challenge(channel_id: int, day_key: str):
-    word = get_daily_word(day_key)
-
-    channel = bot.get_channel(channel_id)
-    if channel is None:
-        channel = await bot.fetch_channel(channel_id)
-
-    embed = make_daily_embed(day_key, word)
-    message = await channel.send(embed=embed, view=StartView())
-
-    save_daily_post(day_key, channel.id, message.id, word)
-    set_setting("wordle_channel_id", str(channel.id))
-    set_setting("active_day_key", day_key)
+# =========================
+# Slash commands
+# =========================
 
 
-async def reset_and_create_new_challenge(channel_id: int):
-    old_day_key = get_setting("active_day_key")
+@bot.tree.command(name="bump_listen_here", description="Set this channel as the active DISBOARD listening channel.")
+@admin_only()
+@app_commands.guild_only()
+async def bump_listen_here(interaction: discord.Interaction) -> None:
+    assert interaction.guild is not None
+    assert isinstance(interaction.channel, discord.TextChannel)
 
-    if old_day_key:
-        old_post = get_daily_post(old_day_key)
-        if old_post:
-            await safe_delete_message(old_post["channel_id"], old_post["message_id"])
-            delete_daily_post(old_day_key)
-
-    new_day_key = datetime.now(timezone.utc).strftime("%Y-%m-%d-%H-%M-%S")
-    delete_game_results(new_day_key)
-    await create_new_challenge(channel_id, new_day_key)
-
-
-async def refresh_daily_post(day_key: str):
-    post = get_daily_post(day_key)
-    if not post:
-        return
-
-    channel = bot.get_channel(post["channel_id"])
-    if channel is None:
-        channel = await bot.fetch_channel(post["channel_id"])
-
-    try:
-        message = await channel.fetch_message(post["message_id"])
-    except discord.NotFound:
-        return
-
-    embed = make_daily_embed(day_key, post["word"])
-    await message.edit(embed=embed, view=StartView())
-
-
-async def rollover_if_needed():
-    channel_id_raw = get_setting("wordle_channel_id")
-    active_day_key = get_setting("active_day_key")
-
-    if not channel_id_raw:
-        return
-
-    today_key = get_day_key()
-
-    # If never set properly, create today's post
-    if not active_day_key:
-        await create_new_challenge(int(channel_id_raw), today_key)
-        return
-
-    # Manual test keys look like YYYY-MM-DD-HH-MM-SS
-    # Daily rollover should only happen when the active key is not today's key.
-    if active_day_key != today_key:
-        old_post = get_daily_post(active_day_key)
-        if old_post:
-            await safe_delete_message(old_post["channel_id"], old_post["message_id"])
-            delete_daily_post(active_day_key)
-
-        await create_new_challenge(int(channel_id_raw), today_key)
-
-
-@tasks.loop(minutes=1)
-async def daily_rollover_loop():
-    await rollover_if_needed()
-
-
-# =========================================================
-# SLASH COMMANDS
-# =========================================================
-
-@tree.command(name="setup_wordle", description="Set up or reset the Wordle challenge in a channel")
-@app_commands.describe(channel="The channel where the public Wordle message should be posted")
-@app_commands.default_permissions(administrator=True)
-async def setup_wordle(interaction: discord.Interaction, channel: discord.TextChannel):
-    await interaction.response.defer(ephemeral=True)
-
-    await reset_and_create_new_challenge(channel.id)
-
-    active_day_key = get_setting("active_day_key")
-    await interaction.followup.send(
-        f"Wordle set up in {channel.mention}.\n"
-        f"New challenge key: `{active_day_key}`\n"
-        f"Running `/setup_wordle` again will delete the old one and create a fresh test challenge.",
-        ephemeral=True
-    )
-
-
-@tree.command(name="my_hp_wordle", description="Open your private HP Wordle game")
-async def my_hp_wordle(interaction: discord.Interaction):
-    current_day_key = get_current_active_day_key()
-    target = get_daily_word(current_day_key)
-
-    row = get_result(current_day_key, interaction.user.id)
-
-    if row is None:
-        upsert_result(
-            day_key=current_day_key,
-            user_id=interaction.user.id,
-            username=interaction.user.display_name,
-            solved=0,
-            tries=0,
-            guesses=[],
-            solved_at=None
-        )
-        guesses = []
-        solved = False
-    else:
-        guesses = json.loads(row["guesses_json"])
-        solved = bool(row["solved"])
-
-    lost = len(guesses) >= MAX_ROWS and not solved
-
-    png_bytes = render_board_png(target, guesses)
-    file = discord.File(io.BytesIO(png_bytes), filename="board.png")
-    embed = make_private_embed(current_day_key, target, guesses, solved, lost)
-    view = None if (solved or lost) else PrivateGameView(interaction.user.id, current_day_key, target)
+    bot.set_listen_channel(interaction.guild.id, interaction.channel.id)
 
     await interaction.response.send_message(
-        embed=embed,
-        file=file,
-        view=view,
-        ephemeral=True
+        f"Listening for successful DISBOARD bumps in {interaction.channel.mention}.",
+        ephemeral=True,
     )
 
 
-# =========================================================
-# EVENTS
-# =========================================================
+@bot.tree.command(name="bump_stats", description="Show the last successful bump time for this server.")
+@app_commands.guild_only()
+async def bump_stats(interaction: discord.Interaction) -> None:
+    assert interaction.guild is not None
 
-@bot.event
-async def on_ready():
-    print(f"Logged in as {bot.user} ({bot.user.id})")
+    cfg = bot.guild_config(interaction.guild.id)
+    channel_id = cfg.get("channel_id")
+    last_bump = bot.get_last_bump_dt(interaction.guild.id)
+    last_bumped_by = cfg.get("last_bumped_by")
 
-    bot.add_view(StartView())
+    if not channel_id:
+        await interaction.response.send_message(
+            "No listening channel is configured yet. Use `/bump_listen_here` in the bump channel first.",
+            ephemeral=True,
+        )
+        return
 
-    if GUILD_ID:
-        guild = discord.Object(id=GUILD_ID)
-        tree.copy_global_to(guild=guild)
-        await tree.sync(guild=guild)
+    channel_mention = f"<#{channel_id}>"
+
+    if last_bump is None:
+        await interaction.response.send_message(
+            f"Listening channel: {channel_mention}\nNo successful bump recorded yet.",
+            ephemeral=False,
+        )
+        return
+
+    unix = int(last_bump.timestamp())
+    remaining = max(0, int(BUMP_COOLDOWN_SECONDS - (utc_now() - last_bump).total_seconds()))
+
+    if remaining == 0:
+        status = "Ready to bump again now."
     else:
-        await tree.sync()
+        mins, secs = divmod(remaining, 60)
+        hours, mins = divmod(mins, 60)
+        status = f"Next bump in about {hours}h {mins}m {secs}s."
 
-    if not daily_rollover_loop.is_running():
-        daily_rollover_loop.start()
+    bumped_by_text = f"<@{last_bumped_by}>" if last_bumped_by else "Unknown"
+
+    embed = discord.Embed(title="Bump stats")
+    embed.add_field(name="Listening channel", value=channel_mention, inline=False)
+    embed.add_field(name="Last successful bump", value=f"<t:{unix}:F>\n(<t:{unix}:R>)", inline=False)
+    embed.add_field(name="Last bumped by", value=bumped_by_text, inline=False)
+    embed.add_field(name="Status", value=status, inline=False)
+
+    await interaction.response.send_message(embed=embed, ephemeral=False)
 
 
-# =========================================================
-# START
-# =========================================================
+# Optional admin helper
+@bot.tree.command(name="bump_stop_listening", description="Disable bump listening for this server.")
+@admin_only()
+@app_commands.guild_only()
+async def bump_stop_listening(interaction: discord.Interaction) -> None:
+    assert interaction.guild is not None
 
-if not TOKEN:
-    raise RuntimeError("DISCORD_TOKEN is missing in .env")
+    cfg = bot.guild_config(interaction.guild.id)
+    cfg["channel_id"] = None
+    save_data(bot.data)
+    bot.cancel_reminder_task(interaction.guild.id)
 
-bot.run(TOKEN)
+    await interaction.response.send_message(
+        "Stopped listening for DISBOARD bumps in this server.",
+        ephemeral=True,
+    )
+
+
+# =========================
+# Error handling
+# =========================
+
+@bump_listen_here.error
+@bump_stop_listening.error
+async def admin_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError) -> None:
+    if isinstance(error, app_commands.CheckFailure):
+        text = str(error)
+    else:
+        log.exception("Admin command error", exc_info=error)
+        text = "Something went wrong while running that command."
+
+    if interaction.response.is_done():
+        await interaction.followup.send(text, ephemeral=True)
+    else:
+        await interaction.response.send_message(text, ephemeral=True)
+
+
+@bump_stats.error
+async def bump_stats_error(interaction: discord.Interaction, error: app_commands.AppCommandError) -> None:
+    log.exception("bump_stats error", exc_info=error)
+    if interaction.response.is_done():
+        await interaction.followup.send("Something went wrong while fetching bump stats.", ephemeral=True)
+    else:
+        await interaction.response.send_message("Something went wrong while fetching bump stats.", ephemeral=True)
+
+
+# =========================
+# Entry point
+# =========================
+
+if __name__ == "__main__":
+    if TOKEN == "PUT_YOUR_BOT_TOKEN_HERE":
+        raise RuntimeError("Edit bot.py and set TOKEN to your real bot token first.")
+
+    bot.run(TOKEN)
