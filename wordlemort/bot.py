@@ -1,7 +1,3 @@
-# bot.py
-# Python 3.10+
-# pip install -U discord.py
-
 import asyncio
 import json
 import logging
@@ -13,12 +9,14 @@ from typing import Any
 import discord
 from discord import app_commands
 from discord.ext import commands
+from dotenv import load_dotenv
 
-# =========================
-# Configuration
-# =========================
+load_dotenv()
 
-TOKEN = "PUT_YOUR_BOT_TOKEN_HERE"
+TOKEN = os.getenv("DISCORD_TOKEN")
+
+if not TOKEN:
+    raise RuntimeError("DISCORD_TOKEN was not found in the .env file.")
 
 DISBOARD_BOT_ID = 302050872383242240
 PING_ROLE_ID = 1494749646705262702
