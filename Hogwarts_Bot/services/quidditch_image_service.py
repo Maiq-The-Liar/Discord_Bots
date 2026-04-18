@@ -9,7 +9,14 @@ from PIL import Image, ImageDraw, ImageFont
 
 class QuidditchImageService:
     RESOURCE_DIR = Path(__file__).resolve().parent.parent / "resources" / "stands_matchup"
+    UPCOMING_PREFIX = "upcoming_"
     FONT_DIR = Path(__file__).resolve().parent.parent / "resources" / "house_banners"
+    HOUSE_SHORT = {
+        "Gryffindor": "gryf",
+        "Ravenclaw": "rave",
+        "Hufflepuff": "huff",
+        "Slytherin": "slyt",
+    }
 
     LEFT_X = 250
     RIGHT_X = 790
@@ -87,6 +94,19 @@ class QuidditchImageService:
         )
         image.save(output_path)
         return output_path
+
+
+    def get_upcoming_matchup_path(self, home_house: str, away_house: str) -> Path:
+        left_house, right_house = self.get_display_order(home_house, away_house)
+        left_short = self.HOUSE_SHORT.get(left_house)
+        right_short = self.HOUSE_SHORT.get(right_house)
+        if not left_short or not right_short:
+            raise FileNotFoundError(f"Unsupported house matchup for upcoming image: {home_house} vs {away_house}.")
+
+        path = self.RESOURCE_DIR / f"{self.UPCOMING_PREFIX}{left_short}_{right_short}.png"
+        if path.exists():
+            return path
+        raise FileNotFoundError(f"No upcoming Quidditch image found for {left_house} vs {right_house}.")
 
     def build_demo_lineup(self, house_name: str) -> list[dict[str, Any]]:
         prefix = house_name.lower()

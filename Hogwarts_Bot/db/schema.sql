@@ -295,6 +295,39 @@ CREATE TABLE IF NOT EXISTS quidditch_house_position_rotation (
     PRIMARY KEY (guild_id, house_name, position_key)
 );
 
+
+CREATE TABLE IF NOT EXISTS quidditch_fixture_betting_state (
+    fixture_id INTEGER PRIMARY KEY,
+    status TEXT NOT NULL DEFAULT 'pending',
+    announced_at TEXT NULL,
+    cleanup_at TEXT NULL,
+    image_message_id INTEGER NULL,
+    embed_message_id INTEGER NULL,
+    final_message_id INTEGER NULL,
+    results_message_id INTEGER NULL,
+    preview_state_json TEXT NOT NULL DEFAULT '{}',
+    odds_home REAL NOT NULL DEFAULT 1.9,
+    odds_away REAL NOT NULL DEFAULT 1.9,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (fixture_id) REFERENCES quidditch_fixtures(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS quidditch_match_bets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    fixture_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    picked_house TEXT NOT NULL,
+    stake INTEGER NOT NULL,
+    odds REAL NOT NULL,
+    payout INTEGER NOT NULL DEFAULT 0,
+    result TEXT NOT NULL DEFAULT 'pending',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (fixture_id, user_id),
+    FOREIGN KEY (fixture_id) REFERENCES quidditch_fixtures(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS quidditch_match_cheers (
     match_scope TEXT NOT NULL,
     match_id INTEGER NOT NULL,
@@ -354,3 +387,8 @@ ON quidditch_match_cheers(match_scope, match_id, cheering_house);
 
 CREATE INDEX IF NOT EXISTS idx_house_monthly_bonus_points_month
 ON house_monthly_bonus_points(year_month, house_name);
+CREATE INDEX IF NOT EXISTS idx_quidditch_betting_fixture_status
+ON quidditch_fixture_betting_state(status, cleanup_at);
+
+CREATE INDEX IF NOT EXISTS idx_quidditch_match_bets_fixture
+ON quidditch_match_bets(fixture_id, result);

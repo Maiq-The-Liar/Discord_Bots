@@ -25,6 +25,7 @@ from repositories.contribution_repository import ContributionRepository
 from repositories.guild_role_repository import GuildRoleRepository
 from repositories.quidditch_progress_repository import QuidditchProgressRepository
 from repositories.quidditch_repository import QuidditchRepository
+from repositories.user_repository import UserRepository
 from services.house_cup_board_service import HouseCupBoardService
 from services.quidditch_image_service import QuidditchImageService
 from services.quidditch_live_engine import QuidditchLiveEngine
@@ -90,6 +91,51 @@ class CheerView(discord.ui.View):
                 style=discord.ButtonStyle.primary,
             )
         )
+
+
+
+
+class BetAmountModal(discord.ui.Modal):
+    def __init__(self, *, cog: "QuidditchCog", fixture_id: int, picked_house: str) -> None:
+        super().__init__(title=f"Bet on {picked_house}")
+        self.cog = cog
+        self.fixture_id = fixture_id
+        self.picked_house = picked_house
+        self.amount = discord.ui.TextInput(
+            label="Stake in galleons",
+            placeholder="Enter whole number",
+            required=True,
+            max_length=9,
+        )
+        self.add_item(self.amount)
+
+    async def on_submit(self, interaction: discord.Interaction) -> None:
+        await self.cog.handle_bet_submission(
+            interaction=interaction,
+            fixture_id=self.fixture_id,
+            picked_house=self.picked_house,
+            raw_amount=str(self.amount.value),
+        )
+
+
+class BetButton(discord.ui.Button):
+    def __init__(self, *, cog: "QuidditchCog", fixture_id: int, picked_house: str, label: str, style: discord.ButtonStyle) -> None:
+        super().__init__(label=label, style=style, custom_id=f"quidditch_bet:{fixture_id}:{picked_house}")
+        self.cog = cog
+        self.fixture_id = fixture_id
+        self.picked_house = picked_house
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        await interaction.response.send_modal(
+            BetAmountModal(cog=self.cog, fixture_id=self.fixture_id, picked_house=self.picked_house)
+        )
+
+
+class BetView(discord.ui.View):
+    def __init__(self, *, cog: "QuidditchCog", fixture_id: int, home_house: str, away_house: str) -> None:
+        super().__init__(timeout=None)
+        self.add_item(BetButton(cog=cog, fixture_id=fixture_id, picked_house=home_house, label=f"Bet on {home_house} winning", style=discord.ButtonStyle.danger))
+        self.add_item(BetButton(cog=cog, fixture_id=fixture_id, picked_house=away_house, label=f"Bet on {away_house} winning", style=discord.ButtonStyle.primary))
 
 
 class QuidditchCog(commands.Cog):
@@ -195,6 +241,284 @@ class QuidditchCog(commands.Cog):
             lines.append(fmt_player(player))
 
         return "\n".join(lines)
+
+    def _betting_embed(
+        self,
+        *,
+        fixture_id: int,
+        home_house: str,
+        away_house: str,
+        home_lineup: list[dict[str, Any]],
+        away_lineup: list[dict[str, Any]],
+        odds_home: float,
+        odds_away: float,
+    ) -> discord.Embed:
+        left_house, right_house = self.image_service.get_display_order(home_house, away_house)
+        if left_house == home_house:
+            left_lineup, right_lineup = home_lineup, away_lineup
+            left_odds, right_odds = odds_home, odds_away
+        else:
+            left_lineup, right_lineup = away_lineup, home_lineup
+            left_odds, right_odds = odds_away, odds_home
+
+        embed = discord.Embed(color=0x2F3136)
+        embed.add_field(name="​", value=self._roster_block_for_house(left_house, left_lineup), inline=True)
+        embed.add_field(name="​", value=self._roster_block_for_house(right_house, right_lineup), inline=True)
+        embed.add_field(
+            name="💰 Betting odds",
+            value=(
+                f"**{left_house}** — {left_odds:.2f}x\n"
+                f"**{right_house}** — {right_odds:.2f}x\n\n"
+                f"Example: a successful **100 galleon** bet on **{left_house}** pays out **{int(round(100 * left_odds))} galleons** total."
+            ),
+            inline=False,
+        )
+        embed.set_footer(text=f"Fixture #{fixture_id} betting closes 10 minutes before kickoff.")
+        return embed
+
+    def _final_score_embed(self) -> discord.Embed:
+        return discord.Embed(title="Final Score", color=0xD4AF37)
+
+    def _parse_preview_state(self, betting_state: Any) -> dict[str, Any]:
+        if betting_state is None:
+            return {}
+        try:
+            return json.loads(str(betting_state["preview_state_json"]))
+        except Exception:
+            return {}
+
+    def _sum_levels(self, lineup: list[dict[str, Any]], position: str) -> int:
+        return sum(int(p.get("level", 1)) for p in lineup if str(p.get("position", "")).lower() == position)
+
+    def _estimate_betting_odds(self, home_lineup: list[dict[str, Any]], away_lineup: list[dict[str, Any]]) -> tuple[float, float]:
+        home_attack = (self._sum_levels(home_lineup, "chaser") / (120 * 3)) * 0.34 + (self._sum_levels(home_lineup, "beater") / (120 * 2)) * 0.08
+        away_attack = (self._sum_levels(away_lineup, "chaser") / (120 * 3)) * 0.34 + (self._sum_levels(away_lineup, "beater") / (120 * 2)) * 0.08
+        home_defense = (self._sum_levels(home_lineup, "keeper") / 120) * 0.26 + (self._sum_levels(home_lineup, "beater") / (120 * 2)) * 0.07
+        away_defense = (self._sum_levels(away_lineup, "keeper") / 120) * 0.26 + (self._sum_levels(away_lineup, "beater") / (120 * 2)) * 0.07
+        home_snitch = (self._sum_levels(home_lineup, "seeker") / 120) * 0.32
+        away_snitch = (self._sum_levels(away_lineup, "seeker") / 120) * 0.32
+
+        home_strength = home_attack * 1.0 + home_defense * 0.95 + home_snitch * 1.1
+        away_strength = away_attack * 1.0 + away_defense * 0.95 + away_snitch * 1.1
+        home_edge = home_strength - away_strength + (home_attack - away_defense) * 0.5 + (home_snitch - away_snitch) * 0.75
+        home_prob = max(0.22, min(0.78, 0.5 + home_edge * 0.95))
+        away_prob = 1.0 - home_prob
+
+        def to_odds(prob: float) -> float:
+            fair = 1.0 / max(0.08, prob)
+            inflated = fair * 1.18
+            return max(1.18, min(4.75, round(inflated, 2)))
+
+        return to_odds(home_prob), to_odds(away_prob)
+
+    async def _fetch_configured_match_channel(self, guild: discord.Guild, repo: QuidditchRepository) -> discord.TextChannel | None:
+        config = repo.get_config(guild.id)
+        if config is None or config["match_channel_id"] is None:
+            return None
+        channel = guild.get_channel(int(config["match_channel_id"]))
+        return channel if isinstance(channel, discord.TextChannel) else None
+
+    async def _delete_message_if_exists(self, guild: discord.Guild, channel_id: int | None, message_id: int | None) -> None:
+        if not channel_id or not message_id:
+            return
+        channel = guild.get_channel(int(channel_id))
+        if not isinstance(channel, discord.TextChannel):
+            return
+        try:
+            message = await channel.fetch_message(int(message_id))
+            await message.delete()
+        except discord.HTTPException:
+            pass
+
+    async def _cleanup_betting_messages(self, guild: discord.Guild, fixture_id: int) -> None:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            betting_state = repo.get_betting_state(fixture_id)
+            live_state = repo.get_live_match_state(fixture_id)
+        if betting_state is None:
+            return
+        channel_id = int(live_state["channel_id"]) if live_state is not None and live_state["channel_id"] else None
+        if channel_id is None:
+            with self.database.connect() as conn:
+                repo = QuidditchRepository(conn)
+                channel = await self._fetch_configured_match_channel(guild, repo)
+                channel_id = channel.id if channel is not None else None
+        await self._delete_message_if_exists(guild, channel_id, betting_state["image_message_id"])
+        await self._delete_message_if_exists(guild, channel_id, betting_state["embed_message_id"])
+
+    async def _announce_betting_for_fixture(self, guild: discord.Guild, fixture_id: int) -> None:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            fixture = repo.get_fixture(fixture_id)
+            if fixture is None:
+                return
+            betting_state = repo.get_betting_state(fixture_id)
+            if betting_state is None:
+                return
+            channel = await self._fetch_configured_match_channel(guild, repo)
+            if channel is None:
+                return
+            preview = self._parse_preview_state(betting_state)
+            home_lineup = preview.get("home_lineup") or []
+            away_lineup = preview.get("away_lineup") or []
+            odds_home = float(betting_state["odds_home"])
+            odds_away = float(betting_state["odds_away"])
+
+        image_path = self.image_service.get_upcoming_matchup_path(str(fixture["home_house"]), str(fixture["away_house"]))
+        image_message = await channel.send(file=discord.File(str(image_path), filename="quidditch_upcoming.png"))
+        embed = self._betting_embed(
+            fixture_id=fixture_id,
+            home_house=str(fixture["home_house"]),
+            away_house=str(fixture["away_house"]),
+            home_lineup=home_lineup,
+            away_lineup=away_lineup,
+            odds_home=odds_home,
+            odds_away=odds_away,
+        )
+        embed_message = await channel.send(
+            embed=embed,
+            view=BetView(
+                cog=self,
+                fixture_id=fixture_id,
+                home_house=str(fixture["home_house"]),
+                away_house=str(fixture["away_house"]),
+            ),
+        )
+
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            repo.mark_betting_announced(fixture_id, image_message_id=image_message.id, embed_message_id=embed_message.id)
+            conn.commit()
+
+    async def _schedule_betting_for_next_fixture(self, guild: discord.Guild, *, delay_minutes: int = 20, force_now: bool = False) -> str | None:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            latest_season = repo.get_latest_season(guild.id)
+            if latest_season is None:
+                return None
+            next_fixture = repo.get_next_scheduled_fixture(int(latest_season["id"]))
+            if next_fixture is None or str(next_fixture["home_house"]) == "TBD" or str(next_fixture["away_house"]) == "TBD":
+                return None
+            betting_state = repo.get_betting_state(int(next_fixture["id"]))
+            if betting_state is not None and str(betting_state["status"]) in {"pending", "announced", "closed", "settled"}:
+                return f"Betting state already exists for **{next_fixture['home_house']} vs {next_fixture['away_house']}**."
+
+            role_service = self._build_role_service(conn)
+            progress_repo = QuidditchProgressRepository(conn)
+            home_lineup, away_lineup = self._build_lineups(
+                guild=guild,
+                home_house=str(next_fixture["home_house"]),
+                away_house=str(next_fixture["away_house"]),
+                repo=repo,
+                role_service=role_service,
+                progress_repo=progress_repo,
+            )
+            odds_home, odds_away = self._estimate_betting_odds(home_lineup, away_lineup)
+            now = self._now()
+            starts_at = datetime.fromisoformat(str(next_fixture["starts_at"])).astimezone(self.TZ)
+            announce_at = now if force_now else now + timedelta(minutes=delay_minutes)
+            cleanup_at = starts_at - timedelta(minutes=10)
+            if announce_at > cleanup_at:
+                announce_at = now
+            repo.upsert_betting_state(
+                int(next_fixture["id"]),
+                status="pending",
+                announced_at=announce_at.isoformat(),
+                cleanup_at=cleanup_at.isoformat(),
+                preview_state={"home_lineup": home_lineup, "away_lineup": away_lineup},
+                odds_home=odds_home,
+                odds_away=odds_away,
+            )
+            conn.commit()
+            return f"Betting scheduled for **{next_fixture['home_house']} vs {next_fixture['away_house']}**."
+
+    async def handle_bet_submission(self, interaction: discord.Interaction, fixture_id: int, picked_house: str, raw_amount: str) -> None:
+        if interaction.guild is None:
+            await interaction.response.send_message("This can only be used in a server.", ephemeral=True)
+            return
+        try:
+            amount = int(raw_amount.strip())
+        except Exception:
+            await interaction.response.send_message("Please enter a whole number of galleons.", ephemeral=True)
+            return
+        if amount <= 0:
+            await interaction.response.send_message("Bet amount must be greater than 0.", ephemeral=True)
+            return
+
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            user_repo = UserRepository(conn)
+            fixture = repo.get_fixture(fixture_id)
+            betting_state = repo.get_betting_state(fixture_id)
+            if fixture is None or betting_state is None:
+                await interaction.response.send_message("Betting is not available for that match.", ephemeral=True)
+                return
+            if str(betting_state["status"]) != "announced":
+                await interaction.response.send_message("Betting for that match is closed.", ephemeral=True)
+                return
+            existing = repo.get_bet_for_user(fixture_id, interaction.user.id)
+            if existing is not None:
+                await interaction.response.send_message("You already placed a bet on this match.", ephemeral=True)
+                return
+            user_repo.ensure_user(interaction.user.id)
+            user_row = user_repo.get_user(interaction.user.id)
+            balance = int(user_row["sickles_balance"])
+            if amount > balance:
+                await interaction.response.send_message(f"You only have {balance} galleons available.", ephemeral=True)
+                return
+            odds = float(betting_state["odds_home"]) if picked_house == str(fixture["home_house"]) else float(betting_state["odds_away"])
+            if picked_house not in {str(fixture["home_house"]), str(fixture["away_house"])}:
+                await interaction.response.send_message("That team is not playing in this fixture.", ephemeral=True)
+                return
+            if not user_repo.deduct_sickles(interaction.user.id, amount):
+                await interaction.response.send_message("You do not have enough galleons for that bet.", ephemeral=True)
+                return
+            repo.create_bet(fixture_id, interaction.user.id, picked_house, amount, odds)
+            conn.commit()
+
+        await interaction.response.send_message(
+            f"Bet placed: **{amount} galleons** on **{picked_house}** at **{odds:.2f}x**.\nPotential payout: **{int(round(amount * odds))} galleons** total.",
+            ephemeral=True,
+        )
+
+    async def _post_betting_results(self, guild: discord.Guild, fixture_id: int, winner_house: str) -> None:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            user_repo = UserRepository(conn)
+            fixture = repo.get_fixture(fixture_id)
+            betting_state = repo.get_betting_state(fixture_id)
+            if fixture is None or betting_state is None:
+                return
+            bets = repo.settle_bets_for_fixture(fixture_id, winner_house)
+            channel = await self._fetch_configured_match_channel(guild, repo)
+            if channel is None:
+                return
+            lines: list[str] = []
+            for bet in bets:
+                user_repo.ensure_user(int(bet["user_id"]))
+                member = guild.get_member(int(bet["user_id"]))
+                name = member.display_name if member else f"User {bet['user_id']}"
+                if str(bet["result"]) == "won":
+                    payout = int(bet["payout"])
+                    user_repo.add_sickles(int(bet["user_id"]), payout)
+                    profit = payout - int(bet["stake"])
+                    lines.append(f"**{name}** won **{profit}** galleons net ({int(bet['stake'])} → {payout}).")
+                else:
+                    lines.append(f"**{name}** lost **{int(bet['stake'])}** galleons on {bet['picked_house']}.")
+            if not lines:
+                lines = ["No bets were placed on this match."]
+            embed = discord.Embed(title="Betting Results", description="\n".join(lines[:20]), color=0x2ECC71)
+            if betting_state["final_message_id"]:
+                try:
+                    final_message = await channel.fetch_message(int(betting_state["final_message_id"]))
+                    result_message = await final_message.reply(embed=embed, mention_author=False)
+                except discord.HTTPException:
+                    result_message = await channel.send(embed=embed)
+            else:
+                result_message = await channel.send(embed=embed)
+            repo.set_betting_results_message(fixture_id, result_message.id)
+            repo.mark_betting_closed(fixture_id)
+            conn.commit()
 
     def _build_embed(
         self,
@@ -817,16 +1141,21 @@ class QuidditchCog(commands.Cog):
             runtime_state = repo.get_runtime_state("official", fixture_id)
 
             if runtime_state is None:
-                role_service = self._build_role_service(conn)
-                progress_repo = QuidditchProgressRepository(conn)
-                home_lineup, away_lineup = self._build_lineups(
-                    guild=guild,
-                    home_house=str(fixture["home_house"]),
-                    away_house=str(fixture["away_house"]),
-                    repo=repo,
-                    role_service=role_service,
-                    progress_repo=progress_repo,
-                )
+                betting_state = repo.get_betting_state(fixture_id)
+                preview_state = self._parse_preview_state(betting_state)
+                home_lineup = preview_state.get("home_lineup") or []
+                away_lineup = preview_state.get("away_lineup") or []
+                if not home_lineup or not away_lineup:
+                    role_service = self._build_role_service(conn)
+                    progress_repo = QuidditchProgressRepository(conn)
+                    home_lineup, away_lineup = self._build_lineups(
+                        guild=guild,
+                        home_house=str(fixture["home_house"]),
+                        away_house=str(fixture["away_house"]),
+                        repo=repo,
+                        role_service=role_service,
+                        progress_repo=progress_repo,
+                    )
 
                 started_at_dt = (
                     datetime.fromisoformat(str(live_state["started_at"])).astimezone(self.TZ)
@@ -950,17 +1279,15 @@ class QuidditchCog(commands.Cog):
         fixture_id: int,
         runtime_state: dict[str, Any],
     ) -> None:
+        final_message_id: int | None = None
+        final_channel_id: int | None = None
         with self.database.connect() as conn:
             repo = QuidditchRepository(conn)
             fixture = repo.get_fixture(fixture_id)
             live_state = repo.get_live_match_state(fixture_id)
+            betting_state = repo.get_betting_state(fixture_id)
             if fixture is None or live_state is None:
                 return
-
-            try:
-                full_log = json.loads(str(live_state["log_json"]))
-            except Exception:
-                full_log = []
 
             winner_house = str(runtime_state["winner_house"])
             repo.apply_fixture_result(
@@ -978,29 +1305,46 @@ class QuidditchCog(commands.Cog):
             self._prepare_placement_matchups(repo=repo, season_id=int(fixture["season_id"]))
             conn.commit()
 
-        with self.database.connect() as conn:
-            repo = QuidditchRepository(conn)
-            fixture = repo.get_fixture(fixture_id)
-            live_state = repo.get_live_match_state(fixture_id)
-            if fixture is None or live_state is None:
-                return
+        channel = guild.get_channel(int(live_state["channel_id"])) if live_state["channel_id"] else None
+        if isinstance(channel, discord.TextChannel) and live_state["message_id"]:
             try:
-                full_log = json.loads(str(live_state["log_json"]))
-            except Exception:
-                full_log = []
+                message = await channel.fetch_message(int(live_state["message_id"]))
+                await message.delete()
+            except discord.HTTPException:
+                pass
 
-        await self._create_or_refresh_official_message(
-            guild=guild,
-            fixture=fixture,
-            live_state=live_state,
-            runtime_state=runtime_state,
-            full_log=full_log,
-            ended=True,
-            preserve_started_manually=bool(live_state["started_manually"]),
-        )
+            image_path = await self._render_match_image(
+                home_house=str(fixture["home_house"]),
+                away_house=str(fixture["away_house"]),
+                home_score=int(runtime_state["home_score"]),
+                away_score=int(runtime_state["away_score"]),
+                home_lineup=runtime_state["home_lineup"],
+                away_lineup=runtime_state["away_lineup"],
+            )
+            final_message = await channel.send(
+                embed=self._final_score_embed(),
+                file=discord.File(str(image_path), filename="quidditch_final_score.png"),
+            )
+            final_message_id = final_message.id
+            final_channel_id = channel.id
 
         with self.database.connect() as conn:
             repo = QuidditchRepository(conn)
+            if final_message_id is not None:
+                existing = repo.get_betting_state(fixture_id)
+                preview = self._parse_preview_state(existing)
+                odds_home = float(existing["odds_home"]) if existing is not None else 1.9
+                odds_away = float(existing["odds_away"]) if existing is not None else 1.9
+                repo.upsert_betting_state(
+                    fixture_id,
+                    status=(str(existing["status"]) if existing is not None else "closed"),
+                    announced_at=(str(existing["announced_at"]) if existing is not None and existing["announced_at"] else None),
+                    cleanup_at=(str(existing["cleanup_at"]) if existing is not None and existing["cleanup_at"] else None),
+                    preview_state=preview,
+                    odds_home=odds_home,
+                    odds_away=odds_away,
+                    final_message_id=final_message_id,
+                )
             service = QuidditchService(repo)
             await self._update_scoreboard_message(
                 guild=guild,
@@ -1013,6 +1357,10 @@ class QuidditchCog(commands.Cog):
             contribution_repo = ContributionRepository(conn)
             board_service = HouseCupBoardService(bot_state_repo, contribution_repo)
             await board_service.create_or_update_board(guild)
+            conn.commit()
+
+        await self._post_betting_results(guild, fixture_id, str(runtime_state["winner_house"]))
+        await self._schedule_betting_for_next_fixture(guild, delay_minutes=20, force_now=False)
 
     async def _finalize_test_match(
         self,
@@ -1345,6 +1693,8 @@ class QuidditchCog(commands.Cog):
                         active_fixture = None
 
                     active_test = repo.get_active_test_match(guild.id)
+                    pending_announcements = repo.list_pending_betting_announcements(now.isoformat())
+                    betting_to_cleanup = repo.list_betting_to_cleanup(now.isoformat())
 
                     if active_fixture is None and active_test is None and latest_season is not None and service.is_loop_enabled(guild.id):
                         next_fixture = repo.get_next_scheduled_fixture(int(latest_season["id"]))
@@ -1374,6 +1724,16 @@ class QuidditchCog(commands.Cog):
                     latest_season = repo.get_latest_season(guild.id)
                     active_fixture = repo.get_active_fixture(int(latest_season["id"])) if latest_season is not None else None
                     active_test = repo.get_active_test_match(guild.id)
+
+                for betting_row in pending_announcements:
+                    await self._announce_betting_for_fixture(guild, int(betting_row["fixture_id"]))
+
+                for betting_row in betting_to_cleanup:
+                    await self._cleanup_betting_messages(guild, int(betting_row["fixture_id"]))
+                    with self.database.connect() as conn:
+                        repo = QuidditchRepository(conn)
+                        repo.mark_betting_closed(int(betting_row["fixture_id"]))
+                        conn.commit()
 
                 if active_fixture is not None:
                     await self._ensure_official_match_initialized(
@@ -1626,6 +1986,47 @@ class QuidditchCog(commands.Cog):
         await interaction.response.send_message(
             f"Manual Quidditch start activated.\n"
             f"**{fixture['home_house']} vs {fixture['away_house']}** has started now.",
+            ephemeral=True,
+        )
+
+    @app_commands.command(
+        name="quidditch_betting_now",
+        description="Admin: immediately post the next official Quidditch betting preview.",
+    )
+    async def quidditch_betting_now(
+        self,
+        interaction: discord.Interaction,
+    ) -> None:
+        if not self.is_admin(interaction):
+            await interaction.response.send_message(
+                "You do not have permission to use this command.",
+                ephemeral=True,
+            )
+            return
+
+        if interaction.guild is None:
+            await interaction.response.send_message(
+                "This command can only be used in a server.",
+                ephemeral=True,
+            )
+            return
+
+        result = await self._schedule_betting_for_next_fixture(interaction.guild, delay_minutes=0, force_now=True)
+        if result is None:
+            await interaction.response.send_message(
+                "No upcoming official fixture could be prepared for betting.",
+                ephemeral=True,
+            )
+            return
+
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            latest_season = repo.get_latest_season(interaction.guild.id)
+            next_fixture = repo.get_next_scheduled_fixture(int(latest_season["id"])) if latest_season is not None else None
+        if next_fixture is not None and "already exists" not in result.lower():
+            await self._announce_betting_for_fixture(interaction.guild, int(next_fixture["id"]))
+        await interaction.response.send_message(
+            result,
             ephemeral=True,
         )
 

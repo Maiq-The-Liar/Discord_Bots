@@ -865,3 +865,189 @@ class QuidditchRepository:
             """,
             (home_house, away_house, fixture_id),
         )
+    def get_betting_state(self, fixture_id: int) -> sqlite3.Row | None:
+        return self.conn.execute(
+            """
+            SELECT *
+            FROM quidditch_fixture_betting_state
+            WHERE fixture_id = ?
+            """,
+            (fixture_id,),
+        ).fetchone()
+
+    def upsert_betting_state(
+        self,
+        fixture_id: int,
+        *,
+        status: str,
+        announced_at: str | None,
+        cleanup_at: str | None,
+        preview_state: dict,
+        odds_home: float,
+        odds_away: float,
+        image_message_id: int | None = None,
+        embed_message_id: int | None = None,
+        final_message_id: int | None = None,
+        results_message_id: int | None = None,
+    ) -> None:
+        self.conn.execute(
+            """
+            INSERT INTO quidditch_fixture_betting_state (
+                fixture_id, status, announced_at, cleanup_at, image_message_id,
+                embed_message_id, final_message_id, results_message_id,
+                preview_state_json, odds_home, odds_away, updated_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(fixture_id) DO UPDATE SET
+                status = excluded.status,
+                announced_at = excluded.announced_at,
+                cleanup_at = excluded.cleanup_at,
+                image_message_id = COALESCE(excluded.image_message_id, quidditch_fixture_betting_state.image_message_id),
+                embed_message_id = COALESCE(excluded.embed_message_id, quidditch_fixture_betting_state.embed_message_id),
+                final_message_id = COALESCE(excluded.final_message_id, quidditch_fixture_betting_state.final_message_id),
+                results_message_id = COALESCE(excluded.results_message_id, quidditch_fixture_betting_state.results_message_id),
+                preview_state_json = excluded.preview_state_json,
+                odds_home = excluded.odds_home,
+                odds_away = excluded.odds_away,
+                updated_at = CURRENT_TIMESTAMP
+            """,
+            (
+                fixture_id,
+                status,
+                announced_at,
+                cleanup_at,
+                image_message_id,
+                embed_message_id,
+                final_message_id,
+                results_message_id,
+                json.dumps(preview_state),
+                float(odds_home),
+                float(odds_away),
+            ),
+        )
+
+    def mark_betting_announced(
+        self,
+        fixture_id: int,
+        *,
+        image_message_id: int,
+        embed_message_id: int,
+    ) -> None:
+        self.conn.execute(
+            """
+            UPDATE quidditch_fixture_betting_state
+            SET status = 'announced',
+                image_message_id = ?,
+                embed_message_id = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE fixture_id = ?
+            """,
+            (image_message_id, embed_message_id, fixture_id),
+        )
+
+    def mark_betting_closed(self, fixture_id: int) -> None:
+        self.conn.execute(
+            """
+            UPDATE quidditch_fixture_betting_state
+            SET status = 'closed', updated_at = CURRENT_TIMESTAMP
+            WHERE fixture_id = ?
+            """,
+            (fixture_id,),
+        )
+
+    def set_betting_final_message(self, fixture_id: int, message_id: int) -> None:
+        self.conn.execute(
+            """
+            UPDATE quidditch_fixture_betting_state
+            SET final_message_id = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE fixture_id = ?
+            """,
+            (message_id, fixture_id),
+        )
+
+    def set_betting_results_message(self, fixture_id: int, message_id: int) -> None:
+        self.conn.execute(
+            """
+            UPDATE quidditch_fixture_betting_state
+            SET results_message_id = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE fixture_id = ?
+            """,
+            (message_id, fixture_id),
+        )
+
+    def list_pending_betting_announcements(self, now_iso: str) -> list[sqlite3.Row]:
+        rows = self.conn.execute(
+            """
+            SELECT qbs.*, qf.home_house, qf.away_house, qf.starts_at, qf.status AS fixture_status
+            FROM quidditch_fixture_betting_state qbs
+            JOIN quidditch_fixtures qf ON qf.id = qbs.fixture_id
+            WHERE qbs.status = 'pending'
+              AND qbs.announced_at IS NOT NULL
+              AND qbs.announced_at <= ?
+              AND qf.status = 'scheduled'
+            ORDER BY qbs.announced_at ASC, qbs.fixture_id ASC
+            """,
+            (now_iso,),
+        ).fetchall()
+        return list(rows)
+
+    def list_betting_to_cleanup(self, now_iso: str) -> list[sqlite3.Row]:
+        rows = self.conn.execute(
+            """
+            SELECT qbs.*, qf.home_house, qf.away_house, qf.starts_at, qf.status AS fixture_status
+            FROM quidditch_fixture_betting_state qbs
+            JOIN quidditch_fixtures qf ON qf.id = qbs.fixture_id
+            WHERE qbs.status = 'announced'
+              AND qbs.cleanup_at IS NOT NULL
+              AND qbs.cleanup_at <= ?
+            ORDER BY qbs.cleanup_at ASC, qbs.fixture_id ASC
+            """,
+            (now_iso,),
+        ).fetchall()
+        return list(rows)
+
+    def create_bet(self, fixture_id: int, user_id: int, picked_house: str, stake: int, odds: float) -> None:
+        self.conn.execute(
+            """
+            INSERT INTO quidditch_match_bets (
+                fixture_id, user_id, picked_house, stake, odds, payout, result, updated_at
+            ) VALUES (?, ?, ?, ?, ?, 0, 'pending', CURRENT_TIMESTAMP)
+            """,
+            (fixture_id, user_id, picked_house, stake, float(odds)),
+        )
+
+    def get_bet_for_user(self, fixture_id: int, user_id: int) -> sqlite3.Row | None:
+        return self.conn.execute(
+            """
+            SELECT * FROM quidditch_match_bets
+            WHERE fixture_id = ? AND user_id = ?
+            """,
+            (fixture_id, user_id),
+        ).fetchone()
+
+    def list_bets_for_fixture(self, fixture_id: int) -> list[sqlite3.Row]:
+        rows = self.conn.execute(
+            """
+            SELECT * FROM quidditch_match_bets
+            WHERE fixture_id = ?
+            ORDER BY created_at ASC, id ASC
+            """,
+            (fixture_id,),
+        ).fetchall()
+        return list(rows)
+
+    def settle_bets_for_fixture(self, fixture_id: int, winner_house: str) -> list[sqlite3.Row]:
+        bets = self.list_bets_for_fixture(fixture_id)
+        results: list[sqlite3.Row] = []
+        for bet in bets:
+            won = str(bet['picked_house']) == winner_house
+            payout = int(round(int(bet['stake']) * float(bet['odds']))) if won else 0
+            self.conn.execute(
+                """
+                UPDATE quidditch_match_bets
+                SET result = ?, payout = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+                """,
+                ('won' if won else 'lost', payout, int(bet['id'])),
+            )
+        return self.list_bets_for_fixture(fixture_id)

@@ -186,6 +186,48 @@ class Database:
                 """
             )
 
+        if "quidditch_fixture_betting_state" not in existing_tables:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS quidditch_fixture_betting_state (
+                    fixture_id INTEGER PRIMARY KEY,
+                    status TEXT NOT NULL DEFAULT 'pending',
+                    announced_at TEXT NULL,
+                    cleanup_at TEXT NULL,
+                    image_message_id INTEGER NULL,
+                    embed_message_id INTEGER NULL,
+                    final_message_id INTEGER NULL,
+                    results_message_id INTEGER NULL,
+                    preview_state_json TEXT NOT NULL DEFAULT '{}',
+                    odds_home REAL NOT NULL DEFAULT 1.9,
+                    odds_away REAL NOT NULL DEFAULT 1.9,
+                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (fixture_id) REFERENCES quidditch_fixtures(id) ON DELETE CASCADE
+                )
+                """
+            )
+
+        if "quidditch_match_bets" not in existing_tables:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS quidditch_match_bets (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    fixture_id INTEGER NOT NULL,
+                    user_id INTEGER NOT NULL,
+                    picked_house TEXT NOT NULL,
+                    stake INTEGER NOT NULL,
+                    odds REAL NOT NULL,
+                    payout INTEGER NOT NULL DEFAULT 0,
+                    result TEXT NOT NULL DEFAULT 'pending',
+                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE (fixture_id, user_id),
+                    FOREIGN KEY (fixture_id) REFERENCES quidditch_fixtures(id) ON DELETE CASCADE
+                )
+                """
+            )
+
         if "reaction_role_channels" not in existing_tables:
             conn.execute(
                 """

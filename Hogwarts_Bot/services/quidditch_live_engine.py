@@ -64,6 +64,11 @@ class QuidditchLiveEngine:
         "{time} — {player} turns on the speed and flicks in a classy goal for {house}.",
         "{time} — {player} spins away from pressure and tucks home ten for {house}.",
         "{time} — {player} punishes the defence with a clinical strike for {house}.",
+        "{time} — {player} slices between two defenders and whips the Quaffle in for {house}.",
+        "{time} — {player} hangs in the air for one absurd second and rifles home for {house}.",
+        "{time} — {player} sells a shameless fake, leaves the keeper guessing, and scores for {house}.",
+        "{time} — {player} absolutely ruins a defender's afternoon and adds ten for {house}.",
+        "{time} — {player} arrives like a thunderbolt, hammers the Quaffle through, and {house} cash in again.",
     ]
 
     SAVE_TEMPLATES = [
@@ -72,6 +77,11 @@ class QuidditchLiveEngine:
         "{time} — {keeper} reads the angle perfectly and stones {attacker}.",
         "{time} — {keeper} throws out a spectacular save to protect the hoops.",
         "{time} — {keeper} snatches the shot out of the air. No goal this time.",
+        "{time} — {keeper} gets a fingertip to it and the Quaffle dies against the rim.",
+        "{time} — {keeper} swats the shot away with the expression of someone deeply insulted by the attempt.",
+        "{time} — {keeper} sprawls across the hoops and somehow keeps {attacker} out.",
+        "{time} — {keeper} reacts impossibly late and still claws the Quaffle clear.",
+        "{time} — {keeper} blocks it with reckless elegance and the crowd completely lose their minds.",
     ]
 
     KNOCKOUT_TEMPLATES = [
@@ -80,6 +90,11 @@ class QuidditchLiveEngine:
         "{time} — {beater} sends {target} spinning off line with a brutal bludger hit.",
         "{time} — {beater} absolutely hammers a bludger at {target}. Mediwizards are taking notes.",
         "{time} — {target} is knocked half senseless by {beater}'s bludger. That's trouble.",
+        "{time} — {beater} drives a bludger straight through {target}'s plans and very nearly through their ribs.",
+        "{time} — {target} takes a savage bludger from {beater} and folds over their broom with a noise nobody enjoys.",
+        "{time} — {beater} picks the moment perfectly and detonates a bludger into {target}. The whole stand winces.",
+        "{time} — {beater} sends {target} pinwheeling away in complete disarray. That's a nasty one.",
+        "{time} — {target} is drilled by {beater}'s bludger and needs a moment, several stars, and possibly a new spine.",
     ]
 
     FOUL_TEMPLATES = [
@@ -88,6 +103,11 @@ class QuidditchLiveEngine:
         "{time} — Tempers flare and the pace breaks up for a moment.",
         "{time} — A messy collision leaves both sides shouting at the referee.",
         "{time} — The crowd boos loudly after a rather questionable bit of contact.",
+        "{time} — A broom clips where it absolutely should not and the referee goes pale before signalling advantage to {house}.",
+        "{time} — Someone has committed a foul with so little subtlety that even the commentator stops laughing for a second.",
+        "{time} — The whistle shrieks again; there are six different accusations in the air and all of them sound plausible.",
+        "{time} — A late body check sends tempers boiling and gives {house} a precious edge.",
+        "{time} — The referee intervenes before this turns into a mid-air divorce court. {house} come out better from it.",
     ]
 
     TURNOVER_TEMPLATES = [
@@ -96,6 +116,11 @@ class QuidditchLiveEngine:
         "{time} — {player} tries something far too fancy and the move collapses.",
         "{time} — {player} loses control mid-flight and the attack fizzles out.",
         "{time} — {player} forces the play and turns it over cheaply.",
+        "{time} — {player} drops the Quaffle like it has offended them personally. {house} waste the attack.",
+        "{time} — {player} sees a pass that simply does not exist and the whole move dies on the spot.",
+        "{time} — {player} gets tangled under pressure and leaves the Quaffle behind in embarrassing fashion.",
+        "{time} — {player} overcooks the feed, and possession disappears into the grateful hands of the opposition.",
+        "{time} — {player} tries to be a hero, forgets the basics, and gives it away for {house}.",
     ]
 
     SNITCH_HUNT_TEMPLATES = [
@@ -104,6 +129,11 @@ class QuidditchLiveEngine:
         "{time} — {seeker} thinks they've seen the Snitch near the upper stands.",
         "{time} — Both seekers accelerate violently as a golden blur streaks away.",
         "{time} — {seeker} lunges after the Snitch, but it vanishes again.",
+        "{time} — {seeker} screams past the commentary box after a flicker of gold that may or may not have been real.",
+        "{time} — Both seekers dive toward the lower stands and pull out at the last possible second. Chaos follows.",
+        "{time} — {seeker} chases a golden sparkle into traffic and emerges furious, empty-handed, and still accelerating.",
+        "{time} — A glint near the hoops sends {seeker} into a reckless plunge after the Snitch.",
+        "{time} — The Snitch zips across the pitch like a bad idea and {seeker} tears off after it.",
     ]
 
     SNITCH_CATCH_TEMPLATES = [
@@ -111,6 +141,11 @@ class QuidditchLiveEngine:
         "{time} — {seeker} makes a breathtaking dive and catches the Snitch! {house} win it!",
         "{time} — {seeker} snatches the Golden Snitch out of thin air. Curtains for this one.",
         "{time} — {seeker} wins the chase, catches the Snitch, and sends {house} into celebration!",
+        "{time} — {seeker} plucks the Snitch from the air with ridiculous composure. {house} have ended it.",
+        "{time} — {seeker} vanishes into the glare, reappears with the Snitch in hand, and {house} erupt.",
+        "{time} — {seeker} risks life, bone, and basic reason to seize the Snitch for {house}!",
+        "{time} — {seeker} gets there first, closes the hand, and rips the heart out of this match for {house}.",
+        "{time} — {seeker} wins the ugliest, fastest chase of the day and catches the Snitch for {house}!",
     ]
 
     CHEER_TEMPLATES = [
@@ -118,6 +153,11 @@ class QuidditchLiveEngine:
         "{time} — Fresh cheers ring out for {house}, giving them a small lift.",
         "{time} — The stands shake with noise as spectators rally for {house}.",
         "{time} — The roar for {house} grows louder and the players seem to feel it.",
+        "{time} — A wall of noise crashes down from the {house} section and the tempo lifts immediately.",
+        "{time} — Someone starts a chant in the {house} stands and suddenly half the arena is shouting it.",
+        "{time} — The {house} supporters are in full voice now, loud enough to rattle broomsticks.",
+        "{time} — A thunder of applause sweeps through the {house} end and gives the players fresh legs.",
+        "{time} — The {house} faithful decide subtlety is overrated and scream their lungs empty.",
     ]
 
     EASTER_EGG_TEMPLATES = [
@@ -128,6 +168,11 @@ class QuidditchLiveEngine:
         "{time} — The commentator completely loses the thread and starts yelling about broom aerodynamics.",
         "{time} — {spectator} leans too far over the barrier and is hauled back by very tired staff.",
         "{time} — A bludger chases the wrong target for several deeply concerning seconds.",
+        "{time} — A seat somewhere in the upper stands collapses theatrically and at least four people pretend they saw it coming.",
+        "{time} — Two mascots begin fighting near the tunnel and nobody in authority seems eager to intervene.",
+        "{time} — A charmed programme bursts into song at exactly the wrong moment and cannot be silenced.",
+        "{time} — {spectator} appears to be arguing with a seagull over a meat pie, and somehow the seagull is winning.",
+        "{time} — For one cursed moment, every broom on the pitch drifts left at once and the crowd makes a very interesting noise.",
     ]
 
     def build_initial_state(
@@ -158,6 +203,7 @@ class QuidditchLiveEngine:
             "home_lineup": deepcopy(home_lineup),
             "away_lineup": deepcopy(away_lineup),
             "inactive_until": {},
+            "pressure_effects": [],
             "last_event_at": None,
             "full_log_count": 0,
         }
@@ -196,6 +242,8 @@ class QuidditchLiveEngine:
 
         state["minute"] = int(state.get("minute", 0)) + 1
         self._decay_momentum(state)
+        logs.extend(self._collect_recovery_logs(state, now))
+        self._expire_pressure_effects(state, now)
 
         if state.get("snitch_caught"):
             return MatchTickResult(
@@ -219,8 +267,8 @@ class QuidditchLiveEngine:
         event_type = self._pick_event_type(state, now)
 
         if event_type == "goal":
-            log, scorer_house = self._goal_event(state, now)
-            logs.append(log)
+            event_logs, scorer_house = self._goal_event(state, now)
+            logs.extend(event_logs)
             score_changed = True
             self._swing_momentum(state, scorer_house, 0.06)
 
@@ -316,11 +364,11 @@ class QuidditchLiveEngine:
         values = [weights[key] for key in options]
         return random.choices(options, weights=values, k=1)[0]
 
-    def _goal_event(self, state: dict[str, Any], now: datetime) -> tuple[str, str]:
-        home_attack = self._team_attack_strength(state, "home")
-        away_attack = self._team_attack_strength(state, "away")
-        home_def = self._team_defence_strength(state, "home")
-        away_def = self._team_defence_strength(state, "away")
+    def _goal_event(self, state: dict[str, Any], now: datetime) -> tuple[list[str], str]:
+        home_attack = self._team_attack_strength(state, "home", now)
+        away_attack = self._team_attack_strength(state, "away", now)
+        home_def = self._team_defence_strength(state, "home", now)
+        away_def = self._team_defence_strength(state, "away", now)
 
         scenario = str(state.get("scenario", "balanced"))
         home_edge = home_attack - away_def + float(state["home_momentum"]) + float(state["cheer_boost_home"])
@@ -339,7 +387,9 @@ class QuidditchLiveEngine:
                 home_edge += 0.03
                 away_edge += 0.03
 
-        home_goal_prob = self._clamp_winlike_probability(0.5 + (home_edge - away_edge))
+        home_pressure = self._pressure_modifier(state, "home", now)
+        away_pressure = self._pressure_modifier(state, "away", now)
+        home_goal_prob = self._clamp_winlike_probability(0.5 + (home_edge + home_pressure - away_edge - away_pressure))
         scoring_side = "home" if random.random() < home_goal_prob else "away"
 
         scorer = self._random_active_player(state, scoring_side, {"chaser"})
@@ -354,21 +404,31 @@ class QuidditchLiveEngine:
             house = state["away_house"]
 
         player_name = scorer["display_name"] if scorer else "A wild substitute"
-        return (
+        logs = [
             random.choice(self.GOAL_TEMPLATES).format(
                 time=now.strftime("%H:%M"),
                 player=player_name,
                 house=house,
-            ),
-            house,
-        )
+            )
+        ]
+
+        score_gap = abs(int(state["home_score"]) - int(state["away_score"]))
+        if score_gap == 0:
+            logs.append(f"{now.strftime('%H:%M')} — The scores are level again and the tempo spikes immediately.")
+        elif score_gap == 10:
+            logs.append(f"{now.strftime('%H:%M')} — Barely anything separates them now; every possession feels dangerous.")
+        elif score_gap >= 40 and random.random() < 0.45:
+            leader = state['home_house'] if int(state['home_score']) > int(state['away_score']) else state['away_house']
+            logs.append(f"{now.strftime('%H:%M')} — {leader} are starting to squeeze the match by the throat.")
+
+        return logs, house
 
     def _save_event(self, state: dict[str, Any], now: datetime) -> str | None:
         attacking_side = random.choice(["home", "away"])
         defending_side = "away" if attacking_side == "home" else "home"
 
-        attacker = self._random_active_player(state, attacking_side, {"chaser"})
-        keeper = self._random_active_player(state, defending_side, {"keeper"})
+        attacker = self._random_active_player(state, attacking_side, {"chaser"}, now)
+        keeper = self._random_active_player(state, defending_side, {"keeper"}, now)
         if attacker is None or keeper is None:
             return None
 
@@ -382,24 +442,36 @@ class QuidditchLiveEngine:
         striking_side = random.choice(["home", "away"])
         target_side = "away" if striking_side == "home" else "home"
 
-        beater = self._random_active_player(state, striking_side, {"beater"})
-        target = self._random_active_player(state, target_side, self.KNOCKABLE_POSITIONS)
+        beater = self._random_active_player(state, striking_side, {"beater"}, now)
+        target = self._random_active_player(state, target_side, self.KNOCKABLE_POSITIONS, now)
         if beater is None or target is None:
             return None
 
         knocked_minutes = random.randint(8, 26)
         inactive_until = now + timedelta(minutes=knocked_minutes)
         state["inactive_until"][target["token"]] = inactive_until.isoformat()
+        impact = self._knockout_impact(beater, target, now, state)
+        state.setdefault("pressure_effects", []).append({
+            "team": striking_side,
+            "attack": impact["attack"],
+            "defence": impact["defence"],
+            "seek": impact["seek"],
+            "expires_at": inactive_until.isoformat(),
+            "target_name": target["display_name"],
+            "target_role": str(target.get("position", "player")).lower(),
+        })
 
-        return random.choice(self.KNOCKOUT_TEMPLATES).format(
+        base_log = random.choice(self.KNOCKOUT_TEMPLATES).format(
             time=now.strftime("%H:%M"),
             beater=beater["display_name"],
             target=target["display_name"],
         )
+        effect_log = self._knockout_effect_log(state, striking_side, target, impact, now, knocked_minutes)
+        return f"{base_log}\n{effect_log}" if effect_log else base_log
 
     def _turnover_event(self, state: dict[str, Any], now: datetime) -> str | None:
         side = random.choice(["home", "away"])
-        player = self._random_active_player(state, side, {"chaser", "beater", "seeker"})
+        player = self._random_active_player(state, side, {"chaser", "beater", "seeker"}, now)
         if player is None:
             return None
 
@@ -416,7 +488,7 @@ class QuidditchLiveEngine:
             return None
 
         side = random.choice(["home", "away"])
-        seeker = self._random_active_player(state, side, {"seeker"})
+        seeker = self._random_active_player(state, side, {"seeker"}, now)
         if seeker is None:
             return None
 
@@ -430,13 +502,13 @@ class QuidditchLiveEngine:
         if elapsed < timedelta(hours=8):
             raise RuntimeError("Snitch catch attempted before unlock window.")
 
-        home_seek = self._team_seek_strength(state, "home") + float(state["home_momentum"]) + float(state["cheer_boost_home"])
-        away_seek = self._team_seek_strength(state, "away") + float(state["away_momentum"]) + float(state["cheer_boost_away"])
+        home_seek = self._team_seek_strength(state, "home", now) + float(state["home_momentum"]) + float(state["cheer_boost_home"]) + self._pressure_modifier(state, "home", now, mode="seek")
+        away_seek = self._team_seek_strength(state, "away", now) + float(state["away_momentum"]) + float(state["cheer_boost_away"]) + self._pressure_modifier(state, "away", now, mode="seek")
 
         home_prob = self._clamp_winlike_probability(0.5 + (home_seek - away_seek))
         side = "home" if random.random() < home_prob else "away"
 
-        seeker = self._random_active_player(state, side, {"seeker"})
+        seeker = self._random_active_player(state, side, {"seeker"}, now)
         house = state["home_house"] if side == "home" else state["away_house"]
 
         if side == "home":
@@ -495,6 +567,7 @@ class QuidditchLiveEngine:
         state: dict[str, Any],
         side: str,
         allowed_positions: set[str],
+        now: datetime,
     ) -> dict[str, Any] | None:
         lineup_key = "home_lineup" if side == "home" else "away_lineup"
         players = state.get(lineup_key, [])
@@ -506,8 +579,7 @@ class QuidditchLiveEngine:
                 continue
 
             token = str(player.get("token") or player.get("display_name") or player.get("username") or "unknown")
-            inactive_until = state.get("inactive_until", {}).get(token)
-            if inactive_until and datetime.fromisoformat(inactive_until) > datetime.now(datetime.now().astimezone().tzinfo):
+            if not self._is_player_active(state, token, now):
                 continue
 
             player_copy = dict(player)
@@ -533,27 +605,30 @@ class QuidditchLiveEngine:
         weights = [entry[1] for entry in weighted]
         return random.choices(population, weights=weights, k=1)[0]
 
-    def _team_attack_strength(self, state: dict[str, Any], side: str) -> float:
-        chasers = self._players_for_side(state, side, {"chaser"})
-        beaters = self._players_for_side(state, side, {"beater"})
-        chaser_avg = self._avg_level(chasers)
-        beater_avg = self._avg_level(beaters)
-        return (chaser_avg / 120.0) * 0.34 + (beater_avg / 120.0) * 0.08
+    def _team_attack_strength(self, state: dict[str, Any], side: str, now: datetime) -> float:
+        chasers = self._players_for_side(state, side, {"chaser"}, now)
+        beaters = self._players_for_side(state, side, {"beater"}, now)
+        chaser_strength = self._slot_weighted_strength(chasers, expected_slots=3)
+        beater_strength = self._slot_weighted_strength(beaters, expected_slots=2)
+        return chaser_strength * 0.34 + beater_strength * 0.08
 
-    def _team_defence_strength(self, state: dict[str, Any], side: str) -> float:
-        keepers = self._players_for_side(state, side, {"keeper"})
-        beaters = self._players_for_side(state, side, {"beater"})
-        return (self._avg_level(keepers) / 120.0) * 0.26 + (self._avg_level(beaters) / 120.0) * 0.07
+    def _team_defence_strength(self, state: dict[str, Any], side: str, now: datetime) -> float:
+        keepers = self._players_for_side(state, side, {"keeper"}, now)
+        beaters = self._players_for_side(state, side, {"beater"}, now)
+        keeper_strength = self._slot_weighted_strength(keepers, expected_slots=1)
+        beater_strength = self._slot_weighted_strength(beaters, expected_slots=2)
+        return keeper_strength * 0.26 + beater_strength * 0.07
 
-    def _team_seek_strength(self, state: dict[str, Any], side: str) -> float:
-        seekers = self._players_for_side(state, side, {"seeker"})
-        return (self._avg_level(seekers) / 120.0) * 0.32
+    def _team_seek_strength(self, state: dict[str, Any], side: str, now: datetime) -> float:
+        seekers = self._players_for_side(state, side, {"seeker"}, now)
+        return self._slot_weighted_strength(seekers, expected_slots=1) * 0.32
 
     def _players_for_side(
         self,
         state: dict[str, Any],
         side: str,
         allowed_positions: set[str],
+        now: datetime,
     ) -> list[dict[str, Any]]:
         lineup_key = "home_lineup" if side == "home" else "away_lineup"
         lineup = state.get(lineup_key, [])
@@ -565,28 +640,152 @@ class QuidditchLiveEngine:
                 continue
 
             token = str(player.get("token") or player.get("display_name") or player.get("username") or "unknown")
-            inactive_until = state.get("inactive_until", {}).get(token)
-            if inactive_until:
-                try:
-                    if datetime.fromisoformat(inactive_until) > datetime.now(datetime.now().astimezone().tzinfo):
-                        continue
-                except ValueError:
-                    pass
+            if not self._is_player_active(state, token, now):
+                continue
 
             players.append(player)
 
         return players
 
-    def _avg_level(self, players: list[dict[str, Any]]) -> float:
-        if not players:
-            return 1.0
-        return sum(max(1, int(player.get("level", 1))) for player in players) / len(players)
+    def _slot_weighted_strength(self, players: list[dict[str, Any]], *, expected_slots: int) -> float:
+        if expected_slots <= 0 or not players:
+            return 0.0
+        total = sum(max(1, int(player.get("level", 1))) for player in players)
+        return total / (120.0 * expected_slots)
+
+    def _is_player_active(self, state: dict[str, Any], token: str, now: datetime) -> bool:
+        inactive_until = state.get("inactive_until", {}).get(token)
+        if not inactive_until:
+            return True
+        try:
+            return datetime.fromisoformat(inactive_until) <= now
+        except ValueError:
+            return True
 
     def _leader_side(self, state: dict[str, Any]) -> str | None:
         if int(state["home_score"]) > int(state["away_score"]):
             return "home"
         if int(state["away_score"]) > int(state["home_score"]):
             return "away"
+        return None
+
+    def _collect_recovery_logs(self, state: dict[str, Any], now: datetime) -> list[str]:
+        logs: list[str] = []
+        inactive = state.get("inactive_until", {})
+        if not inactive:
+            return logs
+
+        active_tokens = {
+            str(player.get("token") or player.get("display_name") or player.get("username") or "unknown")
+            for player in state.get("home_lineup", []) + state.get("away_lineup", [])
+        }
+        token_to_name = {
+            str(player.get("token") or player.get("display_name") or player.get("username") or "unknown"): str(
+                player.get("display_name") or player.get("username") or player.get("name") or "Unknown Player"
+            )
+            for player in state.get("home_lineup", []) + state.get("away_lineup", [])
+        }
+
+        recovered: list[str] = []
+        for token, until in list(inactive.items()):
+            try:
+                if datetime.fromisoformat(until) <= now:
+                    recovered.append(token)
+            except ValueError:
+                recovered.append(token)
+
+        for token in recovered:
+            inactive.pop(token, None)
+            if token in active_tokens and random.random() < 0.65:
+                logs.append(f"{now.strftime('%H:%M')} — {token_to_name.get(token, 'A player')} steadies themselves and rejoins the flow of play.")
+
+        return logs
+
+    def _expire_pressure_effects(self, state: dict[str, Any], now: datetime) -> None:
+        effects = state.get("pressure_effects", [])
+        if not effects:
+            return
+        state["pressure_effects"] = [
+            effect for effect in effects
+            if self._effect_is_active(effect, now)
+        ]
+
+    def _effect_is_active(self, effect: dict[str, Any], now: datetime) -> bool:
+        expires_at = effect.get("expires_at")
+        if not expires_at:
+            return False
+        try:
+            return datetime.fromisoformat(str(expires_at)) > now
+        except ValueError:
+            return False
+
+    def _pressure_modifier(self, state: dict[str, Any], side: str, now: datetime, *, mode: str = "goal") -> float:
+        total = 0.0
+        for effect in state.get("pressure_effects", []):
+            if effect.get("team") != side or not self._effect_is_active(effect, now):
+                continue
+            if mode == "seek":
+                total += float(effect.get("seek", 0.0))
+            else:
+                total += float(effect.get("attack", 0.0)) + float(effect.get("defence", 0.0))
+        return min(0.09 if mode == "goal" else 0.08, total)
+
+    def _knockout_impact(
+        self,
+        beater: dict[str, Any],
+        target: dict[str, Any],
+        now: datetime,
+        state: dict[str, Any],
+    ) -> dict[str, float]:
+        beater_level = max(1, int(beater.get("level", 1)))
+        target_level = max(1, int(target.get("level", 1)))
+        target_role = str(target.get("position", "player")).lower()
+        beater_factor = 0.75 + 0.25 * (beater_level / 120.0)
+        target_factor = 0.55 + 0.45 * (target_level / 120.0)
+
+        attack = 0.0
+        defence = 0.0
+        seek = 0.0
+        if target_role == "chaser":
+            attack = 0.010 + 0.020 * beater_factor * target_factor
+        elif target_role == "keeper":
+            attack = 0.014 + 0.018 * beater_factor * target_factor
+            defence = 0.004 + 0.006 * beater_factor
+        elif target_role == "beater":
+            attack = 0.006 + 0.010 * beater_factor * target_factor
+            defence = 0.005 + 0.008 * beater_factor * target_factor
+        elif target_role == "seeker":
+            seek = 0.006 + 0.010 * beater_factor * target_factor
+            if now - datetime.fromisoformat(state["started_at"]) >= timedelta(hours=8):
+                seek += 0.012 * target_factor
+            else:
+                attack = 0.004 + 0.006 * beater_factor
+
+        return {
+            "attack": min(0.045, attack),
+            "defence": min(0.022, defence),
+            "seek": min(0.05, seek),
+        }
+
+    def _knockout_effect_log(
+        self,
+        state: dict[str, Any],
+        striking_side: str,
+        target: dict[str, Any],
+        impact: dict[str, float],
+        now: datetime,
+        knocked_minutes: int,
+    ) -> str | None:
+        target_role = str(target.get("position", "player")).lower()
+        striking_house = state["home_house"] if striking_side == "home" else state["away_house"]
+        if target_role == "chaser":
+            return f"{now.strftime('%H:%M')} — {striking_house} smell blood now; that hit could blunt the opposing attack for about {knocked_minutes} minutes."
+        if target_role == "keeper":
+            return f"{now.strftime('%H:%M')} — The hoops suddenly look a little more exposed for {knocked_minutes} minutes."
+        if target_role == "beater":
+            return f"{now.strftime('%H:%M')} — {striking_house} have won a nasty little battle in the air and may control the physical side of the match for a spell."
+        if target_role == "seeker" and impact.get("seek", 0.0) > 0.0:
+            return f"{now.strftime('%H:%M')} — That could matter enormously in the Snitch chase if the match goes long."
         return None
 
     def _decay_momentum(self, state: dict[str, Any]) -> None:
