@@ -392,6 +392,12 @@
       ],
       [
         "fluxweed"
+      ],
+      [
+        "hair"
+      ],
+      [
+        "dna"
       ]
     ]
   },
@@ -2357,28 +2363,15 @@
     "image_url": null,
     "answer_groups": [
       [
-        "reanimated",
-        "corpses"
-      ],
-      [
-        "animated",
         "corpses"
       ],
       [
         "dead",
-        "bodies",
-        "controlled",
-        "by",
-        "dark",
-        "magic"
+        "bodies"
       ],
       [
-        "corpses",
-        "reanimated",
-        "by",
-        "dark",
-        "magic"
-      ]
+        "zombies"
+      ] 
     ]
   },
   {
@@ -4153,17 +4146,11 @@
   },
   {
     "id": 293,
-    "question": "What is the name of the house where the Gaunt family lived?",
+    "question": "What is Tom Riddles mother's maiden name?",
     "image_url": null,
     "answer_groups": [
       [
-        "gaunt",
-        "shack"
-      ],
-      [
-        "the",
-        "gaunt",
-        "shack"
+        "gaunt"
       ]
     ]
   },
