@@ -252,6 +252,7 @@ class QuidditchCog(commands.Cog):
         away_lineup: list[dict[str, Any]],
         odds_home: float,
         odds_away: float,
+        betting_log_lines: list[str] | None = None,
     ) -> discord.Embed:
         left_house, right_house = self.image_service.get_display_order(home_house, away_house)
         if left_house == home_house:
@@ -286,6 +287,54 @@ class QuidditchCog(commands.Cog):
             return json.loads(str(betting_state["preview_state_json"]))
         except Exception:
             return {}
+
+    def _build_betting_log_lines(self, guild: discord.Guild, bets: list[Any]) -> list[str]:
+        lines: list[str] = []
+        for bet in bets:
+            member = guild.get_member(int(bet["user_id"]))
+            name = member.display_name if member else f"User {bet['user_id']}"
+            lines.append(f"**{name}** bet **{int(bet['stake'])}** galleons on **{bet['picked_house']}**.")
+        return lines
+
+    async def _refresh_betting_embed_message(self, guild: discord.Guild, fixture_id: int) -> None:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            fixture = repo.get_fixture(fixture_id)
+            betting_state = repo.get_betting_state(fixture_id)
+            if fixture is None or betting_state is None or not betting_state["embed_message_id"]:
+                return
+            preview = self._parse_preview_state(betting_state)
+            home_lineup = preview.get("home_lineup") or []
+            away_lineup = preview.get("away_lineup") or []
+            bets = repo.list_bets_for_fixture(fixture_id)
+            odds_home = float(betting_state["odds_home"])
+            odds_away = float(betting_state["odds_away"])
+            channel = await self._fetch_configured_match_channel(guild, repo)
+            if channel is None:
+                return
+        embed = self._betting_embed(
+            fixture_id=fixture_id,
+            home_house=str(fixture["home_house"]),
+            away_house=str(fixture["away_house"]),
+            home_lineup=home_lineup,
+            away_lineup=away_lineup,
+            odds_home=odds_home,
+            odds_away=odds_away,
+            betting_log_lines=self._build_betting_log_lines(guild, bets),
+        )
+        try:
+            message = await channel.fetch_message(int(betting_state["embed_message_id"]))
+            await message.edit(
+                embed=embed,
+                view=BetView(
+                    cog=self,
+                    fixture_id=fixture_id,
+                    home_house=str(fixture["home_house"]),
+                    away_house=str(fixture["away_house"]),
+                ),
+            )
+        except discord.HTTPException:
+            return
 
     def _sum_levels(self, lineup: list[dict[str, Any]], position: str) -> int:
         return sum(int(p.get("level", 1)) for p in lineup if str(p.get("position", "")).lower() == position)
@@ -374,6 +423,7 @@ class QuidditchCog(commands.Cog):
             away_lineup=away_lineup,
             odds_home=odds_home,
             odds_away=odds_away,
+            betting_log_lines=self._build_betting_log_lines(guild, []),
         )
         embed_message = await channel.send(
             embed=embed,
