@@ -13,7 +13,7 @@ class QuidditchLevelingService:
     MIN_MESSAGE_LENGTH = 12
     MIN_WORD_COUNT = 3
     XP_PER_ELIGIBLE_MESSAGE = 6
-    DAILY_XP_CAP = 120
+    DAILY_XP_CAP = 100
 
     VALID_POSITIONS = {"keeper", "seeker", "beater", "chaser"}
 
