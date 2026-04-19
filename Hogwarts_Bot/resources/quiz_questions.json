@@ -4355,7 +4355,7 @@
   {
     "id": 317,
     "question": "Which magical object is shown in this image?",
-    "answer_groups": [["time", "turner"]],
+    "answer_groups": [["time", "turner"], ["timeturner"]],
     "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/time_turner.png?raw=true"
   },
   {
