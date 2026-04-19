@@ -392,9 +392,9 @@ class QuidditchLiveEngine:
         home_goal_prob = self._clamp_winlike_probability(0.5 + (home_edge + home_pressure - away_edge - away_pressure))
         scoring_side = "home" if random.random() < home_goal_prob else "away"
 
-        scorer = self._random_active_player(state, scoring_side, {"chaser"})
+        scorer = self._random_active_player(state, scoring_side, {"chaser"}, now)
         if scorer is None:
-            scorer = self._random_active_player(state, scoring_side, {"beater", "seeker", "chaser"})
+            scorer = self._random_active_player(state, scoring_side, {"beater", "seeker", "chaser"}, now)
 
         if scoring_side == "home":
             state["home_score"] = int(state["home_score"]) + 10
