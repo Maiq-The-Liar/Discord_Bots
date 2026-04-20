@@ -125,7 +125,7 @@ REACTION_ROLE_GROUPS: tuple[ReactionRoleGroup, ...] = (
     ReactionRoleGroup(
         key="gender_identity",
         role_group=ROLE_GROUP_GENDER_IDENTITY,
-        multi_select=False,
+        multi_select=True,
         banner_filename="select_gender.png",
         options=(
             ReactionRoleOption("gender_male", "male", GENDER_IDENTITY_EMOJIS["male"]),
