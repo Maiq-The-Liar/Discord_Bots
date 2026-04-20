@@ -60,6 +60,45 @@ class UserRepository:
         self.conn.commit()
         return cur.rowcount > 0
 
+    def transfer_sickles(self, from_user_id: int, to_user_id: int, amount: int) -> bool:
+        if amount <= 0:
+            raise ValueError("Amount must be greater than 0.")
+
+        self.ensure_user(from_user_id)
+        self.ensure_user(to_user_id)
+
+        try:
+            self.conn.execute("BEGIN")
+            deducted = self.conn.execute(
+                """
+                UPDATE users
+                SET sickles_balance = sickles_balance - ?,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE user_id = ?
+                  AND sickles_balance >= ?
+                """,
+                (amount, from_user_id, amount),
+            )
+
+            if deducted.rowcount <= 0:
+                self.conn.rollback()
+                return False
+
+            self.conn.execute(
+                """
+                UPDATE users
+                SET sickles_balance = sickles_balance + ?,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE user_id = ?
+                """,
+                (amount, to_user_id),
+            )
+            self.conn.commit()
+            return True
+        except Exception:
+            self.conn.rollback()
+            raise
+
     def add_lifetime_house_points(self, user_id: int, points: int) -> None:
         self.conn.execute(
             """

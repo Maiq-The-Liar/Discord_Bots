@@ -28,6 +28,7 @@ from repositories.frog_collection_repository import FrogCollectionRepository
 from repositories.role_snapshot_repository import RoleSnapshotRepository
 from services.profile_service import ProfileService
 from services.birthday_service import BirthdayService
+from services.economy_service import EconomyService
 
 
 def resolve_member_roles(member: discord.Member) -> MemberRoleContext:
@@ -67,6 +68,69 @@ class ProfileCog(commands.Cog):
         self.bot = bot
         self.database = database
         self.birthday_service = BirthdayService()
+
+
+    @app_commands.command(name="give_money", description="Give some of your Sickles to another user.")
+    @app_commands.describe(member="The member you want to pay", amount="Amount of Sickles to give")
+    async def give_money(
+        self,
+        interaction: discord.Interaction,
+        member: discord.Member,
+        amount: app_commands.Range[int, 1],
+    ) -> None:
+        if not interaction.guild:
+            await interaction.response.send_message(
+                "This command can only be used inside the server.",
+                ephemeral=True,
+            )
+            return
+
+        if member.bot:
+            await interaction.response.send_message(
+                "You cannot give money to bots.",
+                ephemeral=True,
+            )
+            return
+
+        if member.id == interaction.user.id:
+            await interaction.response.send_message(
+                "You cannot give money to yourself.",
+                ephemeral=True,
+            )
+            return
+
+        with self.database.connect() as conn:
+            user_repo = UserRepository(conn)
+            economy_service = EconomyService(user_repo)
+
+            user_repo.ensure_user(interaction.user.id)
+            user_repo.ensure_user(member.id)
+
+            sender_before = user_repo.get_user(interaction.user.id)
+            if int(sender_before["sickles_balance"]) < amount:
+                await interaction.response.send_message(
+                    f"You only have **{sender_before['sickles_balance']}** Sickles.",
+                    ephemeral=True,
+                )
+                return
+
+            success = economy_service.transfer_money(interaction.user.id, member.id, amount)
+            if not success:
+                await interaction.response.send_message(
+                    "Transfer failed because you do not have enough Sickles.",
+                    ephemeral=True,
+                )
+                return
+
+            sender_after = user_repo.get_user(interaction.user.id)
+            recipient_after = user_repo.get_user(member.id)
+
+        await interaction.response.send_message(
+            f"{interaction.user.mention} gave **{amount}** Sickles to {member.mention}.\n"
+            f"Your new balance: **{sender_after['sickles_balance']}** Sickles.\n"
+            f"{member.display_name}'s new balance: **{recipient_after['sickles_balance']}** Sickles."
+        )
+
 
     @app_commands.command(name="profile", description="Show a Hogwarts profile.")
     @app_commands.describe(member="The member whose profile you want to view")

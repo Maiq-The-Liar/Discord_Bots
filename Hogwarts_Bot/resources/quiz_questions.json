@@ -3510,7 +3510,7 @@
   },
   {
     "id": 245,
-    "question": "What is the first name of the Lovegood daughter in Harry's year?",
+    "question": "What is the first name of the Lovegood daughter?",
     "image_url": null,
     "answer_groups": [
       [
@@ -4087,17 +4087,26 @@
   },
   {
     "id": 289,
-    "question": "What is the surname of Tom Riddle's Muggle father?",
+    "question": "What Hogwarts house was Tom Riddle's father in?",
     "image_url": null,
     "answer_groups": [
       [
-        "riddle"
+        "none"
       ],
       [
-        "tom",
-        "riddle",
-        "senior"
+        "muggle"
+      ],
+      [
+        "wasnt"
+      ],
+      [
+        "not"
+      ],
+      [
+        "no"
       ]
+
+
     ]
   },
   {
