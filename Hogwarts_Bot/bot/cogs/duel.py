@@ -41,6 +41,8 @@ QUESTIONS_PER_DUEL = 10
 
 logger = logging.getLogger(__name__)
 
+BOT_STATE_DUEL_CHANNELS_KEY = "duel_configured_channels"
+
 
 @dataclass
 class DuelSession:
@@ -66,7 +68,7 @@ class StartDuelView(discord.ui.View):
         self.cog = cog
         self.start_button.disabled = disabled
 
-    @discord.ui.button(label="Start Duel", style=discord.ButtonStyle.danger)
+    @discord.ui.button(label="Start Duel", style=discord.ButtonStyle.danger, custom_id="duel:start")
     async def start_button(
         self,
         interaction: discord.Interaction,
@@ -81,7 +83,7 @@ class DuelLobbyView(discord.ui.View):
         self.cog = cog
         self.channel_id = channel_id
 
-    @discord.ui.button(label="Join Game", style=discord.ButtonStyle.success)
+    @discord.ui.button(label="Join Game", style=discord.ButtonStyle.success, custom_id="duel:lobby:join")
     async def join_button(
         self,
         interaction: discord.Interaction,
@@ -89,7 +91,7 @@ class DuelLobbyView(discord.ui.View):
     ) -> None:
         await self.cog.handle_join_button(interaction, self.channel_id)
 
-    @discord.ui.button(label="Leave", style=discord.ButtonStyle.secondary)
+    @discord.ui.button(label="Leave", style=discord.ButtonStyle.secondary, custom_id="duel:lobby:leave")
     async def leave_button(
         self,
         interaction: discord.Interaction,
@@ -109,6 +111,52 @@ class DuelCog(commands.Cog):
         base_dir = Path(__file__).resolve().parents[2]
         self.quiz_repo = QuizRepository(str(base_dir / "resources" / "quiz_questions.json"))
         self.answer_service = CasualQuizService(self.quiz_repo, None)  # type: ignore[arg-type]
+        self.start_view = StartDuelView(self)
+        self.bot.add_view(self.start_view)
+        self._startup_refresh_task: asyncio.Task | None = None
+
+    async def cog_load(self) -> None:
+        self._load_configured_channels()
+        if self._startup_refresh_task is None or self._startup_refresh_task.done():
+            self._startup_refresh_task = asyncio.create_task(self._refresh_configured_channels_on_startup())
+
+    async def cog_unload(self) -> None:
+        if self._startup_refresh_task is not None:
+            self._startup_refresh_task.cancel()
+            try:
+                await self._startup_refresh_task
+            except asyncio.CancelledError:
+                pass
+
+    def _load_configured_channels(self) -> None:
+        with self.database.connect() as conn:
+            bot_state_repo = BotStateRepository(conn)
+            raw_value = bot_state_repo.get_value(BOT_STATE_DUEL_CHANNELS_KEY)
+
+        loaded: set[int] = set()
+        if raw_value:
+            for raw_id in raw_value.split(","):
+                raw_id = raw_id.strip()
+                if raw_id.isdigit():
+                    loaded.add(int(raw_id))
+        self.configured_channels = loaded
+
+    def _save_configured_channels(self) -> None:
+        serialized = ",".join(str(channel_id) for channel_id in sorted(self.configured_channels))
+        with self.database.connect() as conn:
+            bot_state_repo = BotStateRepository(conn)
+            bot_state_repo.set_value(BOT_STATE_DUEL_CHANNELS_KEY, serialized)
+
+    async def _refresh_configured_channels_on_startup(self) -> None:
+        await self.bot.wait_until_ready()
+        for channel_id in sorted(self.configured_channels):
+            channel = self.bot.get_channel(channel_id)
+            if not isinstance(channel, discord.TextChannel):
+                continue
+            try:
+                await self.full_reset_channel(channel)
+            except Exception:
+                logger.exception("Failed to refresh duel prompt in channel %s on startup", channel_id)
 
     def is_admin(self, interaction: discord.Interaction) -> bool:
         return (
@@ -720,6 +768,7 @@ class DuelCog(commands.Cog):
             return
 
         self.configured_channels.add(channel.id)
+        self._save_configured_channels()
         await interaction.response.defer(ephemeral=True)
         await self.cancel_session(channel)
         await interaction.followup.send(

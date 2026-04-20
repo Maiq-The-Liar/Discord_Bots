@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import random
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -158,14 +159,43 @@ class QuidditchCog(commands.Cog):
         self.database = database
         self.image_service = QuidditchImageService()
         self.engine = QuidditchLiveEngine()
+        self._startup_refresh_task: asyncio.Task | None = None
 
     async def cog_load(self) -> None:
         if not self.quidditch_loop.is_running():
             self.quidditch_loop.start()
+        if self._startup_refresh_task is None or self._startup_refresh_task.done():
+            self._startup_refresh_task = asyncio.create_task(self._restore_current_prompts_on_startup())
 
     async def cog_unload(self) -> None:
         if self.quidditch_loop.is_running():
             self.quidditch_loop.cancel()
+        if self._startup_refresh_task is not None:
+            self._startup_refresh_task.cancel()
+            try:
+                await self._startup_refresh_task
+            except asyncio.CancelledError:
+                pass
+
+    async def _restore_current_prompts_on_startup(self) -> None:
+        await self.bot.wait_until_ready()
+        guild = self.bot.get_guild(getattr(self.bot, 'guild_id', None)) if hasattr(self.bot, 'guild_id') else None
+        if guild is None:
+            try:
+                from config import load_settings
+                settings = load_settings()
+                guild = self.bot.get_guild(settings.guild_id)
+            except Exception:
+                guild = None
+        if guild is None:
+            return
+
+        try:
+            message = await self._refresh_current_quidditch_prompts(guild)
+            if message.startswith("Refreshed the current"):
+                logging.info("Quidditch startup refresh: %s", message)
+        except Exception:
+            logging.exception("Failed to refresh Quidditch prompts on startup.")
 
     def is_admin(self, interaction: discord.Interaction) -> bool:
         return (
