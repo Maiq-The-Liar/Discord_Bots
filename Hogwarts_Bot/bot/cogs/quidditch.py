@@ -1175,6 +1175,51 @@ class QuidditchCog(commands.Cog):
             repo.set_test_match_image_path(int(test_match["id"]), str(image_path))
             conn.commit()
 
+    def _get_current_official_prompt_target(self, guild_id: int) -> tuple[str | None, int | None, str | None]:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            latest_season = repo.get_latest_season(guild_id)
+            if latest_season is None:
+                return None, None, "No Quidditch season is currently available."
+
+            active_fixture = repo.get_active_fixture(int(latest_season["id"]))
+            if active_fixture is not None:
+                matchup = f"{active_fixture['home_house']} vs {active_fixture['away_house']}"
+                return "gameday", int(active_fixture["id"]), matchup
+
+            next_fixture = repo.get_next_scheduled_fixture(int(latest_season["id"]))
+            if next_fixture is None:
+                return None, None, "There is no active game or upcoming betting prompt to refresh."
+
+            betting_state = repo.get_betting_state(int(next_fixture["id"]))
+            if betting_state is not None and str(betting_state["status"]) in {"pending", "announced"}:
+                matchup = f"{next_fixture['home_house']} vs {next_fixture['away_house']}"
+                return "betting", int(next_fixture["id"]), matchup
+
+        return None, None, "There is no active game or betting prompt to refresh right now."
+
+    async def _refresh_current_quidditch_prompts(self, guild: discord.Guild) -> str:
+        stage, fixture_id, matchup = self._get_current_official_prompt_target(guild.id)
+        if stage is None or fixture_id is None:
+            return matchup or "There is no active Quidditch prompt to refresh right now."
+
+        if stage == "betting":
+            await self._cleanup_betting_messages(guild, fixture_id)
+            await self._announce_betting_for_fixture(guild, fixture_id)
+            return f"Refreshed the current betting prompt for **{matchup}**."
+
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            live_state = repo.get_live_match_state(fixture_id)
+        if live_state is not None:
+            await self._delete_message_if_exists(guild, live_state["channel_id"], live_state["message_id"])
+
+        await self._ensure_official_match_initialized(
+            guild=guild,
+            fixture_id=fixture_id,
+        )
+        return f"Refreshed the current live match prompt for **{matchup}**."
+
     async def _ensure_official_match_initialized(
         self,
         *,
@@ -2075,6 +2120,34 @@ class QuidditchCog(commands.Cog):
             next_fixture = repo.get_next_scheduled_fixture(int(latest_season["id"])) if latest_season is not None else None
         if next_fixture is not None and "already exists" not in result.lower():
             await self._announce_betting_for_fixture(interaction.guild, int(next_fixture["id"]))
+        await interaction.response.send_message(
+            result,
+            ephemeral=True,
+        )
+
+    @app_commands.command(
+        name="update_quidditch_prompts",
+        description="Admin: refresh the current official Quidditch betting or live-match prompt.",
+    )
+    async def update_quidditch_prompts(
+        self,
+        interaction: discord.Interaction,
+    ) -> None:
+        if not self.is_admin(interaction):
+            await interaction.response.send_message(
+                "You do not have permission to use this command.",
+                ephemeral=True,
+            )
+            return
+
+        if interaction.guild is None:
+            await interaction.response.send_message(
+                "This command can only be used in a server.",
+                ephemeral=True,
+            )
+            return
+
+        result = await self._refresh_current_quidditch_prompts(interaction.guild)
         await interaction.response.send_message(
             result,
             ephemeral=True,
