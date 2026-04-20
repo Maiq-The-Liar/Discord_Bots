@@ -15,10 +15,14 @@ from domain.reaction_role_registry import (
 )
 from repositories.guild_role_repository import GuildRoleRepository
 from repositories.reaction_role_repository import ReactionRoleRepository
+from repositories.bot_state_repository import BotStateRepository
 from services.role_service import RoleService
 
 
 class ReactionRoleService:
+    AGE_RESTRICTION_ALERT_CHANNEL_KEY_PREFIX = "age_restriction_alert_channel:"
+    AGE_RESTRICTION_ALERT_USER_ID = 310826348409257985
+
     def __init__(
         self,
         bot,
@@ -168,9 +172,11 @@ class ReactionRoleService:
 
         self.reaction_repo.upsert_membership(guild.id, member.id, group.key, option.role_key)
 
+        role_was_added = False
         if role not in member.roles:
             try:
                 await member.add_roles(role, reason="Reaction role selected")
+                role_was_added = True
             except discord.HTTPException:
                 self.reaction_repo.delete_membership(guild.id, member.id, group.key, option.role_key)
                 try:
@@ -178,6 +184,9 @@ class ReactionRoleService:
                 except discord.HTTPException:
                     pass
                 return
+
+        if role_was_added and option.role_key == "age_below_21":
+            await self._send_age_restriction_alert(guild, member)
 
         await self.clear_invalid_house_color_roles(member)
         await self.refresh_group_message(guild, group.key)

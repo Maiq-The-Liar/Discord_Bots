@@ -111,7 +111,7 @@ PRONOUN_CHOICE_TO_ROLE_KEY: dict[str, str] = {
 }
 
 AGE_CHOICE_TO_ROLE_KEY: dict[str, str] = {
-    "below_21": "age_below_21",
+    "below_18": "age_below_21",
     "21_25": "age_21_25",
     "26_30": "age_26_30",
     "31_35": "age_31_35",
@@ -175,8 +175,8 @@ def _build_role_definitions() -> list[ManagedRoleDefinition]:
 
     defs.extend(
         [
-            ManagedRoleDefinition("age_below_21", "Below 21", 0xA8DADC, ROLE_GROUP_AGES),
-            ManagedRoleDefinition("age_21_25", "21-25", 0x8ECAE6, ROLE_GROUP_AGES),
+            ManagedRoleDefinition("age_below_21", "Below 18", 0xA8DADC, ROLE_GROUP_AGES),
+            ManagedRoleDefinition("age_21_25", "18-25", 0x8ECAE6, ROLE_GROUP_AGES),
             ManagedRoleDefinition("age_26_30", "26-30", 0x219EBC, ROLE_GROUP_AGES),
             ManagedRoleDefinition("age_31_35", "31-35", 0x126782, ROLE_GROUP_AGES),
             ManagedRoleDefinition("age_36_40", "36-40", 0x6D597A, ROLE_GROUP_AGES),

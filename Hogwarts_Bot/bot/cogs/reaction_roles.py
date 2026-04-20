@@ -4,14 +4,21 @@ from discord.ext import commands
 
 from db.database import Database
 from repositories.guild_role_repository import GuildRoleRepository
+from repositories.bot_state_repository import BotStateRepository
 from repositories.reaction_role_repository import ReactionRoleRepository
 from services.reaction_role_service import ReactionRoleService
 
 
 class ReactionRolesCog(commands.Cog):
+    AGE_RESTRICTION_ALERT_CHANNEL_KEY_PREFIX = "age_restriction_alert_channel:"
+
     def __init__(self, bot: commands.Bot, database: Database):
         self.bot = bot
         self.database = database
+
+    @classmethod
+    def age_restriction_alert_channel_key(cls, guild_id: int) -> str:
+        return f"{cls.AGE_RESTRICTION_ALERT_CHANNEL_KEY_PREFIX}{guild_id}"
 
     def is_admin(self, interaction: discord.Interaction) -> bool:
         return (
@@ -74,6 +81,39 @@ class ReactionRolesCog(commands.Cog):
             f"Reaction role channel set to {channel.mention}.\n"
             f"Deleted messages: **{result['deleted_messages']}**\n"
             f"Posted menus: **{result['posted_messages']}**",
+            ephemeral=True,
+        )
+
+    @app_commands.command(
+        name="setup_agerestriction_promt",
+        description="Admin: set the channel for below-18 age restriction alerts.",
+    )
+    @app_commands.describe(channel="The channel where below-18 alerts should be sent")
+    async def setup_agerestriction_promt(
+        self,
+        interaction: discord.Interaction,
+        channel: discord.TextChannel,
+    ) -> None:
+        if not self.is_admin(interaction):
+            await interaction.response.send_message(
+                "You do not have permission to use this command.",
+                ephemeral=True,
+            )
+            return
+
+        if interaction.guild is None:
+            await interaction.response.send_message(
+                "This command can only be used inside the server.",
+                ephemeral=True,
+            )
+            return
+
+        with self.database.connect() as conn:
+            bot_state_repo = BotStateRepository(conn)
+            bot_state_repo.set_value(self.age_restriction_alert_channel_key(interaction.guild.id), str(channel.id))
+
+        await interaction.response.send_message(
+            f"Below-18 alerts will now be sent in {channel.mention}.",
             ephemeral=True,
         )
 

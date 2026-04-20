@@ -426,8 +426,8 @@ class ProfileCog(commands.Cog):
     @app_commands.describe(age_range="Choose your age range")
     @app_commands.choices(
         age_range=[
-            app_commands.Choice(name="Below 21", value="below_21"),
-            app_commands.Choice(name="21-25", value="21_25"),
+            app_commands.Choice(name="Below 18", value="below_18"),
+            app_commands.Choice(name="18-25", value="21_25"),
             app_commands.Choice(name="26-30", value="26_30"),
             app_commands.Choice(name="31-35", value="31_35"),
             app_commands.Choice(name="36-40", value="36_40"),
