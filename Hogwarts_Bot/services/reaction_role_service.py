@@ -257,6 +257,16 @@ class ReactionRoleService:
         self.reaction_repo.replace_memberships_for_guild(guild.id, memberships)
         return {"memberships": len(memberships), "members": matched_members}
 
+    async def refresh_all_group_messages(self, guild: discord.Guild) -> int:
+        refreshed = 0
+        for group in get_reaction_role_groups():
+            mapping = self.reaction_repo.get_message_mapping_for_group(guild.id, group.key)
+            if mapping is None:
+                continue
+            await self.refresh_group_message(guild, group.key)
+            refreshed += 1
+        return refreshed
+
     async def clear_invalid_house_color_roles(self, member: discord.Member) -> None:
         member_house = self._member_house(member)
         if member_house is None:
@@ -326,16 +336,15 @@ class ReactionRoleService:
         return deleted
 
     def _build_description(self, guild: discord.Guild, group: ReactionRoleGroup) -> str:
-        counts = self.reaction_repo.count_memberships_for_group(guild.id, group.key)
         lines: list[str] = []
 
         for option in group.options:
             role_def = get_role_definition(option.role_key)
-            count = counts.get(option.role_key, 0)
+            role = self.role_service.get_role(guild, option.role_key)
+            count = len(role.members) if role is not None else 0
             emoji_text = self._emoji_for_display(option)
 
             if group.house_name:
-                role = self.role_service.get_role(guild, option.role_key)
                 label = role.mention if role is not None else role_def.name
             else:
                 label = role_def.name
