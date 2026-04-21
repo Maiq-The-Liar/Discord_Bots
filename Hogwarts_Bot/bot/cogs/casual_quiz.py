@@ -20,18 +20,10 @@ from bot.cogs.profile import resolve_member_roles, validate_house_context
 
 
 class CasualQuizCog(commands.Cog):
-    QUIZ_CHANNEL_KEY = "casual_quiz_channel_id"
-
     def __init__(self, bot: commands.Bot, database: Database):
         self.bot = bot
         self.database = database
         self.processing_channels: set[int] = set()
-        self.quiz_channel_id: int | None = None
-
-        with self.database.connect() as conn:
-            bot_state_repo = BotStateRepository(conn)
-            configured_channel_id = bot_state_repo.get_value(self.QUIZ_CHANNEL_KEY)
-            self.quiz_channel_id = int(configured_channel_id) if configured_channel_id is not None else None
 
         base_dir = Path(__file__).resolve().parents[2]
         self.quiz_repo = QuizRepository(
@@ -69,7 +61,7 @@ class CasualQuizCog(commands.Cog):
 
     @app_commands.command(
         name="setup_casual_quiz_channel",
-        description="Admin: set the channel used for casual quiz mode.",
+        description="Admin: register a channel for casual quiz mode.",
     )
     @app_commands.describe(channel="The text channel for casual quiz")
     async def setup_casual_quiz_channel(
@@ -85,25 +77,22 @@ class CasualQuizCog(commands.Cog):
             return
 
         with self.database.connect() as conn:
-            bot_state_repo = BotStateRepository(conn)
             casual_quiz_repo = CasualQuizRepository(conn)
-
-            bot_state_repo.set_value(self.QUIZ_CHANNEL_KEY, str(channel.id))
             casual_quiz_repo.upsert_channel(channel.id)
 
-        self.quiz_channel_id = channel.id
-
         await interaction.response.send_message(
-            f"Casual quiz channel set to {channel.mention}."
+            f"Casual quiz channel registered: {channel.mention}."
         )
 
     @app_commands.command(
         name="start_casual_quiz",
-        description="Admin: start casual quiz mode in the configured channel.",
+        description="Admin: start casual quiz mode in a registered channel.",
     )
+    @app_commands.describe(channel="The registered text channel to start casual quiz in")
     async def start_casual_quiz(
         self,
         interaction: discord.Interaction,
+        channel: discord.TextChannel,
     ) -> None:
         if not self.is_admin(interaction):
             await interaction.response.send_message(
@@ -122,26 +111,15 @@ class CasualQuizCog(commands.Cog):
         await interaction.response.defer(ephemeral=True)
 
         with self.database.connect() as conn:
-            bot_state_repo = BotStateRepository(conn)
             casual_quiz_repo = CasualQuizRepository(conn)
-
-            channel_id = bot_state_repo.get_value(self.QUIZ_CHANNEL_KEY)
-            if channel_id is None:
+            state = casual_quiz_repo.get_channel_state(channel.id)
+            if state is None:
                 await interaction.followup.send(
-                    "No casual quiz channel is configured yet.",
+                    f"{channel.mention} is not registered as a casual quiz channel yet. Use /setup_casual_quiz_channel first.",
                     ephemeral=True,
                 )
                 return
 
-            channel = interaction.guild.get_channel(int(channel_id))
-            if not isinstance(channel, discord.TextChannel):
-                await interaction.followup.send(
-                    "Configured casual quiz channel could not be found.",
-                    ephemeral=True,
-                )
-                return
-
-            casual_quiz_repo.upsert_channel(channel.id)
             casual_quiz_repo.set_active(channel.id, True)
 
         await self.post_next_question(channel)
@@ -153,11 +131,13 @@ class CasualQuizCog(commands.Cog):
 
     @app_commands.command(
         name="stop_casual_quiz",
-        description="Admin: stop casual quiz mode.",
+        description="Admin: stop casual quiz mode in a registered channel.",
     )
+    @app_commands.describe(channel="The registered text channel to stop casual quiz in")
     async def stop_casual_quiz(
         self,
         interaction: discord.Interaction,
+        channel: discord.TextChannel,
     ) -> None:
         if not self.is_admin(interaction):
             await interaction.response.send_message(
@@ -174,21 +154,11 @@ class CasualQuizCog(commands.Cog):
             return
 
         with self.database.connect() as conn:
-            bot_state_repo = BotStateRepository(conn)
             casual_quiz_repo = CasualQuizRepository(conn)
-
-            channel_id = bot_state_repo.get_value(self.QUIZ_CHANNEL_KEY)
-            if channel_id is None:
+            state = casual_quiz_repo.get_channel_state(channel.id)
+            if state is None:
                 await interaction.response.send_message(
-                    "No casual quiz channel is configured yet.",
-                    ephemeral=True,
-                )
-                return
-
-            channel = interaction.guild.get_channel(int(channel_id))
-            if not isinstance(channel, discord.TextChannel):
-                await interaction.response.send_message(
-                    "Configured casual quiz channel could not be found.",
+                    f"{channel.mention} is not registered as a casual quiz channel yet.",
                     ephemeral=True,
                 )
                 return
@@ -203,11 +173,13 @@ class CasualQuizCog(commands.Cog):
 
     @app_commands.command(
         name="skip_question",
-        description="Admin: skip the current casual quiz question.",
+        description="Admin: skip the current casual quiz question in a registered channel.",
     )
+    @app_commands.describe(channel="The registered text channel whose question should be skipped")
     async def skip_question(
         self,
         interaction: discord.Interaction,
+        channel: discord.TextChannel,
     ) -> None:
         if not self.is_admin(interaction):
             await interaction.response.send_message(
@@ -226,28 +198,17 @@ class CasualQuizCog(commands.Cog):
         await interaction.response.defer(ephemeral=True)
 
         with self.database.connect() as conn:
-            bot_state_repo = BotStateRepository(conn)
             casual_quiz_repo = CasualQuizRepository(conn)
             service = CasualQuizService(self.quiz_repo, casual_quiz_repo)
 
-            channel_id = bot_state_repo.get_value(self.QUIZ_CHANNEL_KEY)
-            if channel_id is None:
-                await interaction.followup.send(
-                    "No casual quiz channel is configured yet.",
-                    ephemeral=True,
-                )
-                return
-
-            channel = interaction.guild.get_channel(int(channel_id))
-            if not isinstance(channel, discord.TextChannel):
-                await interaction.followup.send(
-                    "Configured casual quiz channel could not be found.",
-                    ephemeral=True,
-                )
-                return
-
             state = casual_quiz_repo.get_channel_state(channel.id)
-            if state is None or not bool(state["is_active"]):
+            if state is None:
+                await interaction.followup.send(
+                    f"{channel.mention} is not registered as a casual quiz channel yet.",
+                    ephemeral=True,
+                )
+                return
+            if not bool(state["is_active"]):
                 await interaction.followup.send(
                     "Casual quiz is not active.",
                     ephemeral=True,
@@ -274,9 +235,6 @@ class CasualQuizCog(commands.Cog):
         if not isinstance(message.author, discord.Member):
             return
 
-        if self.quiz_channel_id != message.channel.id:
-            return
-
         if message.channel.id in self.processing_channels:
             return
 
@@ -284,7 +242,7 @@ class CasualQuizCog(commands.Cog):
             casual_quiz_repo = CasualQuizRepository(conn)
             state = casual_quiz_repo.get_channel_state(message.channel.id)
 
-            if state is None or not bool(state["is_active"]):
+            if not bool(state["is_active"]):
                 return
 
             service = CasualQuizService(self.quiz_repo, casual_quiz_repo)
