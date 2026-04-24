@@ -825,7 +825,21 @@ class QuidditchCog(commands.Cog):
         npc_name = random.choice(choices or pool)
         used_names.add(npc_name)
 
-        level = max(1, min(120, random.randint(max(1, target_level - 6), min(120, target_level + 6))))
+        # NPCs should keep short-handed houses competitive without making
+        # missing signups as valuable as real player rosters. Instead of
+        # mirroring the opponent position average with a symmetric +/-6 roll,
+        # bias the roll slightly underneath the opponent average while still
+        # leaving a small chance for a standout NPC to roll above it.
+        #
+        # Example: target 18 -> roll 9..20, averaging 14.5.
+        npc_target = max(1, int(target_level) - 3)
+        level = max(
+            1,
+            min(
+                120,
+                random.randint(max(1, npc_target - 6), min(120, npc_target + 5)),
+            ),
+        )
         return {
             "user_id": None,
             "username": npc_name,
@@ -964,10 +978,17 @@ class QuidditchCog(commands.Cog):
     def _average_position_levels(
         self,
         roster: list[dict[str, Any]],
+        *,
+        prefer_real_players: bool = False,
     ) -> dict[str, int]:
         result: dict[str, int] = {}
         for position_key in self.REQUIRED_COUNTS.keys():
             players = [p for p in roster if p["position"] == position_key]
+            if prefer_real_players:
+                real_players = [p for p in players if not p.get("is_npc", False)]
+                if real_players:
+                    players = real_players
+
             if not players:
                 result[position_key] = 18
                 continue
@@ -1001,10 +1022,10 @@ class QuidditchCog(commands.Cog):
             repo=repo,
             role_service=role_service,
             progress_repo=progress_repo,
-            opponent_hint_levels=self._average_position_levels(home_seed),
+            opponent_hint_levels=self._average_position_levels(home_seed, prefer_real_players=True),
         )
 
-        home_avg = self._average_position_levels(away_seed)
+        home_avg = self._average_position_levels(away_seed, prefer_real_players=True)
         final_home = self._build_house_roster(
             guild=guild,
             house_name=home_house,

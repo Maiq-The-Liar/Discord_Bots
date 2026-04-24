@@ -343,24 +343,29 @@ class QuidditchLiveEngine:
 
     def _beater_event_probability(self, state: dict[str, Any]) -> float:
         scenario = str(state.get("scenario", "balanced"))
-        base = 0.022
+
+        # Bludgers should matter in every match, but not every scenario should feel
+        # equally violent. These values raise the general floor for beater events
+        # while giving the biggest boosts to chaotic, swingy, open and late-finish
+        # matches where extra bludger pressure fits the match story best.
+        base = 0.030
         if scenario == "chaotic":
-            base = 0.052
+            base = 0.076
         elif scenario == "grindy":
-            base = 0.016
+            base = 0.022
         elif scenario == "open":
-            base = 0.025
+            base = 0.039
         elif scenario == "tactical":
-            base = 0.019
+            base = 0.026
         elif scenario == "swingy":
-            base = 0.027
+            base = 0.041
         elif scenario == "tense_finish":
-            base = 0.024
+            base = 0.037
         elif scenario == "comeback":
-            base = 0.023
+            base = 0.034
         if int(state.get("minute", 0)) >= 480:
-            base += 0.003
-        return self._clamp_probability(base, low=0.012, high=0.060)
+            base += 0.006
+        return self._clamp_probability(base, low=0.018, high=0.090)
 
     def _ambient_flavor_probability(self, state: dict[str, Any]) -> float:
         scenario = str(state.get("scenario", "balanced"))
@@ -497,22 +502,24 @@ class QuidditchLiveEngine:
             bias["danger"] -= 0.03
             bias["steal_for"] -= 0.03
             bias["keeper"] += 0.03
-            bias["beater"] -= 0.03
+            bias["beater"] -= 0.01
         elif scenario == "chaotic":
             bias["retention"] -= 0.06
             bias["steal_for"] += 0.05
-            bias["beater"] += 0.08
+            bias["beater"] += 0.11
             bias["counter"] += 0.04
         elif scenario == "open":
             bias["danger"] += 0.06
             bias["keeper"] -= 0.03
             bias["steal_for"] -= 0.02
+            bias["beater"] += 0.02
         elif scenario == "tactical":
             bias["retention"] += 0.03
             bias["steal_for"] += 0.03
             bias["danger"] -= 0.01
-            bias["beater"] -= 0.02
+            bias["beater"] += 0.01
         elif scenario == "swingy":
+            bias["beater"] += 0.03
             phase_side = state.get("swing_phase_side")
             if phase_side == side:
                 bias["retention"] += 0.05
@@ -520,6 +527,7 @@ class QuidditchLiveEngine:
             else:
                 bias["steal_for"] += 0.05
         elif scenario == "tense_finish" and minute >= 420:
+            bias["beater"] += 0.03
             trail = self._trailing_side(state)
             if trail == side:
                 bias["steal_for"] += 0.03
@@ -1025,9 +1033,9 @@ class QuidditchLiveEngine:
             elif elapsed_hours < 9.5:
                 early_break_bonus = 0.04
             interference_prob = self._clamp_probability(
-                0.08 + (beater_level / 120.0) * 0.12 + early_break_bonus + max(0.0, elapsed_hours - 8.5) * 0.01,
-                low=0.08,
-                high=0.32,
+                0.10 + (beater_level / 120.0) * 0.13 + early_break_bonus + max(0.0, elapsed_hours - 8.5) * 0.012 + max(0.0, self._scenario_bias(state, other_side)["beater"]) * 0.20,
+                low=0.09,
+                high=0.36,
             )
 
         lose_prob = self._clamp_probability(
