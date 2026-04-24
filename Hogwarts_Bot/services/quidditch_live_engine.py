@@ -348,24 +348,24 @@ class QuidditchLiveEngine:
         # equally violent. These values raise the general floor for beater events
         # while giving the biggest boosts to chaotic, swingy, open and late-finish
         # matches where extra bludger pressure fits the match story best.
-        base = 0.030
+        base = 0.036
         if scenario == "chaotic":
-            base = 0.076
+            base = 0.092
         elif scenario == "grindy":
-            base = 0.022
+            base = 0.027
         elif scenario == "open":
-            base = 0.039
+            base = 0.049
         elif scenario == "tactical":
-            base = 0.026
+            base = 0.031
         elif scenario == "swingy":
-            base = 0.041
+            base = 0.052
         elif scenario == "tense_finish":
-            base = 0.037
+            base = 0.047
         elif scenario == "comeback":
-            base = 0.034
+            base = 0.043
         if int(state.get("minute", 0)) >= 480:
-            base += 0.006
-        return self._clamp_probability(base, low=0.018, high=0.090)
+            base += 0.009
+        return self._clamp_probability(base, low=0.022, high=0.110)
 
     def _ambient_flavor_probability(self, state: dict[str, Any]) -> float:
         scenario = str(state.get("scenario", "balanced"))
@@ -430,7 +430,7 @@ class QuidditchLiveEngine:
         if target is None:
             return None
         beater_level = max(1, int(beater.get("level", 1)))
-        hit_prob = self._clamp_probability(0.48 + (beater_level / 120.0) * 0.22, low=0.40, high=0.80)
+        hit_prob = self._clamp_probability(0.50 + (beater_level / 120.0) * 0.24, low=0.42, high=0.83)
         if random.random() > hit_prob:
             return random.choice(self.KNOCKOUT_MISS_TEMPLATES).format(time=now.strftime("%H:%M"), beater=beater["display_name"], target=target["display_name"])
         role = str(target.get("position", "player")).lower()
@@ -502,24 +502,24 @@ class QuidditchLiveEngine:
             bias["danger"] -= 0.03
             bias["steal_for"] -= 0.03
             bias["keeper"] += 0.03
-            bias["beater"] -= 0.01
+            bias["beater"] += 0.00
         elif scenario == "chaotic":
             bias["retention"] -= 0.06
             bias["steal_for"] += 0.05
-            bias["beater"] += 0.11
+            bias["beater"] += 0.14
             bias["counter"] += 0.04
         elif scenario == "open":
             bias["danger"] += 0.06
             bias["keeper"] -= 0.03
             bias["steal_for"] -= 0.02
-            bias["beater"] += 0.02
+            bias["beater"] += 0.035
         elif scenario == "tactical":
             bias["retention"] += 0.03
             bias["steal_for"] += 0.03
             bias["danger"] -= 0.01
-            bias["beater"] += 0.01
+            bias["beater"] += 0.02
         elif scenario == "swingy":
-            bias["beater"] += 0.03
+            bias["beater"] += 0.045
             phase_side = state.get("swing_phase_side")
             if phase_side == side:
                 bias["retention"] += 0.05
@@ -527,7 +527,7 @@ class QuidditchLiveEngine:
             else:
                 bias["steal_for"] += 0.05
         elif scenario == "tense_finish" and minute >= 420:
-            bias["beater"] += 0.03
+            bias["beater"] += 0.045
             trail = self._trailing_side(state)
             if trail == side:
                 bias["steal_for"] += 0.03
@@ -576,8 +576,8 @@ class QuidditchLiveEngine:
         active_diff = self._active_chaser_count(state, defending_side, now) - self._active_chaser_count(state, possession_side, now)
         poss_bias = self._scenario_bias(state, possession_side)
         def_bias = self._scenario_bias(state, defending_side)
-        raw = 0.10 + (defence - attack) * 0.16 + active_diff * 0.028 + float(state.get(f"{defending_side}_momentum", 0.0)) * 0.10 - float(state.get(f"{possession_side}_momentum", 0.0)) * 0.07 + def_bias["steal_for"] - poss_bias["retention"] * 0.45 + float(state.get(f"cheer_boost_{defending_side}", 0.0)) * 0.35
-        return self._clamp_probability(raw, low=0.04, high=0.24)
+        raw = 0.085 + (defence - attack) * 0.14 + active_diff * 0.024 + float(state.get(f"{defending_side}_momentum", 0.0)) * 0.085 - float(state.get(f"{possession_side}_momentum", 0.0)) * 0.07 + def_bias["steal_for"] * 0.85 - poss_bias["retention"] * 0.50 + float(state.get(f"cheer_boost_{defending_side}", 0.0)) * 0.30
+        return self._clamp_probability(raw, low=0.032, high=0.205)
 
     def _attack_attempt_probability(self, state: dict[str, Any], possession_side: str, now: datetime) -> float:
         bias = self._scenario_bias(state, possession_side)
@@ -602,10 +602,10 @@ class QuidditchLiveEngine:
         poss_bias = self._scenario_bias(state, possession_side)
         def_bias = self._scenario_bias(state, defending_side)
         active_diff = self._active_chaser_count(state, defending_side, now) - self._active_chaser_count(state, possession_side, now)
-        success = self._clamp_probability(0.41 + (defence - attack) * 0.38 + active_diff * 0.05 + def_bias["steal_for"] - poss_bias["retention"] + float(state.get(f"{defending_side}_momentum", 0.0)) * 0.28 + float(state.get(f"cheer_boost_{defending_side}", 0.0)) * 0.30, low=0.18, high=0.72)
+        success = self._clamp_probability(0.38 + (defence - attack) * 0.34 + active_diff * 0.045 + def_bias["steal_for"] * 0.90 - poss_bias["retention"] + float(state.get(f"{defending_side}_momentum", 0.0)) * 0.24 + float(state.get(f"cheer_boost_{defending_side}", 0.0)) * 0.26, low=0.15, high=0.66)
         if random.random() < success:
-            turnover_type = random.choices(["interception", "tackle", "strip"], weights=[36, 41, 23], k=1)[0]
-            flow = "fast_break" if turnover_type == "interception" and random.random() < 0.72 else "scramble" if turnover_type == "strip" else "structured"
+            turnover_type = random.choices(["interception", "tackle", "strip"], weights=[28, 45, 27], k=1)[0]
+            flow = "fast_break" if turnover_type == "interception" and random.random() < 0.62 else "scramble" if turnover_type == "strip" else "structured"
             self._switch_possession(state, defending_side, now, flow=flow)
             state["counter_window_ticks"] = 2 if flow == "fast_break" else max(0, int(state.get("counter_window_ticks", 0)))
             if turnover_type == "interception":
@@ -1033,9 +1033,9 @@ class QuidditchLiveEngine:
             elif elapsed_hours < 9.5:
                 early_break_bonus = 0.04
             interference_prob = self._clamp_probability(
-                0.10 + (beater_level / 120.0) * 0.13 + early_break_bonus + max(0.0, elapsed_hours - 8.5) * 0.012 + max(0.0, self._scenario_bias(state, other_side)["beater"]) * 0.20,
-                low=0.09,
-                high=0.36,
+                0.115 + (beater_level / 120.0) * 0.145 + early_break_bonus + max(0.0, elapsed_hours - 8.5) * 0.014 + max(0.0, self._scenario_bias(state, other_side)["beater"]) * 0.24,
+                low=0.10,
+                high=0.40,
             )
 
         lose_prob = self._clamp_probability(
