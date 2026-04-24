@@ -153,6 +153,20 @@ class QuidditchCog(commands.Cog):
         "beater": 2,
         "chaser": 3,
     }
+    GIF_BASE_URL = "https://raw.githubusercontent.com/Maiq-The-Liar/01_Resource_Bot_Quidditch_Animations/main/gifs"
+    HOUSE_GIF_INITIALS = {
+        "Gryffindor": "G",
+        "Hufflepuff": "H",
+        "Ravenclaw": "R",
+        "Slytherin": "S",
+    }
+    KNOCKOUT_GIF_CODES = {
+        "keeper": "K",
+        "seeker": "S",
+        "chaser": "C",
+        "beater": "B",
+    }
+    KNOCKOUT_GIF_ORDER = ("keeper", "seeker", "chaser", "beater")
 
     def __init__(self, bot: commands.Bot, database: Database):
         self.bot = bot
@@ -600,13 +614,11 @@ class QuidditchCog(commands.Cog):
             repo.mark_betting_closed(fixture_id)
             conn.commit()
 
-    def _build_embed(
+    def _build_live_embeds(
         self,
         *,
         home_house: str,
         away_house: str,
-        home_score: int,
-        away_score: int,
         home_lineup: list[dict[str, Any]],
         away_lineup: list[dict[str, Any]],
         full_log: list[str],
@@ -614,7 +626,8 @@ class QuidditchCog(commands.Cog):
         image_filename: str,
         is_test: bool,
         ended: bool,
-    ) -> discord.Embed:
+        runtime_state: dict[str, Any],
+    ) -> list[discord.Embed]:
         color = 0x5865F2 if is_test else 0xD4AF37
 
         left_house, right_house = self.image_service.get_display_order(home_house, away_house)
@@ -629,29 +642,108 @@ class QuidditchCog(commands.Cog):
         status_line = "Finished" if ended else "Live match"
         heading = f"## **{left_house} vs {right_house}**"
 
-        embed = discord.Embed(
+        roster_embed = discord.Embed(
             description=f"{heading}\n*{status_line}*",
             color=color,
         )
-
-        embed.add_field(
+        roster_embed.add_field(
             name="\u200b",
             value=self._roster_block_for_house(left_house, left_lineup),
             inline=True,
         )
-        embed.add_field(
+        roster_embed.add_field(
             name="\u200b",
             value=self._roster_block_for_house(right_house, right_lineup),
             inline=True,
         )
-        embed.add_field(
+        roster_embed.add_field(
             name="📜 Match Log",
             value=self._format_log_block(full_log),
             inline=False,
         )
-        embed.set_footer(text=footer_text)
-        embed.set_image(url=f"attachment://{image_filename}")
-        return embed
+        roster_embed.set_footer(text=footer_text)
+
+        gif_embed = discord.Embed(color=color)
+        gif_embed.set_image(url=self._build_live_gif_url(
+            home_house=home_house,
+            away_house=away_house,
+            home_lineup=home_lineup,
+            away_lineup=away_lineup,
+            runtime_state=runtime_state,
+        ))
+
+        scoreboard_embed = discord.Embed(color=color)
+        scoreboard_embed.set_image(url=f"attachment://{image_filename}")
+
+        return [roster_embed, gif_embed, scoreboard_embed]
+
+    def _build_live_gif_url(
+        self,
+        *,
+        home_house: str,
+        away_house: str,
+        home_lineup: list[dict[str, Any]],
+        away_lineup: list[dict[str, Any]],
+        runtime_state: dict[str, Any],
+    ) -> str:
+        left_house, right_house = self.image_service.get_display_order(home_house, away_house)
+        left_initial = self.HOUSE_GIF_INITIALS[left_house]
+        right_initial = self.HOUSE_GIF_INITIALS[right_house]
+
+        possession_side = str(runtime_state.get("quaffle_possession_side") or "home")
+        possession_house = home_house if possession_side == "home" else away_house
+        if possession_house == left_house:
+            possession_code = f"{left_initial}Qv{right_initial}"
+        else:
+            possession_code = f"{left_initial}v{right_initial}Q"
+
+        if left_house == home_house:
+            left_lineup = home_lineup
+            right_lineup = away_lineup
+        else:
+            left_lineup = away_lineup
+            right_lineup = home_lineup
+
+        now = self._now()
+        inactive_until = runtime_state.get("inactive_until", {})
+        left_knockouts = self._encode_knockout_gif_side(left_lineup, inactive_until, now)
+        right_knockouts = self._encode_knockout_gif_side(right_lineup, inactive_until, now)
+        matchup_folder = f"{left_house.lower()}_{right_house.lower()}"
+        filename = f"{possession_code}_{left_knockouts}v{right_knockouts}.gif"
+        return f"{self.GIF_BASE_URL}/{matchup_folder}/{filename}"
+
+    def _encode_knockout_gif_side(
+        self,
+        lineup: list[dict[str, Any]],
+        inactive_until: dict[str, Any],
+        now: datetime,
+    ) -> str:
+        inactive_positions: list[str] = []
+        for player in lineup:
+            token = str(player.get("token") or player.get("display_name") or player.get("username") or "unknown")
+            until = inactive_until.get(token)
+            if not until:
+                continue
+            try:
+                if datetime.fromisoformat(str(until)) <= now:
+                    continue
+            except ValueError:
+                continue
+            position = str(player.get("position", "")).lower().strip()
+            if position in self.KNOCKOUT_GIF_CODES:
+                inactive_positions.append(position)
+
+        if not inactive_positions:
+            return "0"
+
+        ordered_codes: list[str] = []
+        for position in self.KNOCKOUT_GIF_ORDER:
+            ordered_codes.extend(
+                self.KNOCKOUT_GIF_CODES[position]
+                for inactive_position in inactive_positions
+                if inactive_position == position
+            )
+        return "".join(ordered_codes) or "0"
 
     async def _render_match_image(
         self,
@@ -1064,11 +1156,9 @@ class QuidditchCog(commands.Cog):
                 away_lineup=runtime_state["away_lineup"],
             )
 
-            embed = self._build_embed(
+            embeds = self._build_live_embeds(
                 home_house=str(fixture["home_house"]),
                 away_house=str(fixture["away_house"]),
-                home_score=int(runtime_state["home_score"]),
-                away_score=int(runtime_state["away_score"]),
                 home_lineup=runtime_state["home_lineup"],
                 away_lineup=runtime_state["away_lineup"],
                 full_log=full_log,
@@ -1076,6 +1166,7 @@ class QuidditchCog(commands.Cog):
                 image_filename="quidditch_live_match.png",
                 is_test=False,
                 ended=ended,
+                runtime_state=runtime_state,
             )
 
             view = None if ended else CheerView(
@@ -1090,7 +1181,7 @@ class QuidditchCog(commands.Cog):
             if live_state is not None and live_state["channel_id"] and live_state["message_id"]:
                 try:
                     message = await channel.fetch_message(int(live_state["message_id"]))
-                    await message.edit(embed=embed, attachments=[discord_file], view=view)
+                    await message.edit(embeds=embeds, attachments=[discord_file], view=view)
                     repo.upsert_live_match_state(
                         int(fixture["id"]),
                         channel_id=channel.id,
@@ -1107,7 +1198,7 @@ class QuidditchCog(commands.Cog):
                 except discord.HTTPException:
                     pass
 
-            message = await channel.send(embed=embed, file=discord_file, view=view)
+            message = await channel.send(embeds=embeds, file=discord_file, view=view)
             started_at = live_state["started_at"] if live_state is not None else self._now().isoformat()
             ends_at = live_state["ends_at"] if live_state is not None else (self._now() + timedelta(hours=10)).isoformat()
             snitch_unlocked_at = (
@@ -1158,11 +1249,9 @@ class QuidditchCog(commands.Cog):
                 away_lineup=runtime_state["away_lineup"],
             )
 
-            embed = self._build_embed(
+            embeds = self._build_live_embeds(
                 home_house=str(test_match["home_house"]),
                 away_house=str(test_match["away_house"]),
-                home_score=int(runtime_state["home_score"]),
-                away_score=int(runtime_state["away_score"]),
                 home_lineup=runtime_state["home_lineup"],
                 away_lineup=runtime_state["away_lineup"],
                 full_log=full_log,
@@ -1170,6 +1259,7 @@ class QuidditchCog(commands.Cog):
                 image_filename="quidditch_test_match.png",
                 is_test=True,
                 ended=ended,
+                runtime_state=runtime_state,
             )
 
             view = None if ended else CheerView(
@@ -1184,7 +1274,7 @@ class QuidditchCog(commands.Cog):
             if test_match["message_id"]:
                 try:
                     message = await channel.fetch_message(int(test_match["message_id"]))
-                    await message.edit(embed=embed, attachments=[discord_file], view=view)
+                    await message.edit(embeds=embeds, attachments=[discord_file], view=view)
                     repo.update_test_match_message(
                         int(test_match["id"]),
                         channel_id=channel.id,
@@ -1196,7 +1286,7 @@ class QuidditchCog(commands.Cog):
                 except discord.HTTPException:
                     pass
 
-            message = await channel.send(embed=embed, file=discord_file, view=view)
+            message = await channel.send(embeds=embeds, file=discord_file, view=view)
             repo.update_test_match_message(
                 int(test_match["id"]),
                 channel_id=channel.id,
@@ -2320,11 +2410,19 @@ class QuidditchCog(commands.Cog):
             away_lineup=away_lineup,
         )
 
-        embed = self._build_embed(
+        demo_runtime_state = {
+            "home_house": home_house,
+            "away_house": away_house,
+            "home_score": score_team1,
+            "away_score": score_team2,
+            "home_lineup": home_lineup,
+            "away_lineup": away_lineup,
+            "inactive_until": {},
+            "quaffle_possession_side": "home",
+        }
+        embeds = self._build_live_embeds(
             home_house=home_house,
             away_house=away_house,
-            home_score=score_team1,
-            away_score=score_team2,
             home_lineup=home_lineup,
             away_lineup=away_lineup,
             full_log=[
@@ -2336,10 +2434,11 @@ class QuidditchCog(commands.Cog):
             image_filename="quidditch_test_pitch.png",
             is_test=True,
             ended=False,
+            runtime_state=demo_runtime_state,
         )
 
         await interaction.response.send_message(
-            embed=embed,
+            embeds=embeds,
             file=discord.File(str(image_path), filename="quidditch_test_pitch.png"),
             ephemeral=True,
         )

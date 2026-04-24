@@ -32,7 +32,7 @@ class QuidditchLiveEngine:
 
     NPC_POOLS: dict[str, dict[str, list[str]]] = {
         "Gryffindor": {
-            "keeper": ["Oliver W.", "Katie B."],
+            "keeper": ["Manuel Neuer"],
             "seeker": ["Harry P.", "Ginny W."],
             "beater": ["Fred W.", "George W.", "Jimmy P."],
             "chaser": ["Angelina J.", "Alicia S.", "Demelza R.", "Dean T."],
@@ -40,18 +40,18 @@ class QuidditchLiveEngine:
         "Hufflepuff": {
             "keeper": ["Herbert F.", "Summerby"],
             "seeker": ["Cedric D.", "Tamsin A."],
-            "beater": ["Maxine O.", "Silas D.", "Beatrice H."],
+            "beater": ["Helga Hufflepuff", "Alastor Moody"],
             "chaser": ["Zacharias S.", "Nia G.", "Megan J.", "Rory F."],
         },
         "Ravenclaw": {
             "keeper": ["Grant P.", "Randolph B."],
             "seeker": ["Cho C.", "Luna L."],
             "beater": ["Duncan I.", "Jeremy S.", "Nadia V."],
-            "chaser": ["Roger D.", "Marietta E.", "Eddie C.", "Padma P."],
+            "chaser": ["Amber Glenn", "Alysa Liu", "Eddie C.", "Padma P."],
         },
         "Slytherin": {
             "keeper": ["Miles B.", "Cassius W."],
-            "seeker": ["Draco M.", "Voldemort"],
+            "seeker": ["Cedric D. (RIP)"],
             "beater": ["Vincent C.", "Gregory G.", "Peregrine D.", "Lucian B."],
             "chaser": ["Marcus F.", "Adrian P.", "Graham M.", "Pansy P."],
         },
@@ -215,6 +215,10 @@ class QuidditchLiveEngine:
             "home_lineup": deepcopy(home_lineup),
             "away_lineup": deepcopy(away_lineup),
             "inactive_until": {},
+            "knockout_order": {
+                "home": [],
+                "away": [],
+            },
             "pressure_effects": [],
             "last_event_at": None,
             "full_log_count": 0,
@@ -432,7 +436,11 @@ class QuidditchLiveEngine:
         else:
             knocked_minutes = self._biased_knockout_minutes(8, 18, beater_level)
         inactive_until = now + timedelta(minutes=knocked_minutes)
-        state["inactive_until"][target["token"]] = inactive_until.isoformat()
+        target_token = str(target.get("token") or target.get("display_name") or target.get("username") or "unknown")
+        state.setdefault("inactive_until", {})[target_token] = inactive_until.isoformat()
+        knockout_order = state.setdefault("knockout_order", {}).setdefault(target_side, [])
+        if target_token not in knockout_order:
+            knockout_order.append(target_token)
         impact = self._knockout_impact(beater, target, now, state)
         state.setdefault("pressure_effects", []).append({
             "team": striking_side,
@@ -442,12 +450,14 @@ class QuidditchLiveEngine:
             "expires_at": inactive_until.isoformat(),
             "target_name": target["display_name"],
             "target_role": role,
+            "target_token": target_token,
         })
         self._apply_knockout_momentum_swing(state, target_side, role, target)
         base_log = random.choice(self.KNOCKOUT_TEMPLATES).format(time=now.strftime("%H:%M"), beater=beater["display_name"], target=target["display_name"])
         turnover_log = self._maybe_apply_beater_turnover(state, now, striking_side, target_side, beater, target)
         effect_log = self._knockout_effect_log(state, striking_side, target, impact, now, knocked_minutes)
-        extra = [entry for entry in (turnover_log, effect_log) if entry]
+        limit_log = self._enforce_team_knockout_limit(state, target_side, now)
+        extra = [entry for entry in (turnover_log, effect_log, limit_log) if entry]
         return "\n".join([base_log] + extra)
 
     def _turnover_event(self, state: dict[str, Any], now: datetime) -> str | None:
@@ -1244,6 +1254,65 @@ class QuidditchLiveEngine:
             return "away"
         return None
 
+    def _player_name_from_token(self, state: dict[str, Any], token: str) -> str:
+        for player in state.get("home_lineup", []) + state.get("away_lineup", []):
+            player_token = str(
+                player.get("token")
+                or player.get("display_name")
+                or player.get("username")
+                or "unknown"
+            )
+            if player_token == token:
+                return str(
+                    player.get("display_name")
+                    or player.get("username")
+                    or player.get("name")
+                    or "A player"
+                )
+        return "A player"
+
+    def _enforce_team_knockout_limit(
+        self,
+        state: dict[str, Any],
+        side: str,
+        now: datetime,
+    ) -> str | None:
+        order = state.setdefault("knockout_order", {}).setdefault(side, [])
+        inactive = state.setdefault("inactive_until", {})
+
+        still_inactive: list[str] = []
+        for token in order:
+            until = inactive.get(token)
+            if not until:
+                continue
+            try:
+                if datetime.fromisoformat(until) > now:
+                    still_inactive.append(token)
+            except ValueError:
+                continue
+
+        state["knockout_order"][side] = still_inactive
+        order = state["knockout_order"][side]
+
+        if len(order) <= 2:
+            return None
+
+        returning_token = order.pop(0)
+        inactive.pop(returning_token, None)
+
+        effects = state.get("pressure_effects", [])
+        removed = False
+        kept_effects: list[dict[str, Any]] = []
+        for effect in effects:
+            if not removed and effect.get("target_token") == returning_token:
+                removed = True
+                continue
+            kept_effects.append(effect)
+        state["pressure_effects"] = kept_effects
+
+        player_name = self._player_name_from_token(state, returning_token)
+        return f"{now.strftime('%H:%M')} — {player_name} is forced back into play as their team has reached the knockout limit."
+
     def _collect_recovery_logs(self, state: dict[str, Any], now: datetime) -> list[str]:
         logs: list[str] = []
         inactive = state.get("inactive_until", {})
@@ -1271,7 +1340,10 @@ class QuidditchLiveEngine:
 
         for token in recovered:
             inactive.pop(token, None)
-            if token in active_tokens and random.random() < 0.65:
+            for side in ("home", "away"):
+                order = state.setdefault("knockout_order", {}).setdefault(side, [])
+                state["knockout_order"][side] = [entry for entry in order if entry != token]
+            if token in active_tokens:
                 logs.append(f"{now.strftime('%H:%M')} — {token_to_name.get(token, 'A player')} steadies themselves and rejoins the flow of play.")
 
         return logs
