@@ -11,6 +11,7 @@ from repositories.patronus_repository import PatronusRepository
 from services.patronus_service import PatronusService
 from domain.constants import HOUSE_COLORS
 from bot.cogs.profile import resolve_member_roles, validate_house_context
+from bot.permissions import is_admin_or_head_student
 
 
 class PatronusCog(commands.Cog):
@@ -128,7 +129,7 @@ class PatronusCog(commands.Cog):
 
     @app_commands.command(
     name="assign_patronus",
-    description="Admin: Assign a specific Patronus to a user by ID.",
+    description="Admin/Head Student: Assign a specific Patronus to a user by ID.",
     )
     
     @app_commands.describe(
@@ -141,8 +142,8 @@ class PatronusCog(commands.Cog):
         member: discord.Member,
         patronus_id: int,
     ) -> None:
-        # 🔒 Admin check
-        if not isinstance(interaction.user, discord.Member) or not interaction.user.guild_permissions.administrator:
+        # 🔒 Admin or Head Student check
+        if not is_admin_or_head_student(interaction.user):
             await interaction.response.send_message(
                 "You do not have permission to use this command.",
                 ephemeral=True,

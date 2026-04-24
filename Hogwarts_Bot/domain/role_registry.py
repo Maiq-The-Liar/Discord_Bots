@@ -16,6 +16,7 @@ class ManagedRoleDefinition:
 ROLE_GROUP_YEARS = "years"
 ROLE_GROUP_ZODIAC = "zodiac"
 ROLE_GROUP_SYSTEM = "system"
+ROLE_GROUP_MODERATION = "moderation"
 
 ROLE_GROUP_AGES = "ages"
 ROLE_GROUP_PRONOUNS = "pronouns"
@@ -65,6 +66,7 @@ ROLE_KEY_DUEL_PING = "duel_ping"
 ROLE_KEY_EVENT_PING = "event_ping"
 ROLE_KEY_CHAT_REVIVE = "chat_revive"
 ROLE_KEY_DUELLING = "duelling"
+ROLE_KEY_HEAD_STUDENT = "head_student"
 
 YEAR_ROLE_KEYS_BY_LEVEL: dict[int, str] = {
     1: "year_1",
@@ -133,6 +135,17 @@ CONTINENT_CHOICE_TO_ROLE_KEY: dict[str, str] = {
 
 def _build_role_definitions() -> list[ManagedRoleDefinition]:
     defs: list[ManagedRoleDefinition] = []
+
+    defs.append(
+        ManagedRoleDefinition(
+            key=ROLE_KEY_HEAD_STUDENT,
+            name="Head Student",
+            color=0x9B59B6,
+            group=ROLE_GROUP_MODERATION,
+            mentionable=True,
+            hoist=True,
+        )
+    )
 
     defs.extend(
         [

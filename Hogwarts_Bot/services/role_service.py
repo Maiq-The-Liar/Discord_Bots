@@ -16,6 +16,7 @@ from domain.role_registry import (
     ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF,
     ROLE_GROUP_HOUSE_COLOR_RAVENCLAW,
     ROLE_GROUP_HOUSE_COLOR_SLYTHERIN,
+    ROLE_GROUP_MODERATION,
     ROLE_GROUP_PINGS,
     ROLE_GROUP_PRONOUNS,
     ROLE_GROUP_QUIDDITCH_POSITIONS,
@@ -24,6 +25,7 @@ from domain.role_registry import (
     ROLE_GROUP_SYSTEM,
     ROLE_GROUP_YEARS,
     ROLE_GROUP_ZODIAC,
+    ROLE_KEY_HEAD_STUDENT,
     get_all_managed_role_definitions,
     get_role_definition,
     house_color_group_for_name,
@@ -62,6 +64,7 @@ GROUP_ORDER = {
     ROLE_GROUP_HOUSE_COLOR_HUFFLEPUFF: 150,
     ROLE_GROUP_HOUSE_COLOR_RAVENCLAW: 160,
     ROLE_GROUP_HOUSE_COLOR_SLYTHERIN: 170,
+    ROLE_GROUP_MODERATION: 180,
 }
 
 # Preserve the exact order defined in role_registry.py
@@ -117,25 +120,24 @@ class RoleService:
         role_def = get_role_definition(role_key)
         role = self.get_role(guild, role_key)
 
+        desired_permissions = self._permissions_for_role(role_def.key)
+        role_kwargs = {
+            "name": role_def.name,
+            "colour": discord.Colour(role_def.color),
+            "mentionable": role_def.mentionable,
+            "hoist": role_def.hoist,
+            "reason": "Hogwarts Bot role sync",
+        }
+        if desired_permissions is not None:
+            role_kwargs["permissions"] = desired_permissions
+
         if role is None:
-            role = await guild.create_role(
-                name=role_def.name,
-                colour=discord.Colour(role_def.color),
-                mentionable=role_def.mentionable,
-                hoist=role_def.hoist,
-                reason="Hogwarts Bot role sync",
-            )
+            role = await guild.create_role(**role_kwargs)
             self.role_repo.upsert_mapping(guild.id, role_key, role.id, role.name)
             return role, "created"
 
         if self._needs_edit(role, role_def):
-            await role.edit(
-                name=role_def.name,
-                colour=discord.Colour(role_def.color),
-                mentionable=role_def.mentionable,
-                hoist=role_def.hoist,
-                reason="Hogwarts Bot role sync",
-            )
+            await role.edit(**role_kwargs)
             self.role_repo.upsert_mapping(guild.id, role_key, role.id, role.name)
             return role, "updated"
 
@@ -254,6 +256,8 @@ class RoleService:
             ordered_role_keys.append(house_role_key_for_name(house_name))
             ordered_role_keys.extend(role_keys_for_group(house_color_group_for_name(house_name)))
 
+        ordered_role_keys.append(ROLE_KEY_HEAD_STUDENT)
+
         key_to_role: dict[str, discord.Role] = {
             role_key: role
             for role, _, role_key in managed_roles
@@ -304,6 +308,24 @@ class RoleService:
     def _get_bot_member(self, guild: discord.Guild) -> discord.Member | None:
         return getattr(guild, "self_member", None) or guild.me
 
+    def _permissions_for_role(self, role_key: str) -> discord.Permissions | None:
+        if role_key != ROLE_KEY_HEAD_STUDENT:
+            return None
+
+        permissions = discord.Permissions.none()
+        permissions.view_audit_log = True
+        permissions.kick_members = True
+        permissions.ban_members = True
+        permissions.manage_roles = True
+        permissions.manage_messages = True
+        permissions.read_message_history = True
+        permissions.manage_nicknames = True
+        permissions.moderate_members = True
+        permissions.mute_members = True
+        permissions.deafen_members = True
+        permissions.move_members = True
+        return permissions
+
     def _needs_edit(self, role: discord.Role, role_def) -> bool:
         return any(
             [
@@ -311,5 +333,7 @@ class RoleService:
                 role.colour.value != role_def.color,
                 role.mentionable != role_def.mentionable,
                 role.hoist != role_def.hoist,
+                self._permissions_for_role(role_def.key) is not None
+                and role.permissions.value != self._permissions_for_role(role_def.key).value,
             ]
         )
