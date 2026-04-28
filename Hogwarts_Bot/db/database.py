@@ -421,6 +421,9 @@ class Database:
                     status TEXT NOT NULL DEFAULT 'active',
                     log_json TEXT NOT NULL DEFAULT '[]',
                     image_path TEXT NULL,
+                    betting_image_message_id INTEGER NULL,
+                    betting_embed_message_id INTEGER NULL,
+                    preview_state_json TEXT NOT NULL DEFAULT '{}',
                     started_at TEXT NOT NULL,
                     ends_at TEXT NOT NULL,
                     snitch_unlocked_at TEXT NOT NULL,
@@ -429,6 +432,17 @@ class Database:
                 )
                 """
             )
+
+        test_match_columns = {
+            row["name"]
+            for row in conn.execute("PRAGMA table_info(quidditch_test_matches)").fetchall()
+        }
+        if "betting_image_message_id" not in test_match_columns:
+            conn.execute("ALTER TABLE quidditch_test_matches ADD COLUMN betting_image_message_id INTEGER NULL")
+        if "betting_embed_message_id" not in test_match_columns:
+            conn.execute("ALTER TABLE quidditch_test_matches ADD COLUMN betting_embed_message_id INTEGER NULL")
+        if "preview_state_json" not in test_match_columns:
+            conn.execute("ALTER TABLE quidditch_test_matches ADD COLUMN preview_state_json TEXT NOT NULL DEFAULT '{}'")
 
         if "quidditch_match_runtime_state" not in existing_tables:
             conn.execute(

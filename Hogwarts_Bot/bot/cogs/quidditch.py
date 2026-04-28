@@ -139,6 +139,13 @@ class BetView(discord.ui.View):
         self.add_item(BetButton(cog=cog, fixture_id=fixture_id, picked_house=away_house, label=f"Bet on {away_house} winning", style=discord.ButtonStyle.primary))
 
 
+class DisabledBetView(discord.ui.View):
+    def __init__(self, *, home_house: str, away_house: str) -> None:
+        super().__init__(timeout=None)
+        self.add_item(discord.ui.Button(label=f"Bet on {home_house} winning", style=discord.ButtonStyle.danger, disabled=True))
+        self.add_item(discord.ui.Button(label=f"Bet on {away_house} winning", style=discord.ButtonStyle.primary, disabled=True))
+
+
 class TacticalVoteButton(discord.ui.Button):
     def __init__(self, *, cog: "QuidditchCog", fixture_id: int, house_name: str, vote_type: str, choice_key: str, label: str, style: discord.ButtonStyle, row: int) -> None:
         super().__init__(label=label, style=style, custom_id=f"quidditch_tactic:{fixture_id}:{house_name}:{vote_type}:{choice_key}", row=row)
@@ -209,6 +216,15 @@ class HouseStrategyPlanningView(discord.ui.View):
         self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house_name, vote_type="contingency", choice_key="shadow_the_seeker", label="Shadow Seeker", style=discord.ButtonStyle.secondary, row=1))
         self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house_name, vote_type="contingency", choice_key="golden_surge", label="Golden Surge", style=discord.ButtonStyle.secondary, row=1))
         self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house_name, vote_type="contingency", choice_key="pointbreak", label="Pointbreak", style=discord.ButtonStyle.secondary, row=1))
+
+
+class DisabledHouseStrategyPlanningView(discord.ui.View):
+    def __init__(self) -> None:
+        super().__init__(timeout=None)
+        for label in ("Chaser Rush", "Seeker Hunt", "Bludger Storm", "Close Formation", "Keeper Lock"):
+            self.add_item(discord.ui.Button(label=label, style=discord.ButtonStyle.primary, row=0, disabled=True))
+        for label in ("Protect Lead", "Desperate Dive", "Shadow Seeker", "Golden Surge", "Pointbreak"):
+            self.add_item(discord.ui.Button(label=label, style=discord.ButtonStyle.secondary, row=1, disabled=True))
 
 
 class QuidditchCog(commands.Cog):
@@ -832,6 +848,145 @@ class QuidditchCog(commands.Cog):
         if finalize_strategy:
             self._lock_fixture_plans(fixture_id)
             await self._post_strategy_prompts_for_fixture(guild, fixture_id, locked=True)
+
+    def _parse_test_preview_state(self, test_match: Any) -> dict[str, Any]:
+        if test_match is None:
+            return {}
+        try:
+            return json.loads(str(test_match["preview_state_json"] or "{}"))
+        except Exception:
+            return {}
+
+    def _build_test_preview_state(
+        self,
+        *,
+        guild: discord.Guild,
+        repo: QuidditchRepository,
+        home_house: str,
+        away_house: str,
+    ) -> dict[str, Any]:
+        role_service = self._build_role_service(repo.conn)
+        progress_repo = QuidditchProgressRepository(repo.conn)
+        home_lineup, away_lineup = self._build_lineups(
+            guild=guild,
+            home_house=home_house,
+            away_house=away_house,
+            repo=repo,
+            role_service=role_service,
+            progress_repo=progress_repo,
+        )
+        return {
+            "home_lineup": home_lineup,
+            "away_lineup": away_lineup,
+            "weather": self.engine.roll_weather(),
+            "strategy_votes": {},
+            "contingency_votes": {},
+        }
+
+    async def _delete_test_betting_messages(self, guild: discord.Guild, test_match: Any) -> None:
+        if test_match is None:
+            return
+        channel_id = int(test_match["channel_id"]) if test_match["channel_id"] else None
+        await self._delete_message_if_exists(guild, channel_id, test_match["betting_image_message_id"])
+        await self._delete_message_if_exists(guild, channel_id, test_match["betting_embed_message_id"])
+
+    async def _post_test_strategy_prompts(self, guild: discord.Guild, test_match_id: int, *, locked: bool = False) -> None:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            test_match = repo.get_test_match(test_match_id)
+            if test_match is None:
+                return
+            preview = self._parse_test_preview_state(test_match)
+            houses = (str(test_match["home_house"]), str(test_match["away_house"]))
+            title = f"Unofficial Test Match — {houses[0]} vs {houses[1]}"
+
+        for house in houses:
+            with self.database.connect() as conn:
+                repo = QuidditchRepository(conn)
+                channel = await self._fetch_strategy_channel(guild, repo, house)
+            if channel is None:
+                continue
+            await self._purge_strategy_channel(channel)
+            opponent = houses[1] if house == houses[0] else houses[0]
+            embed = self._house_strategy_embed(
+                fixture_id=test_match_id,
+                house_name=house,
+                opponent_house=opponent,
+                season_title=title,
+                preview=preview,
+                locked=locked,
+            )
+            embed.set_footer(text="Unofficial test match — strategy buttons are disabled.")
+            crest_file = self._house_crest_file(house)
+            kwargs: dict[str, Any] = {"embed": embed}
+            if crest_file is not None:
+                kwargs["file"] = crest_file
+            if not locked:
+                kwargs["view"] = DisabledHouseStrategyPlanningView()
+            try:
+                await channel.send(**kwargs)
+            except discord.HTTPException:
+                logging.exception("Failed to post Quidditch test strategy prompt for %s in channel %s.", house, channel.id)
+
+    async def _announce_test_betting_prompt(self, guild: discord.Guild, test_match_id: int) -> None:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            test_match = repo.get_test_match(test_match_id)
+            if test_match is None:
+                return
+            channel = await self._fetch_configured_match_channel(guild, repo)
+            if channel is None:
+                return
+            preview = self._parse_test_preview_state(test_match)
+            home_house = str(test_match["home_house"])
+            away_house = str(test_match["away_house"])
+            if not preview.get("home_lineup") or not preview.get("away_lineup"):
+                preview = self._build_test_preview_state(
+                    guild=guild,
+                    repo=repo,
+                    home_house=home_house,
+                    away_house=away_house,
+                )
+                conn.execute(
+                    "UPDATE quidditch_test_matches SET preview_state_json = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+                    (json.dumps(preview), test_match_id),
+                )
+                conn.commit()
+            home_lineup = preview.get("home_lineup") or []
+            away_lineup = preview.get("away_lineup") or []
+            odds_home, odds_away = self._estimate_betting_odds(home_lineup, away_lineup)
+            starts_at = datetime.fromisoformat(str(test_match["started_at"])).astimezone(self.TZ)
+
+        image_path = self.image_service.get_upcoming_matchup_path(home_house, away_house)
+        image_message = await channel.send(file=discord.File(str(image_path), filename="quidditch_test_upcoming.png"))
+        embed = self._betting_embed(
+            fixture_id=test_match_id,
+            home_house=home_house,
+            away_house=away_house,
+            home_lineup=home_lineup,
+            away_lineup=away_lineup,
+            odds_home=odds_home,
+            odds_away=odds_away,
+            betting_log_lines=[],
+            season_title=f"Unofficial Test Match — starts {starts_at.strftime('%d.%m.%Y %H:%M')}",
+            preview_state=preview,
+        )
+        embed.set_footer(text="Unofficial test match — betting buttons are disabled and no galleons are used.")
+        embed_message = await channel.send(
+            embed=embed,
+            view=DisabledBetView(home_house=home_house, away_house=away_house),
+        )
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            repo.set_test_match_betting_messages(
+                test_match_id,
+                channel_id=channel.id,
+                image_message_id=image_message.id,
+                embed_message_id=embed_message.id,
+            )
+            conn.commit()
+        await self._post_test_strategy_prompts(guild, test_match_id, locked=False)
+
 
     async def _announce_betting_for_fixture(self, guild: discord.Guild, fixture_id: int) -> None:
         with self.database.connect() as conn:
@@ -2019,16 +2174,20 @@ class QuidditchCog(commands.Cog):
 
             runtime_state = repo.get_runtime_state("test", test_match_id)
             if runtime_state is None:
-                role_service = self._build_role_service(conn)
-                progress_repo = QuidditchProgressRepository(conn)
-                home_lineup, away_lineup = self._build_lineups(
-                    guild=guild,
-                    home_house=str(test_match["home_house"]),
-                    away_house=str(test_match["away_house"]),
-                    repo=repo,
-                    role_service=role_service,
-                    progress_repo=progress_repo,
-                )
+                preview_state = self._parse_test_preview_state(test_match)
+                home_lineup = preview_state.get("home_lineup") or []
+                away_lineup = preview_state.get("away_lineup") or []
+                if not home_lineup or not away_lineup:
+                    role_service = self._build_role_service(conn)
+                    progress_repo = QuidditchProgressRepository(conn)
+                    home_lineup, away_lineup = self._build_lineups(
+                        guild=guild,
+                        home_house=str(test_match["home_house"]),
+                        away_house=str(test_match["away_house"]),
+                        repo=repo,
+                        role_service=role_service,
+                        progress_repo=progress_repo,
+                    )
                 started_at_dt = datetime.fromisoformat(str(test_match["started_at"])).astimezone(self.TZ)
                 runtime_state = self.engine.build_initial_state(
                     home_house=str(test_match["home_house"]),
@@ -2037,10 +2196,11 @@ class QuidditchCog(commands.Cog):
                     away_lineup=away_lineup,
                     now=started_at_dt,
                     is_test=True,
-                    weather=self.engine.roll_weather(),
+                    weather=preview_state.get("weather") or self.engine.roll_weather(),
                     home_strategy="standard",
                     away_strategy="standard",
                 )
+
                 repo.upsert_runtime_state("test", test_match_id, runtime_state)
 
                 left_house, right_house = self.image_service.get_display_order(
@@ -2567,6 +2727,7 @@ class QuidditchCog(commands.Cog):
         betting_to_cleanup = []
         active_fixture = None
         active_test = None
+        activated_test_matches = []
         latest_season = None
         next_due_at: datetime | None = None
 
@@ -2596,6 +2757,21 @@ class QuidditchCog(commands.Cog):
                     active_fixture = repo.get_active_fixture(int(latest_season["id"]))
 
                 active_test = repo.get_active_test_match(guild.id)
+                if active_fixture is None and active_test is None:
+                    due_test_matches = repo.get_due_scheduled_test_matches(guild.id, now.isoformat())
+                    for due_test in due_test_matches:
+                        repo.activate_test_match(int(due_test["id"]))
+                        activated_test_matches.append(due_test)
+                    if due_test_matches:
+                        conn.commit()
+                        active_test = repo.get_active_test_match(guild.id)
+
+                next_scheduled_test = repo.get_next_scheduled_test_match(guild.id)
+                if next_scheduled_test is not None:
+                    test_due_at = datetime.fromisoformat(str(next_scheduled_test["started_at"])).astimezone(self.TZ)
+                    if next_due_at is None or test_due_at < next_due_at:
+                        next_due_at = test_due_at
+
                 pending_announcements = repo.list_pending_betting_announcements(now.isoformat())
                 betting_to_cleanup = repo.list_betting_to_cleanup(now.isoformat())
 
@@ -2655,6 +2831,10 @@ class QuidditchCog(commands.Cog):
                 latest_season = repo.get_latest_season(guild.id)
                 active_fixture = repo.get_active_fixture(int(latest_season["id"])) if latest_season is not None else None
                 active_test = repo.get_active_test_match(guild.id)
+
+            for activated_test in activated_test_matches:
+                await self._delete_test_betting_messages(guild, activated_test)
+                await self._post_test_strategy_prompts(guild, int(activated_test["id"]), locked=True)
 
             if refreshed_season_id is not None:
                 with self.database.connect() as conn:
@@ -3126,9 +3306,58 @@ class QuidditchCog(commands.Cog):
 
     @app_commands.command(
         name="quidditch_testgame",
-        description="Admin: start an unofficial 10-hour Quidditch test game that does not affect standings.",
+        description="Admin: schedule an unofficial Quidditch test game for tomorrow at 13:00.",
     )
     async def quidditch_testgame(
+        self,
+        interaction: discord.Interaction,
+        house_a: str,
+        house_b: str,
+    ) -> None:
+        if not self.is_admin(interaction):
+            await interaction.response.send_message(
+                "You do not have permission to use this command.",
+                ephemeral=True,
+            )
+            return
+
+        if interaction.guild is None:
+            await interaction.response.send_message(
+                "This command can only be used in a server.",
+                ephemeral=True,
+            )
+            return
+
+        await interaction.response.defer(ephemeral=True)
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            service = QuidditchService(repo)
+            try:
+                result = service.schedule_test_game(
+                    guild_id=interaction.guild.id,
+                    home_house=house_a,
+                    away_house=house_b,
+                )
+                conn.commit()
+            except ValueError as exc:
+                await interaction.followup.send(str(exc), ephemeral=True)
+                return
+
+        await self._announce_test_betting_prompt(interaction.guild, int(result["test_match_id"]))
+        self._set_quidditch_loop_interval(1)
+
+        starts_at = datetime.fromisoformat(str(result["started_at"])).astimezone(self.TZ)
+        await interaction.followup.send(
+            f"Unofficial Quidditch test game scheduled: **{result['home_house']} vs {result['away_house']}**.\n"
+            f"Betting and strategy test prompts were posted. The test match starts **{starts_at.strftime('%d.%m.%Y at %H:%M')}**.",
+            ephemeral=True,
+        )
+
+    @app_commands.command(
+        name="start_quidditchtestgame_now",
+        description="Admin: immediately start the scheduled unofficial Quidditch test game.",
+    )
+    async def start_quidditchtestgame_now(
         self,
         interaction: discord.Interaction,
     ) -> None:
@@ -3146,24 +3375,28 @@ class QuidditchCog(commands.Cog):
             )
             return
 
+        await interaction.response.defer(ephemeral=True)
         with self.database.connect() as conn:
             repo = QuidditchRepository(conn)
             service = QuidditchService(repo)
             try:
                 result = service.start_test_game(guild_id=interaction.guild.id)
+                test_match = repo.get_test_match(int(result["test_match_id"]))
                 conn.commit()
             except ValueError as exc:
-                await interaction.response.send_message(str(exc), ephemeral=True)
+                await interaction.followup.send(str(exc), ephemeral=True)
                 return
 
+        await self._delete_test_betting_messages(interaction.guild, test_match)
+        await self._post_test_strategy_prompts(interaction.guild, int(result["test_match_id"]), locked=True)
         await self._ensure_test_match_initialized(
             guild=interaction.guild,
             test_match_id=int(result["test_match_id"]),
         )
         self._set_quidditch_loop_interval(1)
 
-        await interaction.response.send_message(
-            "Unofficial Quidditch test game started.",
+        await interaction.followup.send(
+            f"Unofficial Quidditch test game started now: **{result['home_house']} vs {result['away_house']}**.",
             ephemeral=True,
         )
 
@@ -3265,10 +3498,10 @@ class QuidditchCog(commands.Cog):
             repo = QuidditchRepository(conn)
             service = QuidditchService(repo)
 
-            active_test = repo.get_active_test_match(interaction.guild.id)
+            active_test = repo.get_open_test_match(interaction.guild.id)
             if active_test is None:
                 await interaction.response.send_message(
-                    "There is no active Quidditch test game.",
+                    "There is no scheduled or active Quidditch test game.",
                     ephemeral=True,
                 )
                 return
@@ -3293,6 +3526,8 @@ class QuidditchCog(commands.Cog):
                     await message.delete()
                 except discord.HTTPException:
                     pass
+
+        await self._delete_test_betting_messages(interaction.guild, result["test_match"])
 
         test_match = result["test_match"]
         await interaction.response.send_message(

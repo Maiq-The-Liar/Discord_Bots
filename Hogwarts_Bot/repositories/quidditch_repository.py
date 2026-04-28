@@ -568,10 +568,12 @@ class QuidditchRepository:
         started_at: str,
         ends_at: str,
         snitch_unlocked_at: str,
+        status: str = "active",
         channel_id: int | None = None,
         message_id: int | None = None,
         image_path: str | None = None,
         log_entries: list[str] | None = None,
+        preview_state: dict | None = None,
     ) -> int:
         cur = self.conn.execute(
             """
@@ -584,11 +586,14 @@ class QuidditchRepository:
                 status,
                 log_json,
                 image_path,
+                betting_image_message_id,
+                betting_embed_message_id,
+                preview_state_json,
                 started_at,
                 ends_at,
                 snitch_unlocked_at
             )
-            VALUES (?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?, ?, ?, ?)
             """,
             (
                 guild_id,
@@ -596,14 +601,95 @@ class QuidditchRepository:
                 message_id,
                 home_house,
                 away_house,
+                status,
                 json.dumps(log_entries or []),
                 image_path,
+                json.dumps(preview_state or {}),
                 started_at,
                 ends_at,
                 snitch_unlocked_at,
             ),
         )
         return int(cur.lastrowid)
+
+    def set_test_match_betting_messages(
+        self,
+        test_match_id: int,
+        *,
+        channel_id: int | None,
+        image_message_id: int | None,
+        embed_message_id: int | None,
+    ) -> None:
+        self.conn.execute(
+            """
+            UPDATE quidditch_test_matches
+            SET channel_id = COALESCE(?, channel_id),
+                betting_image_message_id = ?,
+                betting_embed_message_id = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """,
+            (channel_id, image_message_id, embed_message_id, test_match_id),
+        )
+
+    def get_due_scheduled_test_matches(self, guild_id: int, now_iso: str) -> list[sqlite3.Row]:
+        rows = self.conn.execute(
+            """
+            SELECT *
+            FROM quidditch_test_matches
+            WHERE guild_id = ?
+              AND status = 'scheduled'
+              AND started_at <= ?
+            ORDER BY started_at ASC, id ASC
+            """,
+            (guild_id, now_iso),
+        ).fetchall()
+        return list(rows)
+
+    def get_next_scheduled_test_match(self, guild_id: int) -> sqlite3.Row | None:
+        return self.conn.execute(
+            """
+            SELECT *
+            FROM quidditch_test_matches
+            WHERE guild_id = ? AND status = 'scheduled'
+            ORDER BY started_at ASC, id ASC
+            LIMIT 1
+            """,
+            (guild_id,),
+        ).fetchone()
+
+    def get_open_test_match(self, guild_id: int) -> sqlite3.Row | None:
+        return self.conn.execute(
+            """
+            SELECT *
+            FROM quidditch_test_matches
+            WHERE guild_id = ? AND status IN ('scheduled', 'active')
+            ORDER BY CASE status WHEN 'active' THEN 0 ELSE 1 END, started_at ASC, id ASC
+            LIMIT 1
+            """,
+            (guild_id,),
+        ).fetchone()
+
+    def activate_test_match(
+        self,
+        test_match_id: int,
+        *,
+        started_at: str | None = None,
+        ends_at: str | None = None,
+        snitch_unlocked_at: str | None = None,
+    ) -> None:
+        self.conn.execute(
+            """
+            UPDATE quidditch_test_matches
+            SET status = 'active',
+                started_at = COALESCE(?, started_at),
+                ends_at = COALESCE(?, ends_at),
+                snitch_unlocked_at = COALESCE(?, snitch_unlocked_at),
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ? AND status IN ('scheduled', 'active')
+            """,
+            (started_at, ends_at, snitch_unlocked_at, test_match_id),
+        )
 
     def set_test_match_message(
         self,

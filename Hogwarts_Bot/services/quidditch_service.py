@@ -228,6 +228,55 @@ class QuidditchService:
             "fixture": self.repo.get_fixture(int(active["id"])),
         }
 
+    def _validate_house_pair(self, home_house: str, away_house: str) -> tuple[str, str]:
+        normalized = {house.lower(): house for house in self.HOUSES}
+        home = normalized.get(str(home_house).strip().lower())
+        away = normalized.get(str(away_house).strip().lower())
+        if home is None or away is None:
+            raise ValueError("Use valid houses: Slytherin, Ravenclaw, Hufflepuff, or Gryffindor.")
+        if home == away:
+            raise ValueError("Choose two different houses for a Quidditch test game.")
+        return home, away
+
+    def schedule_test_game(
+        self,
+        *,
+        guild_id: int,
+        home_house: str,
+        away_house: str,
+        preview_state: dict | None = None,
+        now: datetime | None = None,
+    ) -> dict:
+        current = now.astimezone(self.TZ) if now else datetime.now(self.TZ)
+        open_test = self.repo.get_open_test_match(guild_id)
+        if open_test is not None:
+            raise ValueError("There is already a scheduled or active Quidditch test game.")
+
+        season = self.repo.get_season_by_key(guild_id, self.season_key_for(current.year, current.month))
+        if season is not None and self.repo.get_active_fixture(int(season["id"])) is not None:
+            raise ValueError("There is already an active official Quidditch game.")
+
+        home, away = self._validate_house_pair(home_house, away_house)
+        scheduled_start = (current + timedelta(days=1)).replace(hour=13, minute=0, second=0, microsecond=0)
+        started_at = scheduled_start.isoformat()
+        ends_at = (scheduled_start + timedelta(hours=10)).isoformat()
+        snitch_unlocked_at = (scheduled_start + timedelta(hours=8)).isoformat()
+        test_match_id = self.repo.create_test_match(
+            guild_id=guild_id,
+            home_house=home,
+            away_house=away,
+            status="scheduled",
+            started_at=started_at,
+            ends_at=ends_at,
+            snitch_unlocked_at=snitch_unlocked_at,
+            preview_state=preview_state or {},
+            log_entries=[
+                f"{current.strftime('%H:%M')} — Unofficial test game scheduled.",
+                f"{scheduled_start.strftime('%d.%m.%Y %H:%M')} — {home} vs {away} will start automatically.",
+            ],
+        )
+        return {"test_match_id": test_match_id, "home_house": home, "away_house": away, "started_at": started_at, "ends_at": ends_at}
+
     def start_test_game(
         self,
         *,
@@ -235,40 +284,25 @@ class QuidditchService:
         now: datetime | None = None,
     ) -> dict:
         current = now.astimezone(self.TZ) if now else datetime.now(self.TZ)
-
         active_test = self.repo.get_active_test_match(guild_id)
         if active_test is not None:
             raise ValueError("There is already an active Quidditch test game.")
-
-        season = self.repo.get_season_by_key(
-            guild_id,
-            self.season_key_for(current.year, current.month),
-        )
-        if season is not None and self.repo.get_active_fixture(int(season["id"])) is not None:
-            raise ValueError("There is already an active official Quidditch game.")
-
-        home_house, away_house = self.repo.random_house_pair()
+        scheduled_test = self.repo.get_next_scheduled_test_match(guild_id)
+        if scheduled_test is None:
+            raise ValueError("There is no scheduled Quidditch test game. Use `/quidditch_testgame` first.")
         started_at = current.isoformat()
         ends_at = (current + timedelta(hours=10)).isoformat()
         snitch_unlocked_at = (current + timedelta(hours=8)).isoformat()
-
-        test_match_id = self.repo.create_test_match(
-            guild_id=guild_id,
-            home_house=home_house,
-            away_house=away_house,
+        self.repo.activate_test_match(
+            int(scheduled_test["id"]),
             started_at=started_at,
             ends_at=ends_at,
             snitch_unlocked_at=snitch_unlocked_at,
-            log_entries=[
-                f"{current.strftime('%H:%M')} — Unofficial test game started.",
-                f"{current.strftime('%H:%M')} — This game will not affect standings or House Cup points.",
-            ],
         )
-
         return {
-            "test_match_id": test_match_id,
-            "home_house": home_house,
-            "away_house": away_house,
+            "test_match_id": int(scheduled_test["id"]),
+            "home_house": str(scheduled_test["home_house"]),
+            "away_house": str(scheduled_test["away_house"]),
             "started_at": started_at,
             "ends_at": ends_at,
         }
@@ -278,13 +312,13 @@ class QuidditchService:
         *,
         guild_id: int,
     ) -> dict:
-        active_test = self.repo.get_active_test_match(guild_id)
-        if active_test is None:
-            raise ValueError("There is no active Quidditch test game.")
+        open_test = self.repo.get_open_test_match(guild_id)
+        if open_test is None:
+            raise ValueError("There is no scheduled or active Quidditch test game.")
 
-        self.repo.cancel_test_match(int(active_test["id"]))
+        self.repo.cancel_test_match(int(open_test["id"]))
         return {
-            "test_match": active_test,
+            "test_match": open_test,
         }
 
     def build_scoreboard_embed(self, season_row, standings_rows) -> tuple[str, str]:
