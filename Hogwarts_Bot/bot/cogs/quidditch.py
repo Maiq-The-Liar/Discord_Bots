@@ -218,6 +218,42 @@ class HouseStrategyPlanningView(discord.ui.View):
         self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house_name, vote_type="contingency", choice_key="pointbreak", label="Pointbreak", style=discord.ButtonStyle.secondary, row=1))
 
 
+class TestTacticalVoteButton(discord.ui.Button):
+    def __init__(self, *, cog: "QuidditchCog", test_match_id: int, house_name: str, vote_type: str, choice_key: str, label: str, style: discord.ButtonStyle, row: int) -> None:
+        super().__init__(label=label, style=style, custom_id=f"quidditch_test_tactic:{test_match_id}:{house_name}:{vote_type}:{choice_key}", row=row)
+        self.cog = cog
+        self.test_match_id = test_match_id
+        self.house_name = house_name
+        self.vote_type = vote_type
+        self.choice_key = choice_key
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        await self.cog.handle_test_tactical_vote(
+            interaction=interaction,
+            test_match_id=self.test_match_id,
+            house_name=self.house_name,
+            vote_type=self.vote_type,
+            choice_key=self.choice_key,
+        )
+
+
+class TestHouseStrategyPlanningView(discord.ui.View):
+    def __init__(self, *, cog: "QuidditchCog", test_match_id: int, house_name: str) -> None:
+        super().__init__(timeout=None)
+        style = discord.ButtonStyle.primary
+        self.add_item(TestTacticalVoteButton(cog=cog, test_match_id=test_match_id, house_name=house_name, vote_type="strategy", choice_key="chaser_rush", label="Chaser Rush", style=style, row=0))
+        self.add_item(TestTacticalVoteButton(cog=cog, test_match_id=test_match_id, house_name=house_name, vote_type="strategy", choice_key="seeker_hunt", label="Seeker Hunt", style=style, row=0))
+        self.add_item(TestTacticalVoteButton(cog=cog, test_match_id=test_match_id, house_name=house_name, vote_type="strategy", choice_key="bludger_storm", label="Bludger Storm", style=style, row=0))
+        self.add_item(TestTacticalVoteButton(cog=cog, test_match_id=test_match_id, house_name=house_name, vote_type="strategy", choice_key="close_formation", label="Close Formation", style=style, row=0))
+        self.add_item(TestTacticalVoteButton(cog=cog, test_match_id=test_match_id, house_name=house_name, vote_type="strategy", choice_key="keeper_lock", label="Keeper Lock", style=style, row=0))
+
+        self.add_item(TestTacticalVoteButton(cog=cog, test_match_id=test_match_id, house_name=house_name, vote_type="contingency", choice_key="protect_the_lead", label="Protect Lead", style=discord.ButtonStyle.secondary, row=1))
+        self.add_item(TestTacticalVoteButton(cog=cog, test_match_id=test_match_id, house_name=house_name, vote_type="contingency", choice_key="desperate_dive", label="Desperate Dive", style=discord.ButtonStyle.secondary, row=1))
+        self.add_item(TestTacticalVoteButton(cog=cog, test_match_id=test_match_id, house_name=house_name, vote_type="contingency", choice_key="shadow_the_seeker", label="Shadow Seeker", style=discord.ButtonStyle.secondary, row=1))
+        self.add_item(TestTacticalVoteButton(cog=cog, test_match_id=test_match_id, house_name=house_name, vote_type="contingency", choice_key="golden_surge", label="Golden Surge", style=discord.ButtonStyle.secondary, row=1))
+        self.add_item(TestTacticalVoteButton(cog=cog, test_match_id=test_match_id, house_name=house_name, vote_type="contingency", choice_key="pointbreak", label="Pointbreak", style=discord.ButtonStyle.secondary, row=1))
+
+
 class DisabledHouseStrategyPlanningView(discord.ui.View):
     def __init__(self) -> None:
         super().__init__(timeout=None)
@@ -916,13 +952,13 @@ class QuidditchCog(commands.Cog):
                 preview=preview,
                 locked=locked,
             )
-            embed.set_footer(text="Unofficial test match — strategy buttons are disabled.")
+            embed.set_footer(text="Unofficial test match — strategy buttons are active until kickoff." if not locked else "Unofficial test match — strategy locked.")
             crest_file = self._house_crest_file(house)
             kwargs: dict[str, Any] = {"embed": embed}
             if crest_file is not None:
                 kwargs["file"] = crest_file
             if not locked:
-                kwargs["view"] = DisabledHouseStrategyPlanningView()
+                kwargs["view"] = TestHouseStrategyPlanningView(cog=self, test_match_id=test_match_id, house_name=house)
             try:
                 await channel.send(**kwargs)
             except discord.HTTPException:
@@ -1126,6 +1162,58 @@ class QuidditchCog(commands.Cog):
         await self._post_house_strategy_prompt(interaction.guild, fixture_id, house_name, locked=False)
         label = allowed_choices.get(choice_key, choice_key)
         await interaction.followup.send(f"Recorded your **{house_name}** {vote_type} vote: **{label}**.", ephemeral=True)
+
+    async def handle_test_tactical_vote(self, interaction: discord.Interaction, test_match_id: int, house_name: str, vote_type: str, choice_key: str) -> None:
+        if interaction.guild is None or not isinstance(interaction.user, discord.Member):
+            await interaction.response.send_message("This can only be used in a server.", ephemeral=True)
+            return
+        if vote_type not in {"strategy", "contingency"}:
+            await interaction.response.send_message("Unknown Quidditch vote type.", ephemeral=True)
+            return
+        allowed_choices = self.STRATEGY_LABELS if vote_type == "strategy" else self.CONTINGENCY_LABELS
+        if choice_key not in allowed_choices or choice_key == "standard":
+            await interaction.response.send_message("Unknown Quidditch choice.", ephemeral=True)
+            return
+
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            role_service = self._build_role_service(conn)
+            test_match = repo.get_test_match(test_match_id)
+            if test_match is None:
+                await interaction.response.send_message("That test match planning prompt is no longer available.", ephemeral=True)
+                return
+            if str(test_match["status"]) != "scheduled":
+                await interaction.response.send_message("Planning for that test match is closed.", ephemeral=True)
+                return
+            if house_name not in {str(test_match["home_house"]), str(test_match["away_house"])}:
+                await interaction.response.send_message("That house is not playing this test match.", ephemeral=True)
+                return
+            member_house = self._member_house(role_service, interaction.guild, interaction.user)
+            if member_house != house_name:
+                await interaction.response.send_message(f"Only **{house_name}** members can vote for {house_name}'s test plan.", ephemeral=True)
+                return
+
+            preview = self._parse_test_preview_state(test_match)
+            bucket_key = f"{vote_type}_votes"
+            votes = preview.setdefault(bucket_key, {})
+            house_votes = votes.setdefault(house_name, {})
+            previous_choice = house_votes.get(str(interaction.user.id))
+            house_votes[str(interaction.user.id)] = choice_key
+            if previous_choice != choice_key:
+                order_bucket = preview.setdefault(f"{vote_type}_vote_order", {})
+                order_bucket.setdefault(house_name, []).append(choice_key)
+            preview.pop("locked_strategies", None)
+            preview.pop("locked_contingencies", None)
+            repo.conn.execute(
+                "UPDATE quidditch_test_matches SET preview_state_json = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+                (json.dumps(preview), test_match_id),
+            )
+            conn.commit()
+
+        await interaction.response.defer(ephemeral=True)
+        await self._post_test_strategy_prompts(interaction.guild, test_match_id, locked=False)
+        label = allowed_choices.get(choice_key, choice_key)
+        await interaction.followup.send(f"Recorded your **{house_name}** test {vote_type} vote: **{label}**.", ephemeral=True)
 
     async def handle_bet_submission(self, interaction: discord.Interaction, fixture_id: int, picked_house: str, raw_amount: str) -> None:
         if interaction.guild is None:
@@ -2189,16 +2277,25 @@ class QuidditchCog(commands.Cog):
                         progress_repo=progress_repo,
                     )
                 started_at_dt = datetime.fromisoformat(str(test_match["started_at"])).astimezone(self.TZ)
+                home_house = str(test_match["home_house"])
+                away_house = str(test_match["away_house"])
+                preview_state = self._lock_preview_plans(preview_state, home_house, away_house)
+                repo.conn.execute(
+                    "UPDATE quidditch_test_matches SET preview_state_json = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+                    (json.dumps(preview_state), test_match_id),
+                )
                 runtime_state = self.engine.build_initial_state(
-                    home_house=str(test_match["home_house"]),
-                    away_house=str(test_match["away_house"]),
+                    home_house=home_house,
+                    away_house=away_house,
                     home_lineup=home_lineup,
                     away_lineup=away_lineup,
                     now=started_at_dt,
                     is_test=True,
                     weather=preview_state.get("weather") or self.engine.roll_weather(),
-                    home_strategy="standard",
-                    away_strategy="standard",
+                    home_strategy=self._locked_choice(preview_state, "strategy", home_house) or "standard",
+                    away_strategy=self._locked_choice(preview_state, "strategy", away_house) or "standard",
+                    home_contingency=self._locked_choice(preview_state, "contingency", home_house),
+                    away_contingency=self._locked_choice(preview_state, "contingency", away_house),
                 )
 
                 repo.upsert_runtime_state("test", test_match_id, runtime_state)
