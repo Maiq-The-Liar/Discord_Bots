@@ -22,7 +22,6 @@ class UserRepository:
             """,
             (user_id,),
         )
-        self.conn.commit()
 
     def get_user(self, user_id: int) -> sqlite3.Row:
         row = self.conn.execute(
@@ -34,70 +33,61 @@ class UserRepository:
             raise ValueError(f"User {user_id} not found.")
         return row
 
-    def add_sickles(self, user_id: int, amount: int) -> None:
+    def add_galleons(self, user_id: int, amount: int) -> None:
         self.conn.execute(
             """
             UPDATE users
-            SET sickles_balance = sickles_balance + ?,
+            SET galleons_balance = galleons_balance + ?,
                 updated_at = CURRENT_TIMESTAMP
             WHERE user_id = ?
             """,
             (amount, user_id),
         )
-        self.conn.commit()
 
-    def deduct_sickles(self, user_id: int, amount: int) -> bool:
+    def deduct_galleons(self, user_id: int, amount: int) -> bool:
         cur = self.conn.execute(
             """
             UPDATE users
-            SET sickles_balance = sickles_balance - ?,
+            SET galleons_balance = galleons_balance - ?,
                 updated_at = CURRENT_TIMESTAMP
             WHERE user_id = ?
-              AND sickles_balance >= ?
+              AND galleons_balance >= ?
             """,
             (amount, user_id, amount),
         )
-        self.conn.commit()
         return cur.rowcount > 0
 
-    def transfer_sickles(self, from_user_id: int, to_user_id: int, amount: int) -> bool:
+    def transfer_galleons(self, from_user_id: int, to_user_id: int, amount: int) -> bool:
         if amount <= 0:
             raise ValueError("Amount must be greater than 0.")
 
         self.ensure_user(from_user_id)
         self.ensure_user(to_user_id)
 
-        try:
-            self.conn.execute("BEGIN")
-            deducted = self.conn.execute(
-                """
-                UPDATE users
-                SET sickles_balance = sickles_balance - ?,
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE user_id = ?
-                  AND sickles_balance >= ?
-                """,
-                (amount, from_user_id, amount),
-            )
+        deducted = self.conn.execute(
+            """
+            UPDATE users
+            SET galleons_balance = galleons_balance - ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = ?
+              AND galleons_balance >= ?
+            """,
+            (amount, from_user_id, amount),
+        )
 
-            if deducted.rowcount <= 0:
-                self.conn.rollback()
-                return False
+        if deducted.rowcount <= 0:
+            return False
 
-            self.conn.execute(
-                """
-                UPDATE users
-                SET sickles_balance = sickles_balance + ?,
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE user_id = ?
-                """,
-                (amount, to_user_id),
-            )
-            self.conn.commit()
-            return True
-        except Exception:
-            self.conn.rollback()
-            raise
+        self.conn.execute(
+            """
+            UPDATE users
+            SET galleons_balance = galleons_balance + ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = ?
+            """,
+            (amount, to_user_id),
+        )
+        return True
 
     def add_lifetime_house_points(self, user_id: int, points: int) -> None:
         self.conn.execute(
@@ -109,7 +99,6 @@ class UserRepository:
             """,
             (points, user_id),
         )
-        self.conn.commit()
 
     def set_patronus_id(self, user_id: int, patronus_id: int) -> None:
         self.conn.execute(
@@ -121,7 +110,6 @@ class UserRepository:
             """,
             (str(patronus_id), user_id),
         )
-        self.conn.commit()
 
     def get_patronus_id(self, user_id: int) -> int | None:
         row = self.conn.execute(
@@ -144,7 +132,6 @@ class UserRepository:
             """,
             (bio, user_id),
         )
-        self.conn.commit()
 
     def get_bio(self, user_id: int) -> str | None:
         row = self.conn.execute(
@@ -168,7 +155,6 @@ class UserRepository:
             """,
             (day, month, user_id),
         )
-        self.conn.commit()
 
     def clear_birthday(self, user_id: int) -> None:
         self.conn.execute(
@@ -181,7 +167,6 @@ class UserRepository:
             """,
             (user_id,),
         )
-        self.conn.commit()
 
     def get_birthday(self, user_id: int) -> tuple[int | None, int | None]:
         row = self.conn.execute(
@@ -231,7 +216,6 @@ class UserRepository:
             """,
             (xp, level, last_xp_at, user_id),
         )
-        self.conn.commit()
 
     def get_xp_and_level(self, user_id: int) -> tuple[int, int, str | None]:
         row = self.conn.execute(
@@ -301,7 +285,6 @@ class UserRepository:
                 user_id,
             ),
         )
-        self.conn.commit()
 
     def set_level_only(self, user_id: int, level: int, xp: int = 0) -> None:
         self.conn.execute(
@@ -314,4 +297,3 @@ class UserRepository:
             """,
             (xp, level, user_id),
         )
-        self.conn.commit()

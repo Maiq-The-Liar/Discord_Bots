@@ -10,6 +10,23 @@ from services.house_points_image_service import HousePointsImageService
 
 class HouseCupBoardService:
     _recent_totals: dict[int, tuple[float, tuple[int, int, int, int]]] = {}
+    _dirty_guild_ids: set[int] = set()
+
+    @classmethod
+    def mark_dirty(cls, guild_id: int) -> None:
+        cls._dirty_guild_ids.add(int(guild_id))
+
+    @classmethod
+    def consume_dirty(cls, guild_id: int) -> bool:
+        guild_id = int(guild_id)
+        if guild_id not in cls._dirty_guild_ids:
+            return False
+        cls._dirty_guild_ids.discard(guild_id)
+        return True
+
+    @classmethod
+    def is_dirty(cls, guild_id: int) -> bool:
+        return int(guild_id) in cls._dirty_guild_ids
 
     CHANNEL_KEY = "house_board_channel_id"
     MESSAGE_KEY = "house_board_message_id"

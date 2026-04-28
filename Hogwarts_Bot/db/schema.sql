@@ -3,7 +3,7 @@ PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS users (
     user_id INTEGER PRIMARY KEY,
-    sickles_balance INTEGER NOT NULL DEFAULT 0,
+    galleons_balance INTEGER NOT NULL DEFAULT 0,
     lifetime_house_points INTEGER NOT NULL DEFAULT 0,
     patronus_id TEXT NULL,
     bio TEXT NULL,
@@ -197,6 +197,14 @@ CREATE TABLE IF NOT EXISTS quidditch_config (
     scoreboard_channel_id INTEGER NULL,
     scoreboard_message_id INTEGER NULL,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS quidditch_strategy_channels (
+    guild_id INTEGER NOT NULL,
+    house_name TEXT NOT NULL,
+    channel_id INTEGER NOT NULL,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (guild_id, house_name)
 );
 
 CREATE TABLE IF NOT EXISTS quidditch_loop_control (

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from calendar import monthrange
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -59,12 +58,11 @@ class QuidditchService:
                 "fixtures": self.repo.list_fixtures_for_season(int(existing["id"])),
             }
 
+        # Fixed monthly format: 12 round-robin games on the 2nd, 4th, ... 24th,
+        # then the Bronze Medal Match on the 26th and the Championship Game on the 28th.
         game_days = self._build_game_days(year, month)
         full_regular = self._full_regular_fixtures()
-        reduced_regular = self._reduced_regular_fixtures()
-
-        remaining_days = [d for d in game_days if d >= current.day]
-        is_reduced = len(remaining_days) < len(game_days)
+        is_reduced = False
 
         season_id = self.repo.create_season(
             guild_id,
@@ -74,8 +72,8 @@ class QuidditchService:
             is_reduced=is_reduced,
         )
 
-        regular_fixtures = reduced_regular if is_reduced else full_regular
-        usable_days = remaining_days if is_reduced else game_days
+        regular_fixtures = full_regular
+        usable_days = game_days
 
         for match_day, (home, away) in enumerate(regular_fixtures, start=1):
             starts_at = self._day_start_iso(year, month, usable_days[match_day - 1])
@@ -290,23 +288,40 @@ class QuidditchService:
         }
 
     def build_scoreboard_embed(self, season_row, standings_rows) -> tuple[str, str]:
-        title = f"Quidditch Cup Scoreboard — {season_row['season_key']}"
-        lines = []
-        for idx, row in enumerate(standings_rows, start=1):
-            lines.append(
-                f"**{idx}. {row['house_name']}** — "
-                f"{row['points_scored']} pts scored | "
-                f"{row['points_conceded']} conceded | "
-                f"{row['matches_played']} played"
+        month_name = datetime(int(season_row["year"]), int(season_row["month"]), 1).strftime("%B")
+        title = f"{month_name} League {int(season_row['year'])} — Round Robin Leaderboard"
+        win_loss = self.repo.get_regular_win_loss_counts(int(season_row["id"]))
+
+        rows: list[tuple[str, int, int, int, int]] = []
+        for row in standings_rows:
+            house_name = str(row["house_name"])
+            wins, losses = win_loss.get(house_name, (0, 0))
+            rows.append((
+                house_name,
+                int(row["matches_played"]),
+                int(wins),
+                int(losses),
+                int(row["points_scored"]),
+            ))
+
+        if not rows:
+            return title, "```text\nNo Quidditch season data yet.\n```"
+
+        # Compact monospace block for mobile: no ranks, sorted by monthly round-robin points.
+        table_lines = [
+            "House        GP   W   L   Pts",
+            "------------------------------",
+        ]
+        for house_name, played, wins, losses, points in rows:
+            table_lines.append(
+                f"{house_name[:11]:<11} {played:>1}/6 {wins:>3} {losses:>3} {points:>5}"
             )
-        if not lines:
-            lines.append("No Quidditch season data yet.")
-        return title, "\n".join(lines)
+        return title, "```text\n" + "\n".join(table_lines) + "\n```"
 
     def _build_game_days(self, year: int, month: int) -> list[int]:
-        _, last_day = monthrange(year, month)
-        days = list(range(1, min(last_day, 27) + 1, 2))
-        return days[:14]
+        # Every month has at least 28 days. This gives 12 round-robin dates
+        # plus two placement dates: 2, 4, ..., 24, 26, 28.
+        return list(range(2, 29, 2))
 
     def _day_start_iso(self, year: int, month: int, day: int) -> str:
         return datetime(year, month, day, 13, 0, 0, tzinfo=self.TZ).isoformat()

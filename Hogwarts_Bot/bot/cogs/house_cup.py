@@ -18,10 +18,14 @@ class HouseCupCog(commands.Cog):
     async def cog_load(self) -> None:
         if not self.monthly_reset_loop.is_running():
             self.monthly_reset_loop.start()
+        if not self.house_board_update_loop.is_running():
+            self.house_board_update_loop.start()
 
     async def cog_unload(self) -> None:
         if self.monthly_reset_loop.is_running():
             self.monthly_reset_loop.cancel()
+        if self.house_board_update_loop.is_running():
+            self.house_board_update_loop.cancel()
 
     def is_admin(self, interaction: discord.Interaction) -> bool:
         return (
@@ -122,11 +126,30 @@ class HouseCupCog(commands.Cog):
                 with self.database.connect() as conn:
                     contribution_repo = ContributionRepository(conn)
                     bot_state_repo = BotStateRepository(conn)
-                    board_service = HouseCupBoardService(bot_state_repo, contribution_repo)
-                    await board_service.create_or_update_board(guild)
+                    HouseCupBoardService.mark_dirty(guild.id)
 
     @monthly_reset_loop.before_loop
     async def before_monthly_reset_loop(self) -> None:
+        await self.bot.wait_until_ready()
+
+
+    @tasks.loop(minutes=1)
+    async def house_board_update_loop(self) -> None:
+        for guild in self.bot.guilds:
+            if not HouseCupBoardService.consume_dirty(guild.id):
+                continue
+
+            try:
+                with self.database.connect() as conn:
+                    contribution_repo = ContributionRepository(conn)
+                    bot_state_repo = BotStateRepository(conn)
+                    board_service = HouseCupBoardService(bot_state_repo, contribution_repo)
+                    await board_service.create_or_update_board(guild)
+            except Exception:
+                HouseCupBoardService.mark_dirty(guild.id)
+
+    @house_board_update_loop.before_loop
+    async def before_house_board_update_loop(self) -> None:
         await self.bot.wait_until_ready()
 
     @app_commands.command(

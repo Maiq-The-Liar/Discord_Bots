@@ -824,7 +824,7 @@ class ProfileService:
         profile_embed.add_field(
             name="💰 __Collection & Economy__",
             value=(
-                f"**Balance:** {user_row['sickles_balance']} Galleons\n"
+                f"**Balance:** {user_row['galleons_balance']} Galleons\n"
                 f"**Chocolate Frogs:** {collected_frogs} / {total_possible_frogs}"
             ),
             inline=False,

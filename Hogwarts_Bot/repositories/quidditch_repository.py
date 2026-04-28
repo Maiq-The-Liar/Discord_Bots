@@ -69,6 +69,40 @@ class QuidditchRepository:
             (guild_id,),
         ).fetchone()
 
+    def set_strategy_channel(self, guild_id: int, house_name: str, channel_id: int) -> None:
+        self.conn.execute(
+            """
+            INSERT INTO quidditch_strategy_channels (guild_id, house_name, channel_id, updated_at)
+            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(guild_id, house_name) DO UPDATE SET
+                channel_id = excluded.channel_id,
+                updated_at = CURRENT_TIMESTAMP
+            """,
+            (guild_id, house_name, channel_id),
+        )
+
+    def get_strategy_channel(self, guild_id: int, house_name: str) -> sqlite3.Row | None:
+        return self.conn.execute(
+            """
+            SELECT guild_id, house_name, channel_id, updated_at
+            FROM quidditch_strategy_channels
+            WHERE guild_id = ? AND house_name = ?
+            """,
+            (guild_id, house_name),
+        ).fetchone()
+
+    def list_strategy_channels(self, guild_id: int) -> list[sqlite3.Row]:
+        rows = self.conn.execute(
+            """
+            SELECT guild_id, house_name, channel_id, updated_at
+            FROM quidditch_strategy_channels
+            WHERE guild_id = ?
+            ORDER BY house_name ASC
+            """,
+            (guild_id,),
+        ).fetchall()
+        return list(rows)
+
     def ensure_loop_control(self, guild_id: int) -> None:
         self.conn.execute(
             """
@@ -227,6 +261,36 @@ class QuidditchRepository:
         ).fetchall()
         return list(rows)
 
+    def get_regular_win_loss_counts(self, season_id: int) -> dict[str, tuple[int, int]]:
+        rows = self.conn.execute(
+            """
+            SELECT home_house, away_house, home_score, away_score, winner_house
+            FROM quidditch_fixtures
+            WHERE season_id = ?
+              AND stage = 'regular'
+              AND status = 'completed'
+            """,
+            (season_id,),
+        ).fetchall()
+
+        totals: dict[str, list[int]] = {house: [0, 0] for house in self.HOUSES}
+        for row in rows:
+            home = str(row["home_house"])
+            away = str(row["away_house"])
+            winner = str(row["winner_house"] or "")
+            if winner == home:
+                totals.setdefault(home, [0, 0])[0] += 1
+                totals.setdefault(away, [0, 0])[1] += 1
+            elif winner == away:
+                totals.setdefault(away, [0, 0])[0] += 1
+                totals.setdefault(home, [0, 0])[1] += 1
+            else:
+                # Draws should not normally happen, but do not count either side as a loss.
+                totals.setdefault(home, [0, 0])
+                totals.setdefault(away, [0, 0])
+
+        return {house: (values[0], values[1]) for house, values in totals.items()}
+
     def get_next_scheduled_fixture(self, season_id: int) -> sqlite3.Row | None:
         return self.conn.execute(
             """
@@ -261,6 +325,57 @@ class QuidditchRepository:
             (fixture_id,),
         ).fetchone()
 
+    def cancel_active_fixtures_except_season(self, guild_id: int, current_season_id: int) -> list[int]:
+        rows = self.conn.execute(
+            """
+            SELECT qf.id
+            FROM quidditch_fixtures qf
+            JOIN quidditch_seasons qs ON qs.id = qf.season_id
+            WHERE qs.guild_id = ?
+              AND qf.season_id <> ?
+              AND qf.status = 'active'
+            """,
+            (guild_id, current_season_id),
+        ).fetchall()
+        fixture_ids = [int(row["id"]) for row in rows]
+        if not fixture_ids:
+            return []
+
+        placeholders = ",".join("?" for _ in fixture_ids)
+        self.conn.execute(
+            f"""
+            UPDATE quidditch_fixtures
+            SET status = 'cancelled',
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id IN ({placeholders})
+            """,
+            fixture_ids,
+        )
+        self.conn.execute(
+            f"""
+            DELETE FROM quidditch_live_match_state
+            WHERE fixture_id IN ({placeholders})
+            """,
+            fixture_ids,
+        )
+        self.conn.execute(
+            f"""
+            DELETE FROM quidditch_match_runtime_state
+            WHERE match_scope = 'official'
+              AND match_id IN ({placeholders})
+            """,
+            fixture_ids,
+        )
+        self.conn.execute(
+            f"""
+            DELETE FROM quidditch_match_cheers
+            WHERE match_scope = 'official'
+              AND match_id IN ({placeholders})
+            """,
+            fixture_ids,
+        )
+        return fixture_ids
+
     def set_fixture_active(self, fixture_id: int, *, starts_at: str) -> None:
         self.conn.execute(
             """
@@ -292,7 +407,7 @@ class QuidditchRepository:
         home_score: int,
         away_score: int,
         winner_house: str,
-    ) -> None:
+    ) -> bool:
         fixture = self.conn.execute(
             """
             SELECT *
@@ -303,6 +418,8 @@ class QuidditchRepository:
         ).fetchone()
         if fixture is None:
             raise ValueError("Fixture not found.")
+        if str(fixture["status"]) == "completed":
+            return False
 
         self.conn.execute(
             """
@@ -317,6 +434,9 @@ class QuidditchRepository:
             """,
             (home_score, away_score, winner_house, fixture_id),
         )
+
+        if str(fixture["stage"]) != "regular":
+            return True
 
         self.conn.execute(
             """
@@ -343,6 +463,8 @@ class QuidditchRepository:
             """,
             (away_score, home_score, int(fixture["season_id"]), str(fixture["away_house"])),
         )
+
+        return True
 
     def upsert_live_match_state(
         self,
@@ -926,6 +1048,16 @@ class QuidditchRepository:
             ),
         )
 
+    def update_betting_preview_state(self, fixture_id: int, preview_state: dict) -> None:
+        self.conn.execute(
+            """
+            UPDATE quidditch_fixture_betting_state
+            SET preview_state_json = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE fixture_id = ?
+            """,
+            (json.dumps(preview_state), fixture_id),
+        )
+
     def mark_betting_announced(
         self,
         fixture_id: int,
@@ -1036,18 +1168,41 @@ class QuidditchRepository:
         ).fetchall()
         return list(rows)
 
-    def settle_bets_for_fixture(self, fixture_id: int, winner_house: str) -> list[sqlite3.Row]:
-        bets = self.list_bets_for_fixture(fixture_id)
-        results: list[sqlite3.Row] = []
-        for bet in bets:
-            won = str(bet['picked_house']) == winner_house
-            payout = int(round(int(bet['stake']) * float(bet['odds']))) if won else 0
-            self.conn.execute(
+    def settle_pending_bets_for_fixture(self, fixture_id: int, winner_house: str) -> list[sqlite3.Row]:
+        pending_bets = self.conn.execute(
+            """
+            SELECT * FROM quidditch_match_bets
+            WHERE fixture_id = ? AND result = 'pending'
+            ORDER BY created_at ASC, id ASC
+            """,
+            (fixture_id,),
+        ).fetchall()
+
+        settled_ids: list[int] = []
+        for bet in pending_bets:
+            won = str(bet["picked_house"]) == winner_house
+            payout = int(round(int(bet["stake"]) * float(bet["odds"]))) if won else 0
+            cur = self.conn.execute(
                 """
                 UPDATE quidditch_match_bets
                 SET result = ?, payout = ?, updated_at = CURRENT_TIMESTAMP
-                WHERE id = ?
+                WHERE id = ? AND result = 'pending'
                 """,
-                ('won' if won else 'lost', payout, int(bet['id'])),
+                ("won" if won else "lost", payout, int(bet["id"])),
             )
-        return self.list_bets_for_fixture(fixture_id)
+            if cur.rowcount > 0:
+                settled_ids.append(int(bet["id"]))
+
+        if not settled_ids:
+            return []
+
+        placeholders = ",".join("?" for _ in settled_ids)
+        rows = self.conn.execute(
+            f"""
+            SELECT * FROM quidditch_match_bets
+            WHERE id IN ({placeholders})
+            ORDER BY created_at ASC, id ASC
+            """,
+            settled_ids,
+        ).fetchall()
+        return list(rows)

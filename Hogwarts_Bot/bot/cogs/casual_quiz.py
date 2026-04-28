@@ -286,8 +286,7 @@ class CasualQuizCog(commands.Cog):
                     points=2,
                 )
 
-                board_service = HouseCupBoardService(bot_state_repo, contribution_repo)
-                await board_service.create_or_update_board(message.guild)
+                HouseCupBoardService.mark_dirty(message.guild.id)
 
             reward_embed = discord.Embed(
                 title=f'{message.author.display_name} got it! 2 Points for {role_ctx.current_house}!',

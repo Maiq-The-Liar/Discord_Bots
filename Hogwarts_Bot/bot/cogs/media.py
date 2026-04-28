@@ -280,7 +280,7 @@ class MediaCog(commands.Cog):
             now_iso = media_service.now_iso()
             media_repo.add_vote(payload.message_id, payload.user_id, now_iso)
 
-    @tasks.loop(minutes=1)
+    @tasks.loop(minutes=5)
     async def media_close_loop(self) -> None:
         current_time_iso = self.media_service.now_iso()
 
@@ -325,8 +325,7 @@ class MediaCog(commands.Cog):
                             points=total_points,
                         )
 
-                        board_service = HouseCupBoardService(bot_state_repo, contribution_repo)
-                        await board_service.create_or_update_board(guild)
+                        HouseCupBoardService.mark_dirty(guild.id)
                         rewarded = True
 
                 media_repo.close_media_post(

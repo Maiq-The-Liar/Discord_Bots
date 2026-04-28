@@ -139,6 +139,78 @@ class BetView(discord.ui.View):
         self.add_item(BetButton(cog=cog, fixture_id=fixture_id, picked_house=away_house, label=f"Bet on {away_house} winning", style=discord.ButtonStyle.primary))
 
 
+class TacticalVoteButton(discord.ui.Button):
+    def __init__(self, *, cog: "QuidditchCog", fixture_id: int, house_name: str, vote_type: str, choice_key: str, label: str, style: discord.ButtonStyle, row: int) -> None:
+        super().__init__(label=label, style=style, custom_id=f"quidditch_tactic:{fixture_id}:{house_name}:{vote_type}:{choice_key}", row=row)
+        self.cog = cog
+        self.fixture_id = fixture_id
+        self.house_name = house_name
+        self.vote_type = vote_type
+        self.choice_key = choice_key
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        await self.cog.handle_tactical_vote(
+            interaction=interaction,
+            fixture_id=self.fixture_id,
+            house_name=self.house_name,
+            vote_type=self.vote_type,
+            choice_key=self.choice_key,
+        )
+
+
+class MatchPlanningView(discord.ui.View):
+    def __init__(self, *, cog: "QuidditchCog", fixture_id: int, home_house: str, away_house: str) -> None:
+        super().__init__(timeout=None)
+        self.add_item(BetButton(cog=cog, fixture_id=fixture_id, picked_house=home_house, label=f"Bet {home_house}", style=discord.ButtonStyle.danger))
+        self.add_item(BetButton(cog=cog, fixture_id=fixture_id, picked_house=away_house, label=f"Bet {away_house}", style=discord.ButtonStyle.primary))
+
+        houses = [(home_house, discord.ButtonStyle.danger), (away_house, discord.ButtonStyle.primary)]
+        for row, (house, style) in enumerate(houses, start=1):
+            self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house, vote_type="strategy", choice_key="chaser_rush", label="Chaser Rush", style=style, row=row))
+            self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house, vote_type="strategy", choice_key="seeker_hunt", label="Seeker Hunt", style=style, row=row))
+            self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house, vote_type="strategy", choice_key="bludger_storm", label="Bludger Storm", style=style, row=row))
+            self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house, vote_type="strategy", choice_key="close_formation", label="Close Formation", style=style, row=row))
+            self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house, vote_type="strategy", choice_key="keeper_lock", label="Keeper Lock", style=style, row=row))
+
+        for row, (house, style) in enumerate(houses, start=3):
+            self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house, vote_type="contingency", choice_key="protect_the_lead", label="Protect Lead", style=style, row=row))
+            self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house, vote_type="contingency", choice_key="desperate_dive", label="Desperate Dive", style=style, row=row))
+            self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house, vote_type="contingency", choice_key="shadow_the_seeker", label="Shadow Seeker", style=style, row=row))
+            self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house, vote_type="contingency", choice_key="golden_surge", label="Golden Surge", style=style, row=row))
+            self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house, vote_type="contingency", choice_key="pointbreak", label="Pointbreak", style=style, row=row))
+
+
+class ContingencyPlanningView(discord.ui.View):
+    def __init__(self, *, cog: "QuidditchCog", fixture_id: int, home_house: str, away_house: str) -> None:
+        super().__init__(timeout=None)
+        houses = [(home_house, discord.ButtonStyle.danger), (away_house, discord.ButtonStyle.primary)]
+        row = 0
+        for house, style in houses:
+            self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house, vote_type="contingency", choice_key="protect_the_lead", label=f"{house}: Protect Lead", style=style, row=row))
+            self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house, vote_type="contingency", choice_key="desperate_dive", label=f"{house}: Desperate Dive", style=style, row=row))
+            self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house, vote_type="contingency", choice_key="shadow_the_seeker", label=f"{house}: Shadow Seeker", style=style, row=row))
+            row += 1
+            self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house, vote_type="contingency", choice_key="golden_surge", label=f"{house}: Golden Surge", style=style, row=row))
+            self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house, vote_type="contingency", choice_key="pointbreak", label=f"{house}: Pointbreak", style=style, row=row))
+            row += 1
+
+class HouseStrategyPlanningView(discord.ui.View):
+    def __init__(self, *, cog: "QuidditchCog", fixture_id: int, house_name: str) -> None:
+        super().__init__(timeout=None)
+        style = discord.ButtonStyle.primary
+        self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house_name, vote_type="strategy", choice_key="chaser_rush", label="Chaser Rush", style=style, row=0))
+        self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house_name, vote_type="strategy", choice_key="seeker_hunt", label="Seeker Hunt", style=style, row=0))
+        self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house_name, vote_type="strategy", choice_key="bludger_storm", label="Bludger Storm", style=style, row=0))
+        self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house_name, vote_type="strategy", choice_key="close_formation", label="Close Formation", style=style, row=0))
+        self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house_name, vote_type="strategy", choice_key="keeper_lock", label="Keeper Lock", style=style, row=0))
+
+        self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house_name, vote_type="contingency", choice_key="protect_the_lead", label="Protect Lead", style=discord.ButtonStyle.secondary, row=1))
+        self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house_name, vote_type="contingency", choice_key="desperate_dive", label="Desperate Dive", style=discord.ButtonStyle.secondary, row=1))
+        self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house_name, vote_type="contingency", choice_key="shadow_the_seeker", label="Shadow Seeker", style=discord.ButtonStyle.secondary, row=1))
+        self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house_name, vote_type="contingency", choice_key="golden_surge", label="Golden Surge", style=discord.ButtonStyle.secondary, row=1))
+        self.add_item(TacticalVoteButton(cog=cog, fixture_id=fixture_id, house_name=house_name, vote_type="contingency", choice_key="pointbreak", label="Pointbreak", style=discord.ButtonStyle.secondary, row=1))
+
+
 class QuidditchCog(commands.Cog):
     TZ = ZoneInfo("Europe/Zurich")
     POSITION_ROLE_KEYS = {
@@ -167,6 +239,51 @@ class QuidditchCog(commands.Cog):
         "beater": "B",
     }
     KNOCKOUT_GIF_ORDER = ("keeper", "seeker", "chaser", "beater")
+    LEADERBOARD_BANNER_PATH = Path("resources/HouseBanners.png")
+    HOUSE_CREST_PATHS = {
+        "Gryffindor": Path("resources/house_points/gc.png"),
+        "Hufflepuff": Path("resources/house_points/hc.png"),
+        "Ravenclaw": Path("resources/house_points/rc.png"),
+        "Slytherin": Path("resources/house_points/sc.png"),
+    }
+    STRATEGY_LABELS = {
+        "standard": "Standard",
+        "chaser_rush": "Chaser Rush",
+        "seeker_hunt": "Seeker Hunt",
+        "bludger_storm": "Bludger Storm",
+        "close_formation": "Close Formation",
+        "keeper_lock": "Keeper Lock",
+    }
+    CONTINGENCY_LABELS = {
+        "protect_the_lead": "Protect the Lead",
+        "desperate_dive": "Desperate Dive",
+        "shadow_the_seeker": "Shadow the Seeker",
+        "golden_surge": "Golden Surge",
+        "pointbreak": "Pointbreak",
+    }
+    STRATEGY_CHOICES = ("chaser_rush", "seeker_hunt", "bludger_storm", "close_formation", "keeper_lock")
+    CONTINGENCY_CHOICES = ("protect_the_lead", "desperate_dive", "shadow_the_seeker", "golden_surge", "pointbreak")
+    STRATEGY_DESCRIPTIONS = {
+        "chaser_rush": "Push the Quaffle hard. More attacking pressure and better scoring while in possession, but riskier under pressure.",
+        "seeker_hunt": "Give the Seeker freedom. Earlier Snitch chances and a small catch boost, but less Quaffle pressure.",
+        "bludger_storm": "Let the Beaters disrupt the match. More Bludger pressure and hits, but less stable possession.",
+        "close_formation": "Stay compact and protect the Quaffle. Harder to lose possession, but slower and less Snitch-focused.",
+        "keeper_lock": "Build around saves and defensive recovery. Better Keeper saves and possession recovery, but slower attacks.",
+    }
+    CONTINGENCY_DESCRIPTIONS = {
+        "protect_the_lead": "If we lead by 50+ after 3h, we tighten up and defend the advantage.",
+        "desperate_dive": "If we trail by 50+ after 3h, our Seeker gets freedom to chase a comeback.",
+        "shadow_the_seeker": "If they spot the Snitch first, we mark their Seeker from 3h onward.",
+        "golden_surge": "If we spot the Snitch first, the whole team surges with attacking momentum from 3h onward.",
+        "pointbreak": "If the score is within 40 after 3h, we force the match into a scoring battle.",
+    }
+    WEATHER_LABELS = {
+        "clear": ("☀️", "Clear", "Clear skies over the pitch. Chasers and seekers can play freely."),
+        "windy": ("🌬️", "Windy", "Strong gusts sweep across the pitch. Long passes and rushed shots may be harder to control."),
+        "misty": ("🌫️", "Misty", "Mist hangs low over the pitch. Visibility is poor, making the Snitch and Bludgers harder to track."),
+        "stormy": ("⛈️", "Stormy", "Storm clouds break over the pitch. The match becomes rough, slippery, and dangerous."),
+    }
+
 
     def __init__(self, bot: commands.Bot, database: Database):
         self.bot = bot
@@ -174,6 +291,8 @@ class QuidditchCog(commands.Cog):
         self.image_service = QuidditchImageService()
         self.engine = QuidditchLiveEngine()
         self._startup_refresh_task: asyncio.Task | None = None
+        self._last_schedule_build_key: str | None = None
+        self._current_loop_minutes: float = 1.0
 
     async def cog_load(self) -> None:
         if not self.quidditch_loop.is_running():
@@ -220,6 +339,29 @@ class QuidditchCog(commands.Cog):
     def _now(self) -> datetime:
         return datetime.now(self.TZ)
 
+    def _configured_guild(self) -> discord.Guild | None:
+        guild_id = getattr(self.bot, "guild_id", None)
+        if guild_id is None:
+            try:
+                from config import load_settings
+                guild_id = load_settings().guild_id
+            except Exception:
+                guild_id = None
+
+        if guild_id is not None:
+            guild = self.bot.get_guild(int(guild_id))
+            if guild is not None:
+                return guild
+
+        return self.bot.guilds[0] if self.bot.guilds else None
+
+    def _set_quidditch_loop_interval(self, minutes: float) -> None:
+        minutes = max(1.0, min(10.0, float(minutes)))
+        if abs(self._current_loop_minutes - minutes) < 0.1:
+            return
+        self.quidditch_loop.change_interval(minutes=minutes)
+        self._current_loop_minutes = minutes
+
     def _trim_name(self, raw_name: str, limit: int = 18) -> str:
         name = raw_name.strip()
         return name if len(name) <= limit else f"{name[:limit - 1]}…"
@@ -243,6 +385,28 @@ class QuidditchCog(commands.Cog):
         separator = "\n" + ("-" * 34) + "\n"
         body = separator.join(formatted)
         return f"```text\n{body}\n```"
+
+    def _fixture_display_title(self, season: Any, fixture: Any) -> str:
+        month_name = datetime(int(season["year"]), int(season["month"]), 1).strftime("%B")
+        year = int(season["year"])
+        stage = str(fixture["stage"])
+        if stage == "regular":
+            return f"{month_name} League {year}, Round Robin Game: No. {int(fixture['match_day'])}/12"
+        if stage == "third_place":
+            return f"{month_name} League {year}, Bronze Medal Match"
+        if stage == "final":
+            return f"{month_name} League {year}, Championship Game"
+        return f"{month_name} League {year}"
+
+    def _other_house(self, fixture: Any, house_name: str) -> str:
+        home_house = str(fixture["home_house"])
+        away_house = str(fixture["away_house"])
+        return away_house if house_name == home_house else home_house
+
+    def _scoreboard_banner_file(self) -> discord.File | None:
+        if self.LEADERBOARD_BANNER_PATH.exists():
+            return discord.File(str(self.LEADERBOARD_BANNER_PATH), filename="HouseBanners.png")
+        return None
 
     def _roster_block_for_house(self, house_name: str, lineup: list[dict[str, Any]]) -> str:
         by_pos: dict[str, list[dict[str, Any]]] = {
@@ -286,6 +450,224 @@ class QuidditchCog(commands.Cog):
 
         return "\n".join(lines)
 
+    def _weather_block(self, weather: str | None) -> str:
+        key = str(weather or "clear").lower()
+        emoji, label, description = self.WEATHER_LABELS.get(key, self.WEATHER_LABELS["clear"])
+        return f"{emoji} **{label}**\n{description}"
+
+    def _house_crest_filename(self, house_name: str) -> str | None:
+        path = self.HOUSE_CREST_PATHS.get(house_name)
+        return path.name if path is not None else None
+
+    def _house_crest_file(self, house_name: str) -> discord.File | None:
+        path = self.HOUSE_CREST_PATHS.get(house_name)
+        if path is None or not path.exists():
+            return None
+        return discord.File(str(path), filename=path.name)
+
+    async def _fetch_strategy_channel(self, guild: discord.Guild, repo: QuidditchRepository, house_name: str) -> discord.TextChannel | None:
+        row = repo.get_strategy_channel(guild.id, house_name)
+        if row is None:
+            return None
+        channel = guild.get_channel(int(row["channel_id"]))
+        return channel if isinstance(channel, discord.TextChannel) else None
+
+    async def _purge_strategy_channel(self, channel: discord.TextChannel) -> None:
+        try:
+            await channel.purge(limit=None, reason="Refreshing Quidditch strategy planning channel.")
+        except discord.Forbidden:
+            logging.warning("Missing permissions to purge Quidditch strategy channel %s.", channel.id)
+        except discord.HTTPException:
+            logging.exception("Failed to purge Quidditch strategy channel %s.", channel.id)
+
+    def _choice_vote_order(self, preview: dict[str, Any], vote_type: str, house_name: str) -> list[str]:
+        order_bucket = preview.get(f"{vote_type}_vote_order") or {}
+        order = order_bucket.get(house_name) or []
+        return [str(choice) for choice in order]
+
+    def _winning_choice(self, preview: dict[str, Any], vote_type: str, house_name: str, *, default: str | None) -> str | None:
+        counts = self._choice_counts(preview, vote_type, house_name)
+        if not counts:
+            return default
+        top_count = max(counts.values())
+        tied = {choice for choice, count in counts.items() if count == top_count}
+        for choice in self._choice_vote_order(preview, vote_type, house_name):
+            if choice in tied:
+                return choice
+        house_votes = (preview.get(f"{vote_type}_votes") or {}).get(house_name) or {}
+        for choice in house_votes.values():
+            choice_key = str(choice)
+            if choice_key in tied:
+                return choice_key
+        return sorted(tied)[0] if tied else default
+
+    def _locked_choice(self, preview: dict[str, Any], vote_type: str, house_name: str) -> str | None:
+        bucket_name = "locked_strategies" if vote_type == "strategy" else "locked_contingencies"
+        bucket = preview.get(bucket_name) or {}
+        choice = bucket.get(house_name)
+        return str(choice) if choice else None
+
+    def _select_choice_for_lock(self, preview: dict[str, Any], vote_type: str, house_name: str) -> str:
+        existing = self._locked_choice(preview, vote_type, house_name)
+        if existing:
+            return existing
+        choices = self.STRATEGY_CHOICES if vote_type == "strategy" else self.CONTINGENCY_CHOICES
+        winner = self._winning_choice(preview, vote_type, house_name, default=None)
+        if winner in choices:
+            return str(winner)
+        return random.choice(tuple(choices))
+
+    def _lock_preview_plans(self, preview: dict[str, Any], home_house: str, away_house: str) -> dict[str, Any]:
+        locked_strategies = preview.setdefault("locked_strategies", {})
+        locked_contingencies = preview.setdefault("locked_contingencies", {})
+        for house in (home_house, away_house):
+            locked_strategies[house] = self._select_choice_for_lock(preview, "strategy", house)
+            locked_contingencies[house] = self._select_choice_for_lock(preview, "contingency", house)
+        return preview
+
+    def _choice_lines(self, preview: dict[str, Any], vote_type: str, house_name: str, *, locked: bool) -> str:
+        choices = self.STRATEGY_CHOICES if vote_type == "strategy" else self.CONTINGENCY_CHOICES
+        labels = self.STRATEGY_LABELS if vote_type == "strategy" else self.CONTINGENCY_LABELS
+        descriptions = self.STRATEGY_DESCRIPTIONS if vote_type == "strategy" else self.CONTINGENCY_DESCRIPTIONS
+        counts = self._choice_counts(preview, vote_type, house_name)
+        current = self._locked_choice(preview, vote_type, house_name) if locked else self._winning_choice(preview, vote_type, house_name, default=None)
+        lines: list[str] = []
+        for choice in choices:
+            marker = "🔒" if locked and choice == current else ("⭐" if choice == current else "•")
+            lines.append(f"{marker} **{labels.get(choice, choice)}** — {descriptions.get(choice, '')} `Votes: {counts.get(choice, 0)}`")
+        return "\n".join(lines)
+
+    def _house_strategy_embed(
+        self,
+        *,
+        fixture_id: int,
+        house_name: str,
+        opponent_house: str,
+        season_title: str | None,
+        preview: dict[str, Any],
+        locked: bool,
+    ) -> discord.Embed:
+        title = f"{HOUSE_EMOJIS.get(house_name, '🏰')} {house_name} Quidditch Plan"
+        if locked:
+            description = f"Your plan for **{house_name} vs {opponent_house}** is locked in. Good luck on the pitch."
+            color = 0xD4AF37
+        else:
+            description = (
+                f"Choose the private match plan for **{house_name} vs {opponent_house}**.\n"
+                "Only members of this house can vote here. If no votes are cast before lock-in, the bot will choose randomly. "
+                "If a vote is tied, the option that reached the tie first wins."
+            )
+            color = 0x2F3136
+        embed = discord.Embed(title=title, description=description, color=color)
+        if season_title:
+            embed.set_author(name=season_title)
+        crest_filename = self._house_crest_filename(house_name)
+        if crest_filename:
+            embed.set_thumbnail(url=f"attachment://{crest_filename}")
+        embed.add_field(
+            name="Main Strategy",
+            value=self._choice_lines(preview, "strategy", house_name, locked=locked),
+            inline=False,
+        )
+        embed.add_field(
+            name="Contingency",
+            value=self._choice_lines(preview, "contingency", house_name, locked=locked),
+            inline=False,
+        )
+        embed.set_footer(text=("Locked 10 minutes before kickoff." if not locked else f"Fixture #{fixture_id} plan locked."))
+        return embed
+
+    async def _post_house_strategy_prompt(self, guild: discord.Guild, fixture_id: int, house_name: str, *, locked: bool = False) -> None:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            fixture = repo.get_fixture(fixture_id)
+            betting_state = repo.get_betting_state(fixture_id)
+            if fixture is None or betting_state is None:
+                return
+            if house_name not in {str(fixture["home_house"]), str(fixture["away_house"])}:
+                return
+            channel = await self._fetch_strategy_channel(guild, repo, house_name)
+            if channel is None:
+                return
+            season = repo.conn.execute(
+                "SELECT * FROM quidditch_seasons WHERE id = ?",
+                (int(fixture["season_id"]),),
+            ).fetchone()
+            preview = self._parse_preview_state(betting_state)
+            if locked:
+                preview = self._lock_preview_plans(preview, str(fixture["home_house"]), str(fixture["away_house"]))
+                repo.update_betting_preview_state(fixture_id, preview)
+                conn.commit()
+            opponent = self._other_house(fixture, house_name)
+            season_title = self._fixture_display_title(season, fixture) if season is not None else None
+
+        await self._purge_strategy_channel(channel)
+        embed = self._house_strategy_embed(
+            fixture_id=fixture_id,
+            house_name=house_name,
+            opponent_house=opponent,
+            season_title=season_title,
+            preview=preview,
+            locked=locked,
+        )
+        crest_file = self._house_crest_file(house_name)
+        kwargs: dict[str, Any] = {"embed": embed}
+        if crest_file is not None:
+            kwargs["file"] = crest_file
+        if not locked:
+            kwargs["view"] = HouseStrategyPlanningView(cog=self, fixture_id=fixture_id, house_name=house_name)
+        try:
+            await channel.send(**kwargs)
+        except discord.HTTPException:
+            logging.exception("Failed to post Quidditch strategy prompt for %s in channel %s.", house_name, channel.id)
+
+    async def _post_strategy_prompts_for_fixture(self, guild: discord.Guild, fixture_id: int, *, locked: bool = False) -> None:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            fixture = repo.get_fixture(fixture_id)
+            if fixture is None:
+                return
+            houses = (str(fixture["home_house"]), str(fixture["away_house"]))
+        for house in houses:
+            await self._post_house_strategy_prompt(guild, fixture_id, house, locked=locked)
+
+    def _lock_fixture_plans(self, fixture_id: int) -> dict[str, Any]:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            fixture = repo.get_fixture(fixture_id)
+            betting_state = repo.get_betting_state(fixture_id)
+            if fixture is None or betting_state is None:
+                return {}
+            preview = self._parse_preview_state(betting_state)
+            preview = self._lock_preview_plans(preview, str(fixture["home_house"]), str(fixture["away_house"]))
+            repo.update_betting_preview_state(fixture_id, preview)
+            conn.commit()
+            return preview
+
+    def _choice_counts(self, preview: dict[str, Any], vote_type: str, house_name: str) -> dict[str, int]:
+        votes = preview.get(f"{vote_type}_votes") or {}
+        house_votes = votes.get(house_name) or {}
+        counts: dict[str, int] = {}
+        for choice in house_votes.values():
+            choice_key = str(choice)
+            counts[choice_key] = counts.get(choice_key, 0) + 1
+        return counts
+
+    def _planning_block(self, preview: dict[str, Any], home_house: str, away_house: str) -> str:
+        lines: list[str] = []
+        for house in (home_house, away_house):
+            strategy = self._winning_choice(preview, "strategy", house, default="standard") or "standard"
+            contingency = self._winning_choice(preview, "contingency", house, default=None)
+            strategy_counts = self._choice_counts(preview, "strategy", house)
+            contingency_counts = self._choice_counts(preview, "contingency", house)
+            strategy_votes = sum(strategy_counts.values())
+            contingency_votes = sum(contingency_counts.values())
+            lines.append(
+                f"**{house}** — Strategy: **{self.STRATEGY_LABELS.get(strategy, strategy)}** ({strategy_votes} votes)\n"
+                f"Contingency: **{self.CONTINGENCY_LABELS.get(contingency, 'None')}** ({contingency_votes} votes)"
+            )
+        return "\n\n".join(lines)
+
     def _betting_embed(
         self,
         *,
@@ -297,6 +679,8 @@ class QuidditchCog(commands.Cog):
         odds_home: float,
         odds_away: float,
         betting_log_lines: list[str] | None = None,
+        season_title: str | None = None,
+        preview_state: dict[str, Any] | None = None,
     ) -> discord.Embed:
         left_house, right_house = self.image_service.get_display_order(home_house, away_house)
         if left_house == home_house:
@@ -306,9 +690,15 @@ class QuidditchCog(commands.Cog):
             left_lineup, right_lineup = away_lineup, home_lineup
             left_odds, right_odds = odds_away, odds_home
 
-        embed = discord.Embed(color=0x2F3136)
+        embed = discord.Embed(title=season_title, color=0x2F3136)
         embed.add_field(name="​", value=self._roster_block_for_house(left_house, left_lineup), inline=True)
         embed.add_field(name="​", value=self._roster_block_for_house(right_house, right_lineup), inline=True)
+        preview_state = preview_state or {}
+        embed.add_field(
+            name="🌦️ Weather",
+            value=self._weather_block(preview_state.get("weather")),
+            inline=False,
+        )
         embed.add_field(
             name="💰 Betting odds",
             value=(
@@ -347,6 +737,10 @@ class QuidditchCog(commands.Cog):
             betting_state = repo.get_betting_state(fixture_id)
             if fixture is None or betting_state is None or not betting_state["embed_message_id"]:
                 return
+            season = repo.conn.execute(
+                "SELECT * FROM quidditch_seasons WHERE id = ?",
+                (int(fixture["season_id"]),),
+            ).fetchone()
             preview = self._parse_preview_state(betting_state)
             home_lineup = preview.get("home_lineup") or []
             away_lineup = preview.get("away_lineup") or []
@@ -365,17 +759,14 @@ class QuidditchCog(commands.Cog):
             odds_home=odds_home,
             odds_away=odds_away,
             betting_log_lines=self._build_betting_log_lines(guild, bets),
+            season_title=(self._fixture_display_title(season, fixture) if season is not None else None),
+            preview_state=preview,
         )
         try:
             message = await channel.fetch_message(int(betting_state["embed_message_id"]))
             await message.edit(
                 embed=embed,
-                view=BetView(
-                    cog=self,
-                    fixture_id=fixture_id,
-                    home_house=str(fixture["home_house"]),
-                    away_house=str(fixture["away_house"]),
-                ),
+                view=BetView(cog=self, fixture_id=fixture_id, home_house=str(fixture["home_house"]), away_house=str(fixture["away_house"])),
             )
         except discord.HTTPException:
             return
@@ -423,7 +814,7 @@ class QuidditchCog(commands.Cog):
         except discord.HTTPException:
             pass
 
-    async def _cleanup_betting_messages(self, guild: discord.Guild, fixture_id: int) -> None:
+    async def _cleanup_betting_messages(self, guild: discord.Guild, fixture_id: int, *, finalize_strategy: bool = False) -> None:
         with self.database.connect() as conn:
             repo = QuidditchRepository(conn)
             betting_state = repo.get_betting_state(fixture_id)
@@ -438,6 +829,9 @@ class QuidditchCog(commands.Cog):
                 channel_id = channel.id if channel is not None else None
         await self._delete_message_if_exists(guild, channel_id, betting_state["image_message_id"])
         await self._delete_message_if_exists(guild, channel_id, betting_state["embed_message_id"])
+        if finalize_strategy:
+            self._lock_fixture_plans(fixture_id)
+            await self._post_strategy_prompts_for_fixture(guild, fixture_id, locked=True)
 
     async def _announce_betting_for_fixture(self, guild: discord.Guild, fixture_id: int) -> None:
         with self.database.connect() as conn:
@@ -445,6 +839,10 @@ class QuidditchCog(commands.Cog):
             fixture = repo.get_fixture(fixture_id)
             if fixture is None:
                 return
+            season = repo.conn.execute(
+                "SELECT * FROM quidditch_seasons WHERE id = ?",
+                (int(fixture["season_id"]),),
+            ).fetchone()
             betting_state = repo.get_betting_state(fixture_id)
             if betting_state is None:
                 return
@@ -468,16 +866,14 @@ class QuidditchCog(commands.Cog):
             odds_home=odds_home,
             odds_away=odds_away,
             betting_log_lines=self._build_betting_log_lines(guild, []),
+            season_title=(self._fixture_display_title(season, fixture) if season is not None else None),
+            preview_state=preview,
         )
         embed_message = await channel.send(
             embed=embed,
-            view=BetView(
-                cog=self,
-                fixture_id=fixture_id,
-                home_house=str(fixture["home_house"]),
-                away_house=str(fixture["away_house"]),
-            ),
+            view=BetView(cog=self, fixture_id=fixture_id, home_house=str(fixture["home_house"]), away_house=str(fixture["away_house"])),
         )
+        await self._post_strategy_prompts_for_fixture(guild, fixture_id, locked=False)
 
         with self.database.connect() as conn:
             repo = QuidditchRepository(conn)
@@ -519,12 +915,62 @@ class QuidditchCog(commands.Cog):
                 status="pending",
                 announced_at=announce_at.isoformat(),
                 cleanup_at=cleanup_at.isoformat(),
-                preview_state={"home_lineup": home_lineup, "away_lineup": away_lineup},
+                preview_state={"home_lineup": home_lineup, "away_lineup": away_lineup, "weather": self.engine.roll_weather(), "strategy_votes": {}, "contingency_votes": {}},
                 odds_home=odds_home,
                 odds_away=odds_away,
             )
             conn.commit()
             return f"Betting scheduled for **{next_fixture['home_house']} vs {next_fixture['away_house']}**."
+
+    async def handle_tactical_vote(self, interaction: discord.Interaction, fixture_id: int, house_name: str, vote_type: str, choice_key: str) -> None:
+        if interaction.guild is None or not isinstance(interaction.user, discord.Member):
+            await interaction.response.send_message("This can only be used in a server.", ephemeral=True)
+            return
+        if vote_type not in {"strategy", "contingency"}:
+            await interaction.response.send_message("Unknown Quidditch vote type.", ephemeral=True)
+            return
+        allowed_choices = self.STRATEGY_LABELS if vote_type == "strategy" else self.CONTINGENCY_LABELS
+        if choice_key not in allowed_choices or choice_key == "standard":
+            await interaction.response.send_message("Unknown Quidditch choice.", ephemeral=True)
+            return
+
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            role_service = self._build_role_service(conn)
+            fixture = repo.get_fixture(fixture_id)
+            betting_state = repo.get_betting_state(fixture_id)
+            if fixture is None or betting_state is None:
+                await interaction.response.send_message("That match planning prompt is no longer available.", ephemeral=True)
+                return
+            if str(betting_state["status"]) != "announced":
+                await interaction.response.send_message("Planning for that match is closed.", ephemeral=True)
+                return
+            if house_name not in {str(fixture["home_house"]), str(fixture["away_house"])}:
+                await interaction.response.send_message("That house is not playing this match.", ephemeral=True)
+                return
+            member_house = self._member_house(role_service, interaction.guild, interaction.user)
+            if member_house != house_name:
+                await interaction.response.send_message(f"Only **{house_name}** members can vote for {house_name}'s plan.", ephemeral=True)
+                return
+
+            preview = self._parse_preview_state(betting_state)
+            bucket_key = f"{vote_type}_votes"
+            votes = preview.setdefault(bucket_key, {})
+            house_votes = votes.setdefault(house_name, {})
+            previous_choice = house_votes.get(str(interaction.user.id))
+            house_votes[str(interaction.user.id)] = choice_key
+            if previous_choice != choice_key:
+                order_bucket = preview.setdefault(f"{vote_type}_vote_order", {})
+                order_bucket.setdefault(house_name, []).append(choice_key)
+            preview.pop("locked_strategies", None)
+            preview.pop("locked_contingencies", None)
+            repo.update_betting_preview_state(fixture_id, preview)
+            conn.commit()
+
+        await interaction.response.defer(ephemeral=True)
+        await self._post_house_strategy_prompt(interaction.guild, fixture_id, house_name, locked=False)
+        label = allowed_choices.get(choice_key, choice_key)
+        await interaction.followup.send(f"Recorded your **{house_name}** {vote_type} vote: **{label}**.", ephemeral=True)
 
     async def handle_bet_submission(self, interaction: discord.Interaction, fixture_id: int, picked_house: str, raw_amount: str) -> None:
         if interaction.guild is None:
@@ -556,7 +1002,7 @@ class QuidditchCog(commands.Cog):
                 return
             user_repo.ensure_user(interaction.user.id)
             user_row = user_repo.get_user(interaction.user.id)
-            balance = int(user_row["sickles_balance"])
+            balance = int(user_row["galleons_balance"])
             if amount > balance:
                 await interaction.response.send_message(f"You only have {balance} galleons available.", ephemeral=True)
                 return
@@ -564,7 +1010,7 @@ class QuidditchCog(commands.Cog):
             if picked_house not in {str(fixture["home_house"]), str(fixture["away_house"])}:
                 await interaction.response.send_message("That team is not playing in this fixture.", ephemeral=True)
                 return
-            if not user_repo.deduct_sickles(interaction.user.id, amount):
+            if not user_repo.deduct_galleons(interaction.user.id, amount):
                 await interaction.response.send_message("You do not have enough galleons for that bet.", ephemeral=True)
                 return
             repo.create_bet(fixture_id, interaction.user.id, picked_house, amount, odds)
@@ -576,6 +1022,10 @@ class QuidditchCog(commands.Cog):
         )
 
     async def _post_betting_results(self, guild: discord.Guild, fixture_id: int, winner_house: str) -> None:
+        final_message_id: int | None = None
+        channel_id: int | None = None
+        lines: list[str] = []
+
         with self.database.connect() as conn:
             repo = QuidditchRepository(conn)
             user_repo = UserRepository(conn)
@@ -583,36 +1033,58 @@ class QuidditchCog(commands.Cog):
             betting_state = repo.get_betting_state(fixture_id)
             if fixture is None or betting_state is None:
                 return
-            bets = repo.settle_bets_for_fixture(fixture_id, winner_house)
-            channel = await self._fetch_configured_match_channel(guild, repo)
-            if channel is None:
+            if betting_state["results_message_id"]:
                 return
-            lines: list[str] = []
+
+            settled_bets = repo.settle_pending_bets_for_fixture(fixture_id, winner_house)
+            for bet in settled_bets:
+                if str(bet["result"]) == "won":
+                    user_repo.ensure_user(int(bet["user_id"]))
+                    user_repo.add_galleons(int(bet["user_id"]), int(bet["payout"]))
+
+            bets = repo.list_bets_for_fixture(fixture_id)
             for bet in bets:
-                user_repo.ensure_user(int(bet["user_id"]))
                 member = guild.get_member(int(bet["user_id"]))
                 name = member.display_name if member else f"User {bet['user_id']}"
                 if str(bet["result"]) == "won":
                     payout = int(bet["payout"])
-                    user_repo.add_sickles(int(bet["user_id"]), payout)
                     profit = payout - int(bet["stake"])
                     lines.append(f"**{name}** won **{profit}** galleons net ({int(bet['stake'])} → {payout}).")
-                else:
+                elif str(bet["result"]) == "lost":
                     lines.append(f"**{name}** lost **{int(bet['stake'])}** galleons on {bet['picked_house']}.")
+
             if not lines:
                 lines = ["No bets were placed on this match."]
-            embed = discord.Embed(title="Betting Results", description="\n".join(lines[:20]), color=0x2ECC71)
-            if betting_state["final_message_id"]:
-                try:
-                    final_message = await channel.fetch_message(int(betting_state["final_message_id"]))
-                    result_message = await final_message.reply(embed=embed, mention_author=False)
-                except discord.HTTPException:
-                    result_message = await channel.send(embed=embed)
-            else:
-                result_message = await channel.send(embed=embed)
-            repo.set_betting_results_message(fixture_id, result_message.id)
+
+            final_message_id = int(betting_state["final_message_id"]) if betting_state["final_message_id"] else None
+            config = repo.get_config(guild.id)
+            if config is not None and config["match_channel_id"] is not None:
+                channel_id = int(config["match_channel_id"])
             repo.mark_betting_closed(fixture_id)
             conn.commit()
+
+        if channel_id is None:
+            return
+        channel = guild.get_channel(channel_id)
+        if not isinstance(channel, discord.TextChannel):
+            return
+
+        embed = discord.Embed(title="Betting Results", description="\n".join(lines[:20]), color=0x2ECC71)
+        if final_message_id is not None:
+            try:
+                final_message = await channel.fetch_message(final_message_id)
+                result_message = await final_message.reply(embed=embed, mention_author=False)
+            except discord.HTTPException:
+                result_message = await channel.send(embed=embed)
+        else:
+            result_message = await channel.send(embed=embed)
+
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            betting_state = repo.get_betting_state(fixture_id)
+            if betting_state is not None and not betting_state["results_message_id"]:
+                repo.set_betting_results_message(fixture_id, result_message.id)
+                conn.commit()
 
     def _build_live_embeds(
         self,
@@ -627,6 +1099,7 @@ class QuidditchCog(commands.Cog):
         is_test: bool,
         ended: bool,
         runtime_state: dict[str, Any],
+        event_title: str | None = None,
     ) -> list[discord.Embed]:
         color = 0x5865F2 if is_test else 0xD4AF37
 
@@ -643,6 +1116,7 @@ class QuidditchCog(commands.Cog):
         heading = f"## **{left_house} vs {right_house}**"
 
         roster_embed = discord.Embed(
+            title=event_title,
             description=f"{heading}\n*{status_line}*",
             color=color,
         )
@@ -655,6 +1129,13 @@ class QuidditchCog(commands.Cog):
             name="\u200b",
             value=self._roster_block_for_house(right_house, right_lineup),
             inline=True,
+        )
+        weather_key = str(runtime_state.get("weather") or "clear")
+        weather_text = self._weather_block(weather_key)
+        roster_embed.add_field(
+            name="🌦️ Match Conditions",
+            value=weather_text,
+            inline=False,
         )
         roster_embed.add_field(
             name="📜 Match Log",
@@ -1089,17 +1570,27 @@ class QuidditchCog(commands.Cog):
             return
 
         embed = discord.Embed(title=title, description=description, color=0xD4AF37)
+        banner_file = self._scoreboard_banner_file()
+        if banner_file is not None:
+            embed.set_image(url="attachment://HouseBanners.png")
         scoreboard_message_id = config["scoreboard_message_id"]
 
         if scoreboard_message_id is not None:
             try:
                 message = await channel.fetch_message(int(scoreboard_message_id))
-                await message.edit(embed=embed)
+                if banner_file is not None:
+                    await message.edit(embed=embed, attachments=[banner_file])
+                else:
+                    await message.edit(embed=embed)
                 return
             except discord.HTTPException:
                 pass
 
-        message = await channel.send(embed=embed)
+        fresh_banner = self._scoreboard_banner_file()
+        if fresh_banner is not None:
+            message = await channel.send(embed=embed, file=fresh_banner)
+        else:
+            message = await channel.send(embed=embed)
         service.set_scoreboard_message_id(guild.id, message.id)
 
     def _all_regular_fixtures_completed(self, fixtures: list[Any]) -> bool:
@@ -1156,6 +1647,7 @@ class QuidditchCog(commands.Cog):
         full_log: list[str],
         ended: bool,
         preserve_started_manually: bool,
+        force_image_update: bool = True,
     ) -> None:
         with self.database.connect() as conn:
             repo = QuidditchRepository(conn)
@@ -1164,18 +1656,31 @@ class QuidditchCog(commands.Cog):
             if config is None or config["match_channel_id"] is None:
                 return
 
+            season = repo.conn.execute(
+                "SELECT * FROM quidditch_seasons WHERE id = ?",
+                (int(fixture["season_id"]),),
+            ).fetchone()
+
             channel = guild.get_channel(int(config["match_channel_id"]))
             if not isinstance(channel, discord.TextChannel):
                 return
 
-            image_path = await self._render_match_image(
-                home_house=str(fixture["home_house"]),
-                away_house=str(fixture["away_house"]),
-                home_score=int(runtime_state["home_score"]),
-                away_score=int(runtime_state["away_score"]),
-                home_lineup=runtime_state["home_lineup"],
-                away_lineup=runtime_state["away_lineup"],
-            )
+            image_path: Path | None = None
+            should_send_attachment = force_image_update
+            if live_state is None or not live_state["message_id"] or not live_state["image_path"]:
+                should_send_attachment = True
+
+            if should_send_attachment:
+                image_path = await self._render_match_image(
+                    home_house=str(fixture["home_house"]),
+                    away_house=str(fixture["away_house"]),
+                    home_score=int(runtime_state["home_score"]),
+                    away_score=int(runtime_state["away_score"]),
+                    home_lineup=runtime_state["home_lineup"],
+                    away_lineup=runtime_state["away_lineup"],
+                )
+            elif live_state is not None and live_state["image_path"]:
+                image_path = Path(str(live_state["image_path"]))
 
             embeds = self._build_live_embeds(
                 home_house=str(fixture["home_house"]),
@@ -1188,6 +1693,7 @@ class QuidditchCog(commands.Cog):
                 is_test=False,
                 ended=ended,
                 runtime_state=runtime_state,
+                event_title=(self._fixture_display_title(season, fixture) if season is not None else None),
             )
 
             view = None if ended else CheerView(
@@ -1197,17 +1703,24 @@ class QuidditchCog(commands.Cog):
                 home_house=str(fixture["home_house"]),
                 away_house=str(fixture["away_house"]),
             )
-            discord_file = discord.File(str(image_path), filename="quidditch_live_match.png")
+            discord_file = (
+                discord.File(str(image_path), filename="quidditch_live_match.png")
+                if should_send_attachment and image_path is not None
+                else None
+            )
 
             if live_state is not None and live_state["channel_id"] and live_state["message_id"]:
                 try:
                     message = await channel.fetch_message(int(live_state["message_id"]))
-                    await message.edit(embeds=embeds, attachments=[discord_file], view=view)
+                    if discord_file is not None:
+                        await message.edit(embeds=embeds, attachments=[discord_file], view=view)
+                    else:
+                        await message.edit(embeds=embeds, view=view)
                     repo.upsert_live_match_state(
                         int(fixture["id"]),
                         channel_id=channel.id,
                         message_id=message.id,
-                        image_path=str(image_path),
+                        image_path=(str(image_path) if image_path is not None else None),
                         log_entries=full_log,
                         started_at=live_state["started_at"],
                         ends_at=live_state["ends_at"],
@@ -1219,6 +1732,16 @@ class QuidditchCog(commands.Cog):
                 except discord.HTTPException:
                     pass
 
+            if discord_file is None:
+                image_path = await self._render_match_image(
+                    home_house=str(fixture["home_house"]),
+                    away_house=str(fixture["away_house"]),
+                    home_score=int(runtime_state["home_score"]),
+                    away_score=int(runtime_state["away_score"]),
+                    home_lineup=runtime_state["home_lineup"],
+                    away_lineup=runtime_state["away_lineup"],
+                )
+                discord_file = discord.File(str(image_path), filename="quidditch_live_match.png")
             message = await channel.send(embeds=embeds, file=discord_file, view=view)
             started_at = live_state["started_at"] if live_state is not None else self._now().isoformat()
             ends_at = live_state["ends_at"] if live_state is not None else (self._now() + timedelta(hours=10)).isoformat()
@@ -1248,6 +1771,7 @@ class QuidditchCog(commands.Cog):
         runtime_state: dict[str, Any],
         full_log: list[str],
         ended: bool,
+        force_image_update: bool = True,
     ) -> None:
         with self.database.connect() as conn:
             repo = QuidditchRepository(conn)
@@ -1261,14 +1785,22 @@ class QuidditchCog(commands.Cog):
                 if not isinstance(channel, discord.TextChannel):
                     return
 
-            image_path = await self._render_match_image(
-                home_house=str(test_match["home_house"]),
-                away_house=str(test_match["away_house"]),
-                home_score=int(runtime_state["home_score"]),
-                away_score=int(runtime_state["away_score"]),
-                home_lineup=runtime_state["home_lineup"],
-                away_lineup=runtime_state["away_lineup"],
-            )
+            image_path: Path | None = None
+            should_send_attachment = force_image_update
+            if not test_match["message_id"] or not test_match["image_path"]:
+                should_send_attachment = True
+
+            if should_send_attachment:
+                image_path = await self._render_match_image(
+                    home_house=str(test_match["home_house"]),
+                    away_house=str(test_match["away_house"]),
+                    home_score=int(runtime_state["home_score"]),
+                    away_score=int(runtime_state["away_score"]),
+                    home_lineup=runtime_state["home_lineup"],
+                    away_lineup=runtime_state["away_lineup"],
+                )
+            elif test_match["image_path"]:
+                image_path = Path(str(test_match["image_path"]))
 
             embeds = self._build_live_embeds(
                 home_house=str(test_match["home_house"]),
@@ -1290,23 +1822,41 @@ class QuidditchCog(commands.Cog):
                 home_house=str(test_match["home_house"]),
                 away_house=str(test_match["away_house"]),
             )
-            discord_file = discord.File(str(image_path), filename="quidditch_test_match.png")
+            discord_file = (
+                discord.File(str(image_path), filename="quidditch_test_match.png")
+                if should_send_attachment and image_path is not None
+                else None
+            )
 
             if test_match["message_id"]:
                 try:
                     message = await channel.fetch_message(int(test_match["message_id"]))
-                    await message.edit(embeds=embeds, attachments=[discord_file], view=view)
+                    if discord_file is not None:
+                        await message.edit(embeds=embeds, attachments=[discord_file], view=view)
+                    else:
+                        await message.edit(embeds=embeds, view=view)
                     repo.update_test_match_message(
                         int(test_match["id"]),
                         channel_id=channel.id,
                         message_id=message.id,
                     )
-                    repo.set_test_match_image_path(int(test_match["id"]), str(image_path))
+                    if image_path is not None:
+                        repo.set_test_match_image_path(int(test_match["id"]), str(image_path))
                     conn.commit()
                     return
                 except discord.HTTPException:
                     pass
 
+            if discord_file is None:
+                image_path = await self._render_match_image(
+                    home_house=str(test_match["home_house"]),
+                    away_house=str(test_match["away_house"]),
+                    home_score=int(runtime_state["home_score"]),
+                    away_score=int(runtime_state["away_score"]),
+                    home_lineup=runtime_state["home_lineup"],
+                    away_lineup=runtime_state["away_lineup"],
+                )
+                discord_file = discord.File(str(image_path), filename="quidditch_test_match.png")
             message = await channel.send(embeds=embeds, file=discord_file, view=view)
             repo.update_test_match_message(
                 int(test_match["id"]),
@@ -1398,13 +1948,22 @@ class QuidditchCog(commands.Cog):
                     if live_state is not None and live_state["started_at"]
                     else self._now()
                 )
+                home_house = str(fixture["home_house"])
+                away_house = str(fixture["away_house"])
+                preview_state = self._lock_preview_plans(preview_state, home_house, away_house)
+                repo.update_betting_preview_state(fixture_id, preview_state)
                 runtime_state = self.engine.build_initial_state(
-                    home_house=str(fixture["home_house"]),
-                    away_house=str(fixture["away_house"]),
+                    home_house=home_house,
+                    away_house=away_house,
                     home_lineup=home_lineup,
                     away_lineup=away_lineup,
                     now=started_at_dt,
                     is_test=False,
+                    weather=str(preview_state.get("weather") or "clear"),
+                    home_strategy=self._locked_choice(preview_state, "strategy", home_house) or "standard",
+                    away_strategy=self._locked_choice(preview_state, "strategy", away_house) or "standard",
+                    home_contingency=self._locked_choice(preview_state, "contingency", home_house),
+                    away_contingency=self._locked_choice(preview_state, "contingency", away_house),
                 )
                 repo.upsert_runtime_state("official", fixture_id, runtime_state)
 
@@ -1412,8 +1971,11 @@ class QuidditchCog(commands.Cog):
                     str(fixture["home_house"]),
                     str(fixture["away_house"]),
                 )
+                weather_key = str(runtime_state.get("weather") or "clear")
+                _, weather_label, _ = self.WEATHER_LABELS.get(weather_key, self.WEATHER_LABELS["clear"])
                 kickoff_log = [
                     f"{started_at_dt.strftime('%H:%M')} And the game is off! {left_house} vs {right_house} is underway.",
+                    f"{started_at_dt.strftime('%H:%M')} Weather: {weather_label}. Final plans remain sealed as both teams kick skyward.",
                     f"{started_at_dt.strftime('%H:%M')} Brooms kick skyward and the crowd erupts around the pitch.",
                 ]
                 repo.replace_live_match_log(fixture_id, kickoff_log)
@@ -1475,6 +2037,9 @@ class QuidditchCog(commands.Cog):
                     away_lineup=away_lineup,
                     now=started_at_dt,
                     is_test=True,
+                    weather=self.engine.roll_weather(),
+                    home_strategy="standard",
+                    away_strategy="standard",
                 )
                 repo.upsert_runtime_state("test", test_match_id, runtime_state)
 
@@ -1508,6 +2073,64 @@ class QuidditchCog(commands.Cog):
             ended=False,
         )
 
+    async def _post_quidditch_cup_results(self, guild: discord.Guild, season_id: int) -> None:
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            season = repo.conn.execute(
+                "SELECT * FROM quidditch_seasons WHERE id = ?",
+                (season_id,),
+            ).fetchone()
+            fixtures = repo.list_fixtures_for_season(season_id)
+            config = repo.get_config(guild.id)
+
+        if season is None or config is None or config["match_channel_id"] is None:
+            return
+
+        final_fixture = next((f for f in fixtures if str(f["stage"]) == "final"), None)
+        bronze_fixture = next((f for f in fixtures if str(f["stage"]) == "third_place"), None)
+        if (
+            final_fixture is None
+            or bronze_fixture is None
+            or str(final_fixture["status"]) != "completed"
+            or str(bronze_fixture["status"]) != "completed"
+            or not final_fixture["winner_house"]
+            or not bronze_fixture["winner_house"]
+        ):
+            return
+
+        champion = str(final_fixture["winner_house"])
+        runner_up = self._other_house(final_fixture, champion)
+        third_place = str(bronze_fixture["winner_house"])
+        fourth_place = self._other_house(bronze_fixture, third_place)
+
+        month_name = datetime(int(season["year"]), int(season["month"]), 1).strftime("%B")
+        title = f"{month_name} League {int(season['year'])} — Quidditch Cup Champions"
+        description = (
+            f"🏆 **{champion} wins the Quidditch Cup!**\n\n"
+            f"Congratulations to **{champion}** on winning the Championship Game and lifting the cup.\n\n"
+            f"**Final placements**\n"
+            f"🥇 **{champion}**\n"
+            f"🥈 **{runner_up}**\n"
+            f"🥉 **{third_place}**\n"
+            f"4. **{fourth_place}**"
+        )
+        embed = discord.Embed(title=title, description=description, color=0xD4AF37)
+
+        crest_path = self.HOUSE_CREST_PATHS.get(champion)
+        crest_file = None
+        if crest_path is not None and crest_path.exists():
+            crest_file = discord.File(str(crest_path), filename=crest_path.name)
+            embed.set_thumbnail(url=f"attachment://{crest_path.name}")
+
+        channel = guild.get_channel(int(config["match_channel_id"]))
+        if not isinstance(channel, discord.TextChannel):
+            return
+
+        if crest_file is not None:
+            await channel.send(embed=embed, file=crest_file)
+        else:
+            await channel.send(embed=embed)
+
     async def _finalize_official_match(
         self,
         *,
@@ -1526,12 +2149,18 @@ class QuidditchCog(commands.Cog):
                 return
 
             winner_house = str(runtime_state["winner_house"])
-            repo.apply_fixture_result(
+            applied_result = repo.apply_fixture_result(
                 fixture_id,
                 home_score=int(runtime_state["home_score"]),
                 away_score=int(runtime_state["away_score"]),
                 winner_house=winner_house,
             )
+            if not applied_result:
+                repo.delete_runtime_state("official", fixture_id)
+                repo.clear_match_cheers("official", fixture_id)
+                conn.commit()
+                return
+
             repo.delete_runtime_state("official", fixture_id)
             repo.clear_match_cheers("official", fixture_id)
 
@@ -1589,13 +2218,12 @@ class QuidditchCog(commands.Cog):
                 season_id=int(fixture["season_id"]),
             )
 
-            bot_state_repo = BotStateRepository(conn)
-            contribution_repo = ContributionRepository(conn)
-            board_service = HouseCupBoardService(bot_state_repo, contribution_repo)
-            await board_service.create_or_update_board(guild)
+            HouseCupBoardService.mark_dirty(guild.id)
             conn.commit()
 
         await self._post_betting_results(guild, fixture_id, str(runtime_state["winner_house"]))
+        if str(fixture["stage"]) == "final":
+            await self._post_quidditch_cup_results(guild, int(fixture["season_id"]))
         await self._schedule_betting_for_next_fixture(guild, delay_minutes=20, force_now=False)
 
     async def _finalize_test_match(
@@ -1654,6 +2282,8 @@ class QuidditchCog(commands.Cog):
 
             old_home = int(runtime_state["home_score"])
             old_away = int(runtime_state["away_score"])
+            old_possession = runtime_state.get("quaffle_possession_side")
+            old_inactive_until = json.dumps(runtime_state.get("inactive_until", {}), sort_keys=True)
 
             result = self.engine.tick(
                 runtime_state,
@@ -1674,10 +2304,16 @@ class QuidditchCog(commands.Cog):
                 int(runtime_state["home_score"]) != old_home
                 or int(runtime_state["away_score"]) != old_away
             )
+            display_changed = (
+                score_changed
+                or runtime_state.get("quaffle_possession_side") != old_possession
+                or json.dumps(runtime_state.get("inactive_until", {}), sort_keys=True) != old_inactive_until
+                or result.ended
+            )
 
             conn.commit()
 
-        if result.new_logs or score_changed or result.ended:
+        if result.new_logs or display_changed:
             with self.database.connect() as conn:
                 repo = QuidditchRepository(conn)
                 fixture = repo.get_fixture(fixture_id)
@@ -1698,6 +2334,7 @@ class QuidditchCog(commands.Cog):
                 full_log=full_log,
                 ended=result.ended,
                 preserve_started_manually=bool(live_state["started_manually"]),
+                force_image_update=score_changed or result.ended,
             )
 
         if result.ended:
@@ -1727,6 +2364,8 @@ class QuidditchCog(commands.Cog):
 
             old_home = int(runtime_state["home_score"])
             old_away = int(runtime_state["away_score"])
+            old_possession = runtime_state.get("quaffle_possession_side")
+            old_inactive_until = json.dumps(runtime_state.get("inactive_until", {}), sort_keys=True)
 
             result = self.engine.tick(
                 runtime_state,
@@ -1747,9 +2386,15 @@ class QuidditchCog(commands.Cog):
                 int(runtime_state["home_score"]) != old_home
                 or int(runtime_state["away_score"]) != old_away
             )
+            display_changed = (
+                score_changed
+                or runtime_state.get("quaffle_possession_side") != old_possession
+                or json.dumps(runtime_state.get("inactive_until", {}), sort_keys=True) != old_inactive_until
+                or result.ended
+            )
             conn.commit()
 
-        if result.new_logs or score_changed or result.ended:
+        if result.new_logs or display_changed:
             with self.database.connect() as conn:
                 repo = QuidditchRepository(conn)
                 test_match = repo.get_test_match(test_match_id)
@@ -1767,6 +2412,7 @@ class QuidditchCog(commands.Cog):
                 runtime_state=runtime_state,
                 full_log=full_log,
                 ended=result.ended,
+                force_image_update=score_changed or result.ended,
             )
 
         if result.ended:
@@ -1876,6 +2522,7 @@ class QuidditchCog(commands.Cog):
                 full_log=full_log,
                 ended=False,
                 preserve_started_manually=bool(live_state["started_manually"]),
+                force_image_update=False,
             )
         else:
             with self.database.connect() as conn:
@@ -1896,6 +2543,7 @@ class QuidditchCog(commands.Cog):
                 runtime_state=runtime_state,
                 full_log=full_log,
                 ended=False,
+                force_image_update=False,
             )
 
         if interaction.response.is_done():
@@ -1909,89 +2557,157 @@ class QuidditchCog(commands.Cog):
     @tasks.loop(minutes=1)
     async def quidditch_loop(self) -> None:
         now = self._now()
+        guild = self._configured_guild()
+        if guild is None:
+            self._set_quidditch_loop_interval(10)
+            return
 
-        for guild in self.bot.guilds:
-            try:
+        refreshed_season_id: int | None = None
+        pending_announcements = []
+        betting_to_cleanup = []
+        active_fixture = None
+        active_test = None
+        latest_season = None
+        next_due_at: datetime | None = None
+
+        try:
+            with self.database.connect() as conn:
+                repo = QuidditchRepository(conn)
+                service = QuidditchService(repo)
+
+                loop_enabled = service.is_loop_enabled(guild.id)
+                season_key = service.season_key_for(now.year, now.month)
+
+                if loop_enabled and self._last_schedule_build_key != season_key:
+                    schedule_result = service.build_month_schedule(guild_id=guild.id, now=now)
+                    self._last_schedule_build_key = season_key
+                    current_season = repo.get_season_by_key(guild.id, schedule_result["season_key"])
+                    if current_season is not None and schedule_result["created"]:
+                        refreshed_season_id = int(current_season["id"])
+                        repo.cancel_active_fixtures_except_season(guild.id, refreshed_season_id)
+
+                latest_season = repo.get_latest_season(guild.id)
+                if latest_season is not None:
+                    self._prepare_placement_matchups(
+                        repo=repo,
+                        season_id=int(latest_season["id"]),
+                    )
+                    conn.commit()
+                    active_fixture = repo.get_active_fixture(int(latest_season["id"]))
+
+                active_test = repo.get_active_test_match(guild.id)
+                pending_announcements = repo.list_pending_betting_announcements(now.isoformat())
+                betting_to_cleanup = repo.list_betting_to_cleanup(now.isoformat())
+
+                if active_fixture is None and active_test is None and latest_season is not None and loop_enabled:
+                    next_fixture = repo.get_next_scheduled_fixture(int(latest_season["id"]))
+                    if next_fixture is not None and str(next_fixture["home_house"]) != "TBD" and str(next_fixture["away_house"]) != "TBD":
+                        starts_at = datetime.fromisoformat(str(next_fixture["starts_at"])).astimezone(self.TZ)
+                        next_due_at = starts_at
+                        if starts_at <= now:
+                            repo.set_fixture_active(int(next_fixture["id"]), starts_at=starts_at.isoformat())
+                            repo.upsert_live_match_state(
+                                int(next_fixture["id"]),
+                                channel_id=None,
+                                message_id=None,
+                                image_path=None,
+                                log_entries=[],
+                                started_at=starts_at.isoformat(),
+                                ends_at=(starts_at + timedelta(hours=10)).isoformat(),
+                                snitch_unlocked_at=(starts_at + timedelta(hours=8)).isoformat(),
+                                started_manually=False,
+                            )
+                            conn.commit()
+
+                future_betting_due = conn.execute(
+                    """
+                    SELECT MIN(due_at) AS due_at
+                    FROM (
+                        SELECT qbs.announced_at AS due_at
+                        FROM quidditch_fixture_betting_state qbs
+                        JOIN quidditch_fixtures qf ON qf.id = qbs.fixture_id
+                        JOIN quidditch_seasons qs ON qs.id = qf.season_id
+                        WHERE qs.guild_id = ?
+                          AND qbs.status = 'pending'
+                          AND qbs.announced_at IS NOT NULL
+                          AND qbs.announced_at > ?
+                          AND qf.status = 'scheduled'
+                        UNION ALL
+                        SELECT qbs.cleanup_at AS due_at
+                        FROM quidditch_fixture_betting_state qbs
+                        JOIN quidditch_fixtures qf ON qf.id = qbs.fixture_id
+                        JOIN quidditch_seasons qs ON qs.id = qf.season_id
+                        WHERE qs.guild_id = ?
+                          AND qbs.status = 'announced'
+                          AND qbs.cleanup_at IS NOT NULL
+                          AND qbs.cleanup_at > ?
+                    )
+                    """,
+                    (guild.id, now.isoformat(), guild.id, now.isoformat()),
+                ).fetchone()
+                if future_betting_due is not None and future_betting_due["due_at"]:
+                    betting_due_at = datetime.fromisoformat(str(future_betting_due["due_at"])).astimezone(self.TZ)
+                    if next_due_at is None or betting_due_at < next_due_at:
+                        next_due_at = betting_due_at
+
+            with self.database.connect() as conn:
+                repo = QuidditchRepository(conn)
+                latest_season = repo.get_latest_season(guild.id)
+                active_fixture = repo.get_active_fixture(int(latest_season["id"])) if latest_season is not None else None
+                active_test = repo.get_active_test_match(guild.id)
+
+            if refreshed_season_id is not None:
                 with self.database.connect() as conn:
                     repo = QuidditchRepository(conn)
                     service = QuidditchService(repo)
+                    await self._update_scoreboard_message(
+                        guild=guild,
+                        repo=repo,
+                        service=service,
+                        season_id=refreshed_season_id,
+                    )
+                    conn.commit()
 
-                    latest_season = repo.get_latest_season(guild.id)
-                    if latest_season is not None:
-                        self._prepare_placement_matchups(
-                            repo=repo,
-                            season_id=int(latest_season["id"]),
-                        )
-                        conn.commit()
+            for betting_row in pending_announcements:
+                await self._announce_betting_for_fixture(guild, int(betting_row["fixture_id"]))
 
-                        active_fixture = repo.get_active_fixture(int(latest_season["id"]))
-                    else:
-                        active_fixture = None
-
-                    active_test = repo.get_active_test_match(guild.id)
-                    pending_announcements = repo.list_pending_betting_announcements(now.isoformat())
-                    betting_to_cleanup = repo.list_betting_to_cleanup(now.isoformat())
-
-                    if active_fixture is None and active_test is None and latest_season is not None and service.is_loop_enabled(guild.id):
-                        next_fixture = repo.get_next_scheduled_fixture(int(latest_season["id"]))
-                        if next_fixture is not None:
-                            starts_at = datetime.fromisoformat(str(next_fixture["starts_at"])).astimezone(self.TZ)
-                            if (
-                                starts_at <= now
-                                and str(next_fixture["home_house"]) != "TBD"
-                                and str(next_fixture["away_house"]) != "TBD"
-                            ):
-                                repo.set_fixture_active(int(next_fixture["id"]), starts_at=starts_at.isoformat())
-                                repo.upsert_live_match_state(
-                                    int(next_fixture["id"]),
-                                    channel_id=None,
-                                    message_id=None,
-                                    image_path=None,
-                                    log_entries=[],
-                                    started_at=starts_at.isoformat(),
-                                    ends_at=(starts_at + timedelta(hours=10)).isoformat(),
-                                    snitch_unlocked_at=(starts_at + timedelta(hours=8)).isoformat(),
-                                    started_manually=False,
-                                )
-                                conn.commit()
-
+            for betting_row in betting_to_cleanup:
+                await self._cleanup_betting_messages(guild, int(betting_row["fixture_id"]), finalize_strategy=True)
                 with self.database.connect() as conn:
                     repo = QuidditchRepository(conn)
-                    latest_season = repo.get_latest_season(guild.id)
-                    active_fixture = repo.get_active_fixture(int(latest_season["id"])) if latest_season is not None else None
-                    active_test = repo.get_active_test_match(guild.id)
+                    repo.mark_betting_closed(int(betting_row["fixture_id"]))
+                    conn.commit()
 
-                for betting_row in pending_announcements:
-                    await self._announce_betting_for_fixture(guild, int(betting_row["fixture_id"]))
+            if active_fixture is not None:
+                await self._ensure_official_match_initialized(
+                    guild=guild,
+                    fixture_id=int(active_fixture["id"]),
+                )
+                await self._tick_official_fixture(
+                    guild=guild,
+                    fixture_id=int(active_fixture["id"]),
+                )
 
-                for betting_row in betting_to_cleanup:
-                    await self._cleanup_betting_messages(guild, int(betting_row["fixture_id"]))
-                    with self.database.connect() as conn:
-                        repo = QuidditchRepository(conn)
-                        repo.mark_betting_closed(int(betting_row["fixture_id"]))
-                        conn.commit()
+            if active_test is not None:
+                await self._ensure_test_match_initialized(
+                    guild=guild,
+                    test_match_id=int(active_test["id"]),
+                )
+                await self._tick_test_match(
+                    guild=guild,
+                    test_match_id=int(active_test["id"]),
+                )
 
-                if active_fixture is not None:
-                    await self._ensure_official_match_initialized(
-                        guild=guild,
-                        fixture_id=int(active_fixture["id"]),
-                    )
-                    await self._tick_official_fixture(
-                        guild=guild,
-                        fixture_id=int(active_fixture["id"]),
-                    )
-
-                if active_test is not None:
-                    await self._ensure_test_match_initialized(
-                        guild=guild,
-                        test_match_id=int(active_test["id"]),
-                    )
-                    await self._tick_test_match(
-                        guild=guild,
-                        test_match_id=int(active_test["id"]),
-                    )
-            except Exception:
-                continue
+            if active_fixture is not None or active_test is not None or pending_announcements or betting_to_cleanup:
+                self._set_quidditch_loop_interval(1)
+            elif next_due_at is not None:
+                seconds_until_due = max(60.0, (next_due_at - now).total_seconds())
+                self._set_quidditch_loop_interval(min(10.0, seconds_until_due / 60.0))
+            else:
+                self._set_quidditch_loop_interval(10)
+        except Exception:
+            logging.exception("Quidditch loop failed.")
+            self._set_quidditch_loop_interval(1)
 
     @quidditch_loop.before_loop
     async def before_quidditch_loop(self) -> None:
@@ -2032,6 +2748,49 @@ class QuidditchCog(commands.Cog):
         )
 
     @app_commands.command(
+        name="setup_quidditch_strategy",
+        description="Admin: set a private house channel for Quidditch strategy voting.",
+    )
+    @app_commands.choices(
+        house_role=[
+            app_commands.Choice(name="Gryffindor", value="Gryffindor"),
+            app_commands.Choice(name="Hufflepuff", value="Hufflepuff"),
+            app_commands.Choice(name="Ravenclaw", value="Ravenclaw"),
+            app_commands.Choice(name="Slytherin", value="Slytherin"),
+        ]
+    )
+    async def setup_quidditch_strategy(
+        self,
+        interaction: discord.Interaction,
+        channel: discord.TextChannel,
+        house_role: str,
+    ) -> None:
+        if not self.is_admin(interaction):
+            await interaction.response.send_message(
+                "You do not have permission to use this command.",
+                ephemeral=True,
+            )
+            return
+
+        if interaction.guild is None:
+            await interaction.response.send_message(
+                "This command can only be used in a server.",
+                ephemeral=True,
+            )
+            return
+
+        house_name = str(house_role)
+        with self.database.connect() as conn:
+            repo = QuidditchRepository(conn)
+            repo.set_strategy_channel(interaction.guild.id, house_name, channel.id)
+            conn.commit()
+
+        await interaction.response.send_message(
+            f"Quidditch strategy channel for **{house_name}** set to {channel.mention}.",
+            ephemeral=True,
+        )
+
+    @app_commands.command(
         name="setup_quidditch_scoreboard",
         description="Admin: set the channel for the Quidditch scoreboard embed.",
     )
@@ -2067,7 +2826,7 @@ class QuidditchCog(commands.Cog):
 
     @app_commands.command(
         name="start_quidditch_loop",
-        description="Admin: create this month's Quidditch schedule and scoreboard.",
+        description="Admin: enable monthly Quidditch auto-scheduling and scoreboard.",
     )
     async def start_quidditch_loop(
         self,
@@ -2121,17 +2880,30 @@ class QuidditchCog(commands.Cog):
                 description=description,
                 color=0xD4AF37,
             )
+            banner_file = self._scoreboard_banner_file()
+            if banner_file is not None:
+                embed.set_image(url="attachment://HouseBanners.png")
 
             scoreboard_message_id = config["scoreboard_message_id"]
             if scoreboard_message_id is not None:
                 try:
                     message = await channel.fetch_message(int(scoreboard_message_id))
-                    await message.edit(embed=embed)
+                    if banner_file is not None:
+                        await message.edit(embed=embed, attachments=[banner_file])
+                    else:
+                        await message.edit(embed=embed)
                 except discord.HTTPException:
-                    message = await channel.send(embed=embed)
+                    fresh_banner = self._scoreboard_banner_file()
+                    if fresh_banner is not None:
+                        message = await channel.send(embed=embed, file=fresh_banner)
+                    else:
+                        message = await channel.send(embed=embed)
                     service.set_scoreboard_message_id(interaction.guild.id, message.id)
             else:
-                message = await channel.send(embed=embed)
+                if banner_file is not None:
+                    message = await channel.send(embed=embed, file=banner_file)
+                else:
+                    message = await channel.send(embed=embed)
                 service.set_scoreboard_message_id(interaction.guild.id, message.id)
 
             conn.commit()
@@ -2143,7 +2915,8 @@ class QuidditchCog(commands.Cog):
             f"Quidditch season `{result['season_key']}` started.\n"
             f"Format: **{season_kind}**\n"
             f"Fixtures created: **{fixture_count}**\n"
-            f"Loop enabled: **yes**",
+            f"Loop enabled: **yes**\n"
+            f"Auto monthly reset: **yes**",
             ephemeral=True,
         )
 
@@ -2217,6 +2990,7 @@ class QuidditchCog(commands.Cog):
             guild=interaction.guild,
             fixture_id=int(result["fixture"]["id"]),
         )
+        self._set_quidditch_loop_interval(1)
 
         fixture = result["fixture"]
         await interaction.response.send_message(
@@ -2386,6 +3160,7 @@ class QuidditchCog(commands.Cog):
             guild=interaction.guild,
             test_match_id=int(result["test_match_id"]),
         )
+        self._set_quidditch_loop_interval(1)
 
         await interaction.response.send_message(
             "Unofficial Quidditch test game started.",

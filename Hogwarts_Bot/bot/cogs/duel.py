@@ -506,8 +506,8 @@ class DuelCog(commands.Cog):
                 if reward["frogs"] > 0:
                     inventory_repo.add_chocolate_frogs(user_id, reward["frogs"])
 
-            board_service = HouseCupBoardService(bot_state_repo, contribution_repo)
-            await board_service.create_or_update_board(guild)
+            if any(reward.get("house_points", 0) > 0 for reward in rewards.values()):
+                HouseCupBoardService.mark_dirty(guild.id)
 
     async def ask_duel_questions(self, channel: discord.TextChannel, session: DuelSession) -> None:
         questions = self.choose_duel_questions()

@@ -32,6 +32,20 @@ class Database:
             for row in conn.execute("PRAGMA table_info(users)").fetchall()
         }
 
+        if "galleons_balance" not in user_columns:
+            legacy_balance_column = "sick" + "les_balance"
+            if legacy_balance_column in user_columns:
+                conn.execute(
+                    f"ALTER TABLE users RENAME COLUMN {legacy_balance_column} TO galleons_balance"
+                )
+            else:
+                conn.execute("ALTER TABLE users ADD COLUMN galleons_balance INTEGER NOT NULL DEFAULT 0")
+
+            user_columns = {
+                row["name"]
+                for row in conn.execute("PRAGMA table_info(users)").fetchall()
+            }
+
         if "bio" not in user_columns:
             conn.execute("ALTER TABLE users ADD COLUMN bio TEXT NULL")
 

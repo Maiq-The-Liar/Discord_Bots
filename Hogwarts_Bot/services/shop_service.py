@@ -24,9 +24,9 @@ class ShopService:
         if item["type"] == "permanent" and already_owned >= 1:
             raise ValueError("You already own this permanent item.")
 
-        success = self.user_repo.deduct_sickles(user_id, item["price"])
+        success = self.user_repo.deduct_galleons(user_id, item["price"])
         if not success:
-            raise ValueError("You do not have enough Sickles.")
+            raise ValueError("You do not have enough Galleons.")
 
         self.owned_item_repo.add_quantity(user_id, item_key, 1)
 
@@ -37,7 +37,7 @@ class ShopService:
             "item_key": item["key"],
             "display_name": item["display_name"],
             "price": item["price"],
-            "new_balance": user_row["sickles_balance"],
+            "new_balance": user_row["galleons_balance"],
             "new_quantity": new_quantity,
             "type": item["type"],
         }
@@ -55,15 +55,15 @@ class ShopService:
         can_buy = True
         reason = None
 
-        if user_row["sickles_balance"] < item["price"]:
+        if user_row["galleons_balance"] < item["price"]:
             can_buy = False
-            reason = "Not enough Sickles."
+            reason = "Not enough Galleons."
         elif item["type"] == "permanent" and owned_quantity >= 1:
             can_buy = False
             reason = "Already owned."
 
         return {
-            "balance": user_row["sickles_balance"],
+            "balance": user_row["galleons_balance"],
             "owned_quantity": owned_quantity,
             "can_buy": can_buy,
             "reason": reason,

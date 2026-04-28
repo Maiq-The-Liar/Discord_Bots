@@ -74,7 +74,7 @@ class HouseCupService:
         for index, player in enumerate(top_players):
             reward_amount = self.REWARDS[index]
             self.user_repo.ensure_user(player["user_id"])
-            self.user_repo.add_sickles(player["user_id"], reward_amount)
+            self.user_repo.add_galleons(player["user_id"], reward_amount)
 
             rewarded_players.append(
                 {

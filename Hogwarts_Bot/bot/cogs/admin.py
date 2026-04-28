@@ -158,8 +158,8 @@ class AdminCog(commands.Cog):
 
         await interaction.followup.send("\n".join(lines), ephemeral=True)
 
-    @app_commands.command(name="rewardmoney", description="Admin: give a user Sickles.")
-    @app_commands.describe(member="The target user", amount="Amount of Sickles to add")
+    @app_commands.command(name="rewardmoney", description="Admin: give a user Galleons.")
+    @app_commands.describe(member="The target user", amount="Amount of Galleons to add")
     async def rewardmoney(
         self,
         interaction: discord.Interaction,
@@ -177,7 +177,7 @@ class AdminCog(commands.Cog):
             updated_user = user_repo.get_user(member.id)
 
         await interaction.response.send_message(
-            f"Added **{amount}** Sickles to {member.mention}. New balance: **{updated_user['sickles_balance']}**."
+            f"Added **{amount}** Galleons to {member.mention}. New balance: **{updated_user['galleons_balance']}**."
         )
 
     async def adjust_housepoints(

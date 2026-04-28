@@ -70,8 +70,8 @@ class ProfileCog(commands.Cog):
         self.birthday_service = BirthdayService()
 
 
-    @app_commands.command(name="give_money", description="Give some of your Sickles to another user.")
-    @app_commands.describe(member="The member you want to pay", amount="Amount of Sickles to give")
+    @app_commands.command(name="give_money", description="Give some of your Galleons to another user.")
+    @app_commands.describe(member="The member you want to pay", amount="Amount of Galleons to give")
     async def give_money(
         self,
         interaction: discord.Interaction,
@@ -107,9 +107,9 @@ class ProfileCog(commands.Cog):
             user_repo.ensure_user(member.id)
 
             sender_before = user_repo.get_user(interaction.user.id)
-            if int(sender_before["sickles_balance"]) < amount:
+            if int(sender_before["galleons_balance"]) < amount:
                 await interaction.response.send_message(
-                    f"You only have **{sender_before['sickles_balance']}** Sickles.",
+                    f"You only have **{sender_before['galleons_balance']}** Galleons.",
                     ephemeral=True,
                 )
                 return
@@ -117,7 +117,7 @@ class ProfileCog(commands.Cog):
             success = economy_service.transfer_money(interaction.user.id, member.id, amount)
             if not success:
                 await interaction.response.send_message(
-                    "Transfer failed because you do not have enough Sickles.",
+                    "Transfer failed because you do not have enough Galleons.",
                     ephemeral=True,
                 )
                 return
@@ -126,9 +126,9 @@ class ProfileCog(commands.Cog):
             recipient_after = user_repo.get_user(member.id)
 
         await interaction.response.send_message(
-            f"{interaction.user.mention} gave **{amount}** Sickles to {member.mention}.\n"
-            f"Your new balance: **{sender_after['sickles_balance']}** Sickles.\n"
-            f"{member.display_name}'s new balance: **{recipient_after['sickles_balance']}** Sickles."
+            f"{interaction.user.mention} gave **{amount}** Galleons to {member.mention}.\n"
+            f"Your new balance: **{sender_after['galleons_balance']}** Galleons.\n"
+            f"{member.display_name}'s new balance: **{recipient_after['galleons_balance']}** Galleons."
         )
 
 
