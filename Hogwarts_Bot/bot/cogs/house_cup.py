@@ -228,7 +228,7 @@ class HouseCupCog(commands.Cog):
         )
 
     @app_commands.command(
-        name="end_cup",
+        name="stop_housecup",
         description="Admin: end the current House Cup immediately.",
     )
     async def end_cup(

@@ -299,7 +299,7 @@ class AnswerButton(discord.ui.Button):
                 await interaction.response.edit_message(
                     content=(
                         f"Your house is **{winning_house}**, but I couldn't assign the role.\n"
-                        "Run `/update_roles` first and make sure the bot role is above the managed roles."
+                        "Make sure the managed house roles exist and the bot role is above them."
                     ),
                     embed=None,
                     view=None,

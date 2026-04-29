@@ -12,43 +12,43 @@ HELP_TOPICS: dict[str, dict[str, object]] = {
     "getting_started": {
         "label": "Getting Started",
         "emoji": "🪄",
-        "description": "Sorting, basic progress, and the best first commands to use.",
+        "description": "A quick overview of the main things you can do.",
         "pages": [
             {
                 "title": "🪄 Getting Started",
                 "description": (
-                    "Welcome to the Hogwarts Bot help menu. Use the dropdown below to choose a topic, "
-                    "then use the arrow buttons to flip through that topic's pages."
+                    "Welcome to the Hogwarts Bot help menu. Pick a topic from the dropdown below, "
+                    "then use the arrow buttons to move between pages."
                 ),
                 "fields": [
                     (
-                        "First steps",
-                        "• Complete the Sorting/Housing Quiz when the server presents it.\n"
-                        "• Use `/profile` to see your Hogwarts profile.\n"
-                        "• Use `/shop` to spend Galleons on collectibles and consumables.\n"
-                        "• Use reaction-role menus to set optional identity, ping, color, and Quidditch roles.",
+                        "First things to try",
+                        "• Complete the Sorting/Housing Quiz when it is available.\n"
+                        "• Use `/profile` to view your Hogwarts profile.\n"
+                        "• Use `/shop` to spend Galleons on magical items.\n"
+                        "• Use the public reaction-role menus to choose optional roles like identity, pings, colors, and Quidditch position.",
                     ),
                     (
-                        "Progress basics",
-                        "Your profile can show your house, school year progress, Galleons, Chocolate Frog progress, "
-                        "Patronus, House Cup contributions, Quidditch progress, and selected profile details.",
+                        "Your Hogwarts life",
+                        "You can earn House Points, collect Chocolate Frog cards, discover a Patronus, join Quidditch, "
+                        "support media posts, duel other members, and customize parts of your profile.",
                     ),
                 ],
             },
             {
                 "title": "🧭 What can I do?",
-                "description": "The bot is split into several end-user systems.",
+                "description": "The bot has several public activities for regular members.",
                 "fields": [
                     (
-                        "Main activities",
-                        "• Earn House Points in quizzes, duels, media support, and other activities.\n"
-                        "• Collect Chocolate Frog cards.\n"
-                        "• Discover and show your Patronus.\n"
-                        "• Join Quidditch as a player, strategist, supporter, or bettor.\n"
-                        "• Personalize your profile and self-assign public roles.",
+                        "Activities",
+                        "• Join quizzes and help your house in the House Cup.\n"
+                        "• Buy items and collect Chocolate Frog cards.\n"
+                        "• Discover and display your Patronus.\n"
+                        "• Join Quidditch through your house and position role.\n"
+                        "• Use reaction roles to personalize notifications and identity roles.",
                     ),
                     (
-                        "Useful commands",
+                        "Useful public commands",
                         "`/help`, `/profile`, `/shop`, `/set_profile_bio`, `/set_birthday`, `/give_money`, "
                         "`/open_chocolate_frog`, `/frog_album`, `/give_card`, `/patronus`, `/discoverpatronus`",
                     ),
@@ -59,39 +59,38 @@ HELP_TOPICS: dict[str, dict[str, object]] = {
     "profile_identity": {
         "label": "Profile & Identity",
         "emoji": "👤",
-        "description": "Profiles, bio, birthday, pronouns, age, continent, and role menus.",
+        "description": "Profiles, bio, birthday, and personal role choices.",
         "pages": [
             {
-                "title": "👤 Profile Commands",
-                "description": "Use these commands to view and customize your Hogwarts identity.",
+                "title": "👤 Profile",
+                "description": "Your profile is your public Hogwarts card.",
                 "fields": [
                     (
-                        "Profile",
+                        "Viewing profiles",
                         "`/profile` — View your own profile.\n"
-                        "`/profile member:@user` — View another member's profile.\n"
-                        "`/set_profile_bio message:<text>` — Set your profile bio, up to 50 characters.",
+                        "`/profile member:@user` — View another member's profile.",
                     ),
                     (
-                        "Birthday",
-                        "`/set_birthday day:<1-31> month:<1-12>` — Set your birthday once. "
-                        "The bot saves it and assigns your zodiac role when available.",
+                        "Customizing your profile",
+                        "`/set_profile_bio message:<text>` — Set a short profile bio, up to 50 characters.\n"
+                        "`/set_birthday day:<1-31> month:<1-12>` — Set your birthday once and receive your zodiac role when available.",
                     ),
                 ],
             },
             {
                 "title": "🏷️ Identity Roles",
-                "description": "Some identity roles can be changed with commands and/or reaction-role menus.",
+                "description": "Identity and preference roles are chosen through the public reaction-role menus.",
                 "fields": [
                     (
-                        "Command-based role updates",
-                        "`/set_pronouns` — Choose your pronoun role.\n"
-                        "`/set_age` — Choose your age range role.\n"
-                        "`/set_continent` — Choose your continent/location role.",
+                        "Available role menus",
+                        "Public menus include pronouns, gender identity, sexuality, relationship status, continent/location, "
+                        "age range, DM status, ping roles, house colors, and Quidditch positions.",
                     ),
                     (
-                        "Reaction-role menus",
-                        "Available public menus include pronouns, gender identity, sexuality, relationship status, "
-                        "continent/location, age range, DM status, ping roles, house colors, and Quidditch positions.",
+                        "How to change them",
+                        "Go to the relevant role menu message and react/select the option you want. "
+                        "For single-choice menus, picking a new option replaces your previous one. "
+                        "For multi-choice menus, you may keep more than one role.",
                     ),
                 ],
             },
@@ -100,40 +99,39 @@ HELP_TOPICS: dict[str, dict[str, object]] = {
     "roles": {
         "label": "Reaction Roles",
         "emoji": "🎭",
-        "description": "Public self-assignable role menus and how they behave.",
+        "description": "Self-assignable public roles and notification choices.",
         "pages": [
             {
                 "title": "🎭 Reaction Roles",
-                "description": "React to the role-menu messages to add or remove public roles from yourself.",
+                "description": "Reaction-role menus let you choose optional roles for yourself.",
                 "fields": [
                     (
                         "Single-choice menus",
-                        "Some menus allow only one active role at a time. Choosing a new option replaces your old one. "
-                        "These include pronouns, relationship status, continent/location, age range, DM status, "
-                        "house color, and Quidditch position.",
+                        "Some menus allow one active choice at a time. These include pronouns, relationship status, "
+                        "continent/location, age range, DM status, house color, and Quidditch position.",
                     ),
                     (
                         "Multi-choice menus",
-                        "Some menus allow multiple roles at once. These include gender identity, sexuality, and ping roles.",
+                        "Some menus allow multiple choices. These include gender identity, sexuality, and ping roles.",
                     ),
                 ],
             },
             {
-                "title": "🔔 Ping, Color & Quidditch Roles",
-                "description": "These role menus affect notifications, visuals, and Quidditch participation.",
+                "title": "🔔 Pings, Colors & Quidditch Roles",
+                "description": "These roles control notifications, appearance, and activity participation.",
                 "fields": [
                     (
                         "Ping roles",
-                        "Use ping roles to opt into notifications such as Duel pings, Event pings, and Chat Revive pings.",
+                        "Choose ping roles if you want notifications for things like duels, events, or chat revive pings.",
                     ),
                     (
                         "House colors",
-                        "Each house has its own color-role menu. Pick one color variant for your house style.",
+                        "Choose one color variant for your house style.",
                     ),
                     (
                         "Quidditch positions",
-                        "Choose one Quidditch position role: Keeper, Seeker, Beater, or Chaser. "
-                        "This helps the Quidditch system build lineups for your house.",
+                        "Choose one Quidditch position: Keeper, Seeker, Beater, or Chaser. "
+                        "This tells your house which position you want to play.",
                     ),
                 ],
             },
@@ -142,40 +140,39 @@ HELP_TOPICS: dict[str, dict[str, object]] = {
     "economy_shop": {
         "label": "Economy & Shop",
         "emoji": "🛒",
-        "description": "Galleons, shop browsing, buying items, and paying other users.",
+        "description": "Galleons, shopping, items, and sending money.",
         "pages": [
             {
                 "title": "🛒 Shop",
-                "description": "Use `/shop` to open your personal shop session.",
+                "description": "Use `/shop` to browse magical items.",
                 "fields": [
                     (
-                        "How the shop works",
-                        "• Use the left/right buttons to browse shop items.\n"
-                        "• Press the Galleons button to buy the current item.\n"
-                        "• Press the close button to end the shop session.\n"
-                        "• The shop shows item price, owned amount, item type, balance, and status.",
+                        "How to shop",
+                        "• Use the left/right buttons to browse items.\n"
+                        "• Press the Galleons button to buy the item shown.\n"
+                        "• Press the close button to close your shop menu.\n"
+                        "• The shop shows the price, your balance, how many you own, and whether the item can be bought.",
                     ),
                     (
-                        "Current item types",
-                        "• Chocolate Frogs — consumable collectible packs.\n"
-                        "• Patronus Spell Book — consumable item for Patronus discovery/change.\n"
-                        "• S.P.E.W. Badge — permanent collectible badge.",
+                        "Items you may see",
+                        "• Chocolate Frogs — open them to collect cards.\n"
+                        "• Patronus Spell Book — needed to discover or change your Patronus.\n"
+                        "• S.P.E.W. Badge — a permanent collectible badge.",
                     ),
                 ],
             },
             {
                 "title": "💰 Galleons",
-                "description": "Galleons are the bot's money system.",
+                "description": "Galleons are your magical money.",
                 "fields": [
                     (
-                        "Spending and sharing",
-                        "`/shop` — Spend Galleons on items.\n"
-                        "`/give_money member:@user amount:<number>` — Give your own Galleons to another member.",
+                        "Using Galleons",
+                        "`/shop` — Buy items.\n"
+                        "`/give_money member:@user amount:<number>` — Give some of your own Galleons to another member.",
                     ),
                     (
-                        "Earning",
-                        "You can earn Galleons through user-facing activities such as quiz rewards, duel rewards, "
-                        "House Cup placement rewards, and other gameplay systems when enabled.",
+                        "Earning Galleons",
+                        "You can earn Galleons from activities such as quizzes, duels, House Cup rewards, and other gameplay rewards.",
                     ),
                 ],
             },
@@ -184,28 +181,28 @@ HELP_TOPICS: dict[str, dict[str, object]] = {
     "collectibles_magic": {
         "label": "Collectibles & Magic",
         "emoji": "🍫",
-        "description": "Chocolate Frog cards, albums, trading, and Patronus commands.",
+        "description": "Chocolate Frog cards, albums, trading, and Patronus.",
         "pages": [
             {
                 "title": "🍫 Chocolate Frogs",
-                "description": "Collect Chocolate Frog cards and browse your album.",
+                "description": "Collect Chocolate Frog cards and complete your album.",
                 "fields": [
                     (
                         "Commands",
-                        "`/open_chocolate_frog` — Open one owned Chocolate Frog and reveal a card.\n"
+                        "`/open_chocolate_frog` — Open one Chocolate Frog you own and reveal a card.\n"
                         "`/frog_album` — Browse your own collection.\n"
                         "`/frog_album member:@user` — Browse another member's collection.\n"
-                        "`/give_card member:@user card_id:<id>` — Give one owned card to another member.",
+                        "`/give_card member:@user card_id:<id>` — Give one of your cards to another member.",
                     ),
                     (
                         "Album browsing",
-                        "The album has its own page buttons so you can flip through collected cards and see duplicates/progress.",
+                        "The album has page buttons so you can flip through your cards and check your collection progress.",
                     ),
                 ],
             },
             {
                 "title": "🦌 Patronus",
-                "description": "Discover and display your Patronus.",
+                "description": "Discover and show your Patronus.",
                 "fields": [
                     (
                         "Commands",
@@ -213,8 +210,8 @@ HELP_TOPICS: dict[str, dict[str, object]] = {
                         "`/patronus` — Show your current Patronus.",
                     ),
                     (
-                        "Item requirement",
-                        "You need a Patronus Spell Book from `/shop` before `/discoverpatronus` can be used successfully.",
+                        "Item needed",
+                        "You need a Patronus Spell Book from `/shop` before you can use `/discoverpatronus` successfully.",
                     ),
                 ],
             },
@@ -223,7 +220,7 @@ HELP_TOPICS: dict[str, dict[str, object]] = {
     "house_cup_quizzes": {
         "label": "House Cup & Quizzes",
         "emoji": "🏆",
-        "description": "House Points, quiz rewards, school years, and monthly competition.",
+        "description": "House Points, quizzes, rewards, and school progress.",
         "pages": [
             {
                 "title": "🏆 House Cup",
@@ -231,26 +228,26 @@ HELP_TOPICS: dict[str, dict[str, object]] = {
                 "fields": [
                     (
                         "How points work",
-                        "House Points are tracked monthly. Your activity can contribute to your house total and your own profile stats.",
+                        "House Points are tracked for the House Cup. Your activity can help your house total and appear on your profile.",
                     ),
                     (
                         "Rewards",
-                        "At the end of a House Cup period, the system can announce results and reward top players with Galleons.",
+                        "House Cup results can include Galleon rewards for top players and winning houses.",
                     ),
                 ],
             },
             {
-                "title": "🧠 Casual Quiz & School Progress",
-                "description": "Quiz questions appear in configured quiz channels when active.",
+                "title": "🧠 Quizzes & School Progress",
+                "description": "Quiz questions appear in quiz channels when a quiz is active.",
                 "fields": [
                     (
                         "Quiz participation",
-                        "Reply in the quiz channel with your answer. Correct answers receive a ✅ reaction, "
-                        "award **2 House Points**, award **5 Galleons**, and trigger the next question.",
+                        "Answer in the quiz channel. Correct answers receive a ✅ reaction, award **2 House Points**, "
+                        "award **5 Galleons**, and move the quiz forward.",
                     ),
                     (
-                        "School years and XP",
-                        "The leveling system tracks school-year progress over time and can display that progress on your profile.",
+                        "School years",
+                        "Your profile can show your school-year progress as you take part in activities over time.",
                     ),
                 ],
             },
@@ -259,36 +256,36 @@ HELP_TOPICS: dict[str, dict[str, object]] = {
     "duels_media": {
         "label": "Duels & Media",
         "emoji": "⚔️",
-        "description": "Dueling Club buttons, answer flow, and media support voting.",
+        "description": "Dueling Club, answering questions, and supporting media posts.",
         "pages": [
             {
                 "title": "⚔️ Dueling Club",
-                "description": "Duels are started from the public duel message in a duel channel.",
+                "description": "Dueling Club is played from the public duel message.",
                 "fields": [
                     (
                         "Joining a duel",
                         "• Press **Start Duel** to open a lobby.\n"
-                        "• Press **Join Game** to join the lobby.\n"
-                        "• Press **Leave** if you change your mind before it starts.",
+                        "• Press **Join Game** to join.\n"
+                        "• Press **Leave** if you change your mind before the duel starts.",
                     ),
                     (
                         "Playing",
-                        "When the duel starts, answer the questions in the duel channel. Scores and rewards are handled automatically.",
+                        "When the duel begins, answer the questions in the duel channel. Scores and rewards are handled automatically.",
                     ),
                 ],
             },
             {
                 "title": "📸 Media Support",
-                "description": "Media support works in enabled media channels.",
+                "description": "Support other members' media posts with hearts.",
                 "fields": [
                     (
-                        "Posting media",
-                        "Upload supported media in a media channel. The bot adds a ❤️ reaction and tracks the post for voting.",
+                        "Posting and voting",
+                        "Upload supported media in a media channel, then other members can react with ❤️ to support it. "
+                        "You cannot support your own post.",
                     ),
                     (
-                        "Voting rules",
-                        "React with ❤️ to support someone else's media. You cannot support your own post, "
-                        "and each user can support up to **3** media posts per hour.",
+                        "Voting limit",
+                        "Each user can support up to **3** media posts per hour.",
                     ),
                     (
                         "Rewards",
@@ -301,64 +298,71 @@ HELP_TOPICS: dict[str, dict[str, object]] = {
     "quidditch": {
         "label": "Quidditch",
         "emoji": "🧹",
-        "description": "Position roles, match timetable, betting, cheering, and strategy insight.",
+        "description": "Monthly cup, positions, fixtures, betting, cheering, and strategy.",
         "pages": [
             {
-                "title": "🧹 Quidditch Overview",
-                "description": "Quidditch is a house-vs-house system with scheduled matches, player lineups, betting, cheering, and strategy votes.",
+                "title": "🧹 Monthly Quidditch Cup",
+                "description": "Quidditch is a monthly house competition.",
                 "fields": [
                     (
-                        "Role selection",
-                        "Use the Quidditch Position reaction-role menu to pick one role: Keeper, Seeker, Beater, or Chaser. "
-                        "Your house and position help the bot choose match lineups.",
+                        "Cup format",
+                        "Each monthly Quidditch Cup includes **6 games per house**, followed by a **Bronze Medal Game** "
+                        "and the **Championship Final**.",
                     ),
                     (
-                        "Timetable info",
-                        "Official matches are scheduled by the bot when the Quidditch loop is active. "
-                        "The scoreboard and match/betting messages show upcoming fixtures, kickoff timing, and match state.",
+                        "Taking part",
+                        "Choose a Quidditch position role from the reaction-role menu: Keeper, Seeker, Beater, or Chaser. "
+                        "Your house and position show where you want to play.",
                     ),
                 ],
             },
             {
-                "title": "🎲 Quidditch Betting & Cheering",
-                "description": "Users can interact with match preview and live-match embeds.",
+                "title": "📅 Fixtures & Match Info",
+                "description": "Quidditch match messages show what is happening and when.",
+                "fields": [
+                    (
+                        "Timetable",
+                        "Check the Quidditch scoreboard, previews, and match posts for upcoming fixtures, start times, scores, and results.",
+                    ),
+                    (
+                        "Match posts",
+                        "Before and during a match, the match embed can show the teams, score, phase of play, betting status, and available interactions.",
+                    ),
+                ],
+            },
+            {
+                "title": "🎲 Betting & Cheering",
+                "description": "You can support a match even when you are not playing.",
                 "fields": [
                     (
                         "Betting",
-                        "Before a match, the betting preview lets you pick a house and enter a Galleon stake. "
-                        "Each user can place one bet per fixture, and betting closes before kickoff.",
+                        "Before a match starts, the betting preview lets you pick a house and enter a Galleon stake. "
+                        "Each user can place one bet per fixture, and betting closes before the match begins.",
                     ),
                     (
                         "Cheering",
-                        "During live matches, use the cheer buttons to support a house. "
-                        "Cheering is handled through the live match message, not a slash command.",
+                        "During live matches, use the cheer buttons on the match message to support a house.",
                     ),
                 ],
             },
             {
-                "title": "📋 Quidditch Strategy Insight",
-                "description": "House strategy channels let members influence their house's match plan.",
+                "title": "📋 Strategy Insight",
+                "description": "House strategy gives members a way to influence their house's approach.",
                 "fields": [
                     (
                         "Strategy voting",
-                        "House members can vote for a strategy such as Chaser Rush, Seeker Hunt, Bludger Storm, "
-                        "Close Formation, or Keeper Lock when a strategy prompt is active.",
+                        "When a strategy prompt is active for your house, you can vote for options such as Chaser Rush, "
+                        "Seeker Hunt, Bludger Storm, Close Formation, or Keeper Lock.",
                     ),
                     (
                         "Contingency voting",
-                        "House members can also vote for a contingency plan. These choices help shape the simulated match flow.",
-                    ),
-                    (
-                        "Visibility",
-                        "Strategy prompts are intended for the matching house's strategy channel, so only relevant house members should vote there.",
+                        "Your house may also choose a backup plan for the match. These votes help decide how your house approaches key moments.",
                     ),
                 ],
             },
         ],
     },
 }
-
-
 class HelpTopicSelect(discord.ui.Select):
     def __init__(self, view: "HelpView") -> None:
         options = [

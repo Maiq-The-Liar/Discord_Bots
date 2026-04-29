@@ -2991,7 +2991,7 @@ class QuidditchCog(commands.Cog):
         await self.bot.wait_until_ready()
 
     @app_commands.command(
-        name="setup_quidditch",
+        name="setup_quidditch_match_channel",
         description="Admin: set the channel for live Quidditch match messages.",
     )
     async def setup_quidditch(
@@ -3025,7 +3025,7 @@ class QuidditchCog(commands.Cog):
         )
 
     @app_commands.command(
-        name="setup_quidditch_strategy",
+        name="setup_quidditch_strategy_channel",
         description="Admin: set a private house channel for Quidditch strategy voting.",
     )
     @app_commands.choices(
@@ -3068,7 +3068,7 @@ class QuidditchCog(commands.Cog):
         )
 
     @app_commands.command(
-        name="setup_quidditch_scoreboard",
+        name="setup_quidditch_scoreboard_channel",
         description="Admin: set the channel for the Quidditch scoreboard embed.",
     )
     async def setup_quidditch_scoreboard(
@@ -3102,7 +3102,7 @@ class QuidditchCog(commands.Cog):
         )
 
     @app_commands.command(
-        name="start_quidditch_loop",
+        name="start_quidditch_season",
         description="Admin: enable monthly Quidditch auto-scheduling and scoreboard.",
     )
     async def start_quidditch_loop(
@@ -3132,7 +3132,7 @@ class QuidditchCog(commands.Cog):
             config = service.get_config(interaction.guild.id)
             if config is None or config["scoreboard_channel_id"] is None:
                 await interaction.followup.send(
-                    "Set up the scoreboard channel first with `/setup_quidditch_scoreboard`.",
+                    "Set up the scoreboard channel first with `/setup_quidditch_scoreboard_channel`.",
                     ephemeral=True,
                 )
                 return
@@ -3198,7 +3198,7 @@ class QuidditchCog(commands.Cog):
         )
 
     @app_commands.command(
-        name="stop_loop",
+        name="stop_quidditch_season",
         description="Admin: stop the automatic Quidditch loop.",
     )
     async def stop_loop(
@@ -3226,7 +3226,7 @@ class QuidditchCog(commands.Cog):
             conn.commit()
 
         await interaction.response.send_message(
-            "Quidditch loop stopped. No scheduled games will auto-start until you enable it again with `/start_quidditch_loop`.",
+            "Quidditch loop stopped. No scheduled games will auto-start until you enable it again with `/start_quidditch_season`.",
             ephemeral=True,
         )
 
@@ -3402,7 +3402,7 @@ class QuidditchCog(commands.Cog):
         )
 
     @app_commands.command(
-        name="quidditch_testgame",
+        name="quidditch_intialise_testgame",
         description="Admin: schedule an unofficial Quidditch test game for tomorrow at 13:00.",
     )
     async def quidditch_testgame(
@@ -3451,7 +3451,7 @@ class QuidditchCog(commands.Cog):
         )
 
     @app_commands.command(
-        name="start_quidditchtestgame_now",
+        name="quidditch_initialised_testgame_kickoff",
         description="Admin: immediately start the scheduled unofficial Quidditch test game.",
     )
     async def start_quidditchtestgame_now(
@@ -3498,79 +3498,7 @@ class QuidditchCog(commands.Cog):
         )
 
     @app_commands.command(
-        name="quidditch_test_pitch",
-        description="Admin: render a demo Quidditch pitch image with mock players and custom scores.",
-    )
-    async def quidditch_test_pitch(
-        self,
-        interaction: discord.Interaction,
-        score_team1: app_commands.Range[int, 0, 9999],
-        score_team2: app_commands.Range[int, 0, 9999],
-    ) -> None:
-        if not self.is_admin(interaction):
-            await interaction.response.send_message(
-                "You do not have permission to use this command.",
-                ephemeral=True,
-            )
-            return
-
-        if interaction.guild is None:
-            await interaction.response.send_message(
-                "This command can only be used in a server.",
-                ephemeral=True,
-            )
-            return
-
-        home_house = "Gryffindor"
-        away_house = "Ravenclaw"
-
-        home_lineup = self.image_service.build_demo_lineup(home_house)
-        away_lineup = self.image_service.build_demo_lineup(away_house)
-
-        image_path = await self._render_match_image(
-            home_house=home_house,
-            away_house=away_house,
-            home_score=score_team1,
-            away_score=score_team2,
-            home_lineup=home_lineup,
-            away_lineup=away_lineup,
-        )
-
-        demo_runtime_state = {
-            "home_house": home_house,
-            "away_house": away_house,
-            "home_score": score_team1,
-            "away_score": score_team2,
-            "home_lineup": home_lineup,
-            "away_lineup": away_lineup,
-            "inactive_until": {},
-            "quaffle_possession_side": "home",
-        }
-        embeds = self._build_live_embeds(
-            home_house=home_house,
-            away_house=away_house,
-            home_lineup=home_lineup,
-            away_lineup=away_lineup,
-            full_log=[
-                "13:00 And the game is off! Gryffindor vs Ravenclaw is underway.",
-                "13:01 A roar sweeps through the stands as both sides settle in.",
-                "13:02 The commentator is already losing their mind in the best way.",
-            ],
-            footer_text="Pitch render test",
-            image_filename="quidditch_test_pitch.png",
-            is_test=True,
-            ended=False,
-            runtime_state=demo_runtime_state,
-        )
-
-        await interaction.response.send_message(
-            embeds=embeds,
-            file=discord.File(str(image_path), filename="quidditch_test_pitch.png"),
-            ephemeral=True,
-        )
-
-    @app_commands.command(
-        name="quidditch_testgame_stop",
+        name="quidditch_initialised_testgame_stop",
         description="Admin: stop the current unofficial Quidditch test game.",
     )
     async def quidditch_testgame_stop(

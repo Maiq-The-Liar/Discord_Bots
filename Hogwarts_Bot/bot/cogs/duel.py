@@ -777,7 +777,7 @@ class DuelCog(commands.Cog):
         )
 
     @app_commands.command(
-        name="stop_duel",
+        name="remove_duel",
         description="Admin: stop the current duel or lobby and reset the channel.",
     )
     @app_commands.describe(channel="Optional duel channel to reset")
