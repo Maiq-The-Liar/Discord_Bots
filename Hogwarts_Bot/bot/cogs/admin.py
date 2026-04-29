@@ -251,4 +251,3 @@ class AdminCog(commands.Cog):
             _, message = await board_service.create_or_update_board(interaction.guild, channel)
 
         await interaction.response.send_message(f"{message} Channel: {channel.mention}")
-

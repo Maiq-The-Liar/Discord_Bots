@@ -231,7 +231,7 @@ class HouseCupCog(commands.Cog):
         name="stop_housecup",
         description="Admin: end the current House Cup immediately.",
     )
-    async def end_cup(
+    async def stop_housecup(
         self,
         interaction: discord.Interaction,
     ) -> None:

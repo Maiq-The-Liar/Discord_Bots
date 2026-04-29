@@ -334,4 +334,3 @@ class ProfileCog(commands.Cog):
             f"Your zodiac sign is **{zodiac_sign}**.",
             ephemeral=True,
         )
-

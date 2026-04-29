@@ -2994,7 +2994,7 @@ class QuidditchCog(commands.Cog):
         name="setup_quidditch_match_channel",
         description="Admin: set the channel for live Quidditch match messages.",
     )
-    async def setup_quidditch(
+    async def setup_quidditch_match_channel(
         self,
         interaction: discord.Interaction,
         channel: discord.TextChannel,
@@ -3036,7 +3036,7 @@ class QuidditchCog(commands.Cog):
             app_commands.Choice(name="Slytherin", value="Slytherin"),
         ]
     )
-    async def setup_quidditch_strategy(
+    async def setup_quidditch_strategy_channel(
         self,
         interaction: discord.Interaction,
         channel: discord.TextChannel,
@@ -3068,10 +3068,10 @@ class QuidditchCog(commands.Cog):
         )
 
     @app_commands.command(
-        name="setup_quidditch_scoreboard_channel",
+        name="setup_quidditch_score_channel",
         description="Admin: set the channel for the Quidditch scoreboard embed.",
     )
-    async def setup_quidditch_scoreboard(
+    async def setup_quidditch_score_channel(
         self,
         interaction: discord.Interaction,
         channel: discord.TextChannel,
@@ -3105,7 +3105,7 @@ class QuidditchCog(commands.Cog):
         name="start_quidditch_season",
         description="Admin: enable monthly Quidditch auto-scheduling and scoreboard.",
     )
-    async def start_quidditch_loop(
+    async def start_quidditch_season(
         self,
         interaction: discord.Interaction,
     ) -> None:
@@ -3132,7 +3132,7 @@ class QuidditchCog(commands.Cog):
             config = service.get_config(interaction.guild.id)
             if config is None or config["scoreboard_channel_id"] is None:
                 await interaction.followup.send(
-                    "Set up the scoreboard channel first with `/setup_quidditch_scoreboard_channel`.",
+                    "Set up the scoreboard channel first with `/setup_quidditch_score_channel`.",
                     ephemeral=True,
                 )
                 return
@@ -3201,7 +3201,7 @@ class QuidditchCog(commands.Cog):
         name="stop_quidditch_season",
         description="Admin: stop the automatic Quidditch loop.",
     )
-    async def stop_loop(
+    async def stop_quidditch_season(
         self,
         interaction: discord.Interaction,
     ) -> None:
@@ -3226,7 +3226,7 @@ class QuidditchCog(commands.Cog):
             conn.commit()
 
         await interaction.response.send_message(
-            "Quidditch loop stopped. No scheduled games will auto-start until you enable it again with `/start_quidditch_season`.",
+            "Quidditch loop stopped. No scheduled games will auto-start until you enable it again with `/start_quidditch_loop`.",
             ephemeral=True,
         )
 
@@ -3405,7 +3405,7 @@ class QuidditchCog(commands.Cog):
         name="quidditch_intialise_testgame",
         description="Admin: schedule an unofficial Quidditch test game for tomorrow at 13:00.",
     )
-    async def quidditch_testgame(
+    async def quidditch_intialise_testgame(
         self,
         interaction: discord.Interaction,
         house_a: str,
@@ -3451,10 +3451,10 @@ class QuidditchCog(commands.Cog):
         )
 
     @app_commands.command(
-        name="quidditch_initialised_testgame_kickoff",
+        name="quidditch_init_testgame_kickoff",
         description="Admin: immediately start the scheduled unofficial Quidditch test game.",
     )
-    async def start_quidditchtestgame_now(
+    async def quidditch_init_testgame_kickoff(
         self,
         interaction: discord.Interaction,
     ) -> None:
@@ -3498,10 +3498,10 @@ class QuidditchCog(commands.Cog):
         )
 
     @app_commands.command(
-        name="quidditch_initialised_testgame_stop",
+        name="quidditch_init_testgame_stop",
         description="Admin: stop the current unofficial Quidditch test game.",
     )
-    async def quidditch_testgame_stop(
+    async def quidditch_init_testgame_stop(
         self,
         interaction: discord.Interaction,
     ) -> None:

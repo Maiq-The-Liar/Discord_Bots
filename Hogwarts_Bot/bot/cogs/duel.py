@@ -781,7 +781,7 @@ class DuelCog(commands.Cog):
         description="Admin: stop the current duel or lobby and reset the channel.",
     )
     @app_commands.describe(channel="Optional duel channel to reset")
-    async def stop_duel(
+    async def remove_duel(
         self,
         interaction: discord.Interaction,
         channel: discord.TextChannel | None = None,
