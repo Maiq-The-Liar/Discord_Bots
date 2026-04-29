@@ -2447,9 +2447,6 @@
     "answer_groups": [
 
       [
-        "wants"
-      ],
-      [
         "preference"
       ],
       [
@@ -2460,7 +2457,26 @@
       ],
       [
         "choice"
+      ],
+      [
+        "whish"
+      ],
+      [
+        "desire"
+      ],
+      [
+        "desires"
+      ],
+      [
+        "opinion"
+      ],
+      [
+        "opinions"
+      ],
+      [
+        "whishes"
       ]
+
     ]
   },
   {
