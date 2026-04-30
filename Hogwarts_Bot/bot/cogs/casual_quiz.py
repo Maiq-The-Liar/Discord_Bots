@@ -250,11 +250,11 @@ class CasualQuizCog(commands.Cog):
             if current_question is None:
                 return
 
-            is_correct = service.is_correct_answer(current_question, message.content)
+            answer_judgement = service.judge_answer(current_question, message.content)
 
-        if not is_correct:
+        if answer_judgement != "correct":
             try:
-                await message.add_reaction("❌")
+                await message.add_reaction("🟡" if answer_judgement == "partial" else "🔴")
             except discord.HTTPException:
                 pass
             return
@@ -262,7 +262,7 @@ class CasualQuizCog(commands.Cog):
         self.processing_channels.add(message.channel.id)
         try:
             try:
-                await message.add_reaction("✅")
+                await message.add_reaction("🟢")
             except discord.HTTPException:
                 pass
 

@@ -242,8 +242,8 @@ HELP_TOPICS: dict[str, dict[str, object]] = {
                 "fields": [
                     (
                         "Quiz participation",
-                        "Answer in the quiz channel. Correct answers receive a ✅ reaction, award **2 House Points**, "
-                        "award **5 Galleons**, and move the quiz forward.",
+                        "Answer in the quiz channel. Correct answers receive a 🟢 reaction, award **2 House Points**, "
+                        "award **5 Galleons**, and move the quiz forward. Partial answers receive 🟡, wrong answers receive 🔴.",
                     ),
                     (
                         "School years",

@@ -843,14 +843,14 @@ class DuelCog(commands.Cog):
             if session.answer_locked:
                 return
 
-            is_correct = self.answer_service.is_correct_answer(
+            answer_judgement = self.answer_service.judge_answer(
                 session.current_question,
                 message.content,
             )
 
-            if not is_correct:
+            if answer_judgement != "correct":
                 try:
-                    await message.add_reaction("❌")
+                    await message.add_reaction("🟡" if answer_judgement == "partial" else "🔴")
                 except discord.HTTPException:
                     pass
                 return
@@ -875,7 +875,7 @@ class DuelCog(commands.Cog):
                     )
 
             try:
-                await message.add_reaction("✅")
+                await message.add_reaction("🟢")
             except discord.HTTPException:
                 pass
 
