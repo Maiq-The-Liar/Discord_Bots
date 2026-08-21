@@ -129,13 +129,11 @@
     "image_url": null,
     "answer_groups": [
       [
-        "bubble",
-        "head",
-        "charm"
+        "bubblehead"
       ],
       [
-        "bubblehead",
-        "charm"
+        "bubble",
+        "head"
       ]
     ]
   },
@@ -720,6 +718,10 @@
     "answer_groups": [
       [
         "chocolate",
+        "frog"
+      ],
+      [
+        "chocolate",
         "frogs"
       ]
     ]
@@ -731,15 +733,13 @@
     "answer_groups": [
       [
         "bertie",
-        "botts",
-        "every",
+        "botts"
+      ],
+      [
         "flavour",
         "beans"
       ],
       [
-        "bertie",
-        "botts",
-        "every",
         "flavor",
         "beans"
       ]
@@ -766,6 +766,10 @@
       [
         "fire",
         "whisky"
+      ],
+      [
+        "fire",
+        "whiskey"
       ]
     ]
   },
@@ -797,6 +801,10 @@
     "answer_groups": [
       [
         "sugar",
+        "quill"
+      ],
+      [
+        "sugar",
         "quills"
       ]
     ]
@@ -806,6 +814,10 @@
     "question": "What dangerous magical sweets can burn holes in the tongue if eaten carelessly?",
     "image_url": null,
     "answer_groups": [
+      [
+        "acid",
+        "pop"
+      ],
       [
         "acid",
         "pops"
@@ -819,6 +831,10 @@
     "answer_groups": [
       [
         "cockroach",
+        "cluster"
+      ],
+      [
+        "cockroach",
         "clusters"
       ]
     ]
@@ -830,6 +846,10 @@
     "answer_groups": [
       [
         "cauldron",
+        "cake"
+      ],
+      [
+        "cauldron",
         "cakes"
       ]
     ]
@@ -839,6 +859,10 @@
     "question": "What pumpkin-filled baked treats are sold on the Hogwarts Express food trolley?",
     "image_url": null,
     "answer_groups": [
+      [
+        "pumpkin",
+        "pasty"
+      ],
       [
         "pumpkin",
         "pasties"
@@ -863,7 +887,15 @@
     "answer_groups": [
       [
         "liquorice",
+        "wand"
+      ],
+      [
+        "liquorice",
         "wands"
+      ],
+      [
+        "licorice",
+        "wand"
       ],
       [
         "licorice",
@@ -878,6 +910,10 @@
     "answer_groups": [
       [
         "fizzing",
+        "whizzbee"
+      ],
+      [
+        "fizzing",
         "whizzbees"
       ]
     ]
@@ -887,6 +923,10 @@
     "question": "What spicy magical sweets can make the eater smoke out their ears and breathe fire from their mouth?",
     "image_url": null,
     "answer_groups": [
+      [
+        "pepper",
+        "imp"
+      ],
       [
         "pepper",
         "imps"
@@ -911,6 +951,10 @@
     "answer_groups": [
       [
         "jelly",
+        "slug"
+      ],
+      [
+        "jelly",
         "slugs"
       ]
     ]
@@ -920,6 +964,10 @@
     "question": "What magical sweets explode in the mouth when eaten?",
     "image_url": null,
     "answer_groups": [
+      [
+        "exploding",
+        "bonbon"
+      ],
       [
         "exploding",
         "bonbons"
@@ -932,7 +980,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "ton",
         "tongue",
         "toffee"
       ]
@@ -943,6 +990,10 @@
     "question": "What Weasleys' Wizard Wheezes sweet briefly turns the eater into a large yellow bird?",
     "image_url": null,
     "answer_groups": [
+      [
+        "canary",
+        "cream"
+      ],
       [
         "canary",
         "creams"
@@ -956,6 +1007,10 @@
     "answer_groups": [
       [
         "puking",
+        "pastille"
+      ],
+      [
+        "puking",
         "pastilles"
       ]
     ]
@@ -965,6 +1020,10 @@
     "question": "What Skiving Snackbox product makes the user faint dramatically?",
     "image_url": null,
     "answer_groups": [
+      [
+        "fainting",
+        "fancy"
+      ],
       [
         "fainting",
         "fancies"
@@ -1026,11 +1085,11 @@
     "answer_groups": [
       [
         "decoy",
-        "detonators"
+        "detonator"
       ],
       [
         "decoy",
-        "detonator"
+        "detonators"
       ]
     ]
   },
@@ -1040,13 +1099,11 @@
     "image_url": null,
     "answer_groups": [
       [
-        "peruvian",
-        "instant",
         "darkness",
         "powder"
       ],
       [
-        "darkness",
+        "peruvian",
         "powder"
       ]
     ]
@@ -1099,19 +1156,11 @@
     "image_url": null,
     "answer_groups": [
       [
-        "weasleys",
-        "wildfire",
         "whiz",
         "bangs"
       ],
       [
-        "wildfire",
-        "whiz",
-        "bangs"
-      ],
-      [
-        "whiz",
-        "bangs"
+        "whizbangs"
       ]
     ]
   },
@@ -1172,11 +1221,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "wizard",
-        "chess"
-      ],
-      [
-        "wizarding",
         "chess"
       ]
     ]
@@ -1208,7 +1252,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "newt",
+        "newt"
+      ],
+      [
         "scamander"
       ]
     ]
@@ -1219,7 +1265,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "bathilda",
+        "bathilda"
+      ],
+      [
         "bagshot"
       ]
     ]
@@ -1230,7 +1278,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "adalbert",
+        "adalbert"
+      ],
+      [
         "waffling"
       ]
     ]
@@ -1241,7 +1291,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "miranda",
+        "miranda"
+      ],
+      [
         "goshawk"
       ]
     ]
@@ -1252,9 +1304,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "one",
-        "thousand",
-        "magical",
         "herbs",
         "fungi"
       ]
@@ -1266,7 +1315,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "arsenius",
+        "arsenius"
+      ],
+      [
         "jigger"
       ]
     ]
@@ -1278,10 +1329,7 @@
     "answer_groups": [
       [
         "dark",
-        "forces",
-        "guide",
-        "self",
-        "protection"
+        "forces"
       ]
     ]
   },
@@ -1292,8 +1340,7 @@
     "answer_groups": [
       [
         "monster",
-        "book",
-        "monsters"
+        "book"
       ]
     ]
   },
@@ -1303,7 +1350,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "tales",
         "beedle",
         "bard"
       ]
@@ -1327,10 +1373,7 @@
     "answer_groups": [
       [
         "fantastic",
-        "beasts",
-        "where",
-        "find",
-        "them"
+        "beasts"
       ]
     ]
   },
@@ -1352,8 +1395,7 @@
     "answer_groups": [
       [
         "monster",
-        "book",
-        "monsters"
+        "book"
       ]
     ]
   },
@@ -1363,7 +1405,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "tales",
         "beedle",
         "bard"
       ]
@@ -1386,8 +1427,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "beedle",
-        "bard"
+        "beedle"
       ]
     ]
   },
@@ -1398,7 +1438,6 @@
     "answer_groups": [
       [
         "quidditch",
-        "through",
         "ages"
       ]
     ]
@@ -1409,7 +1448,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "kennilworthy",
+        "kennilworthy"
+      ],
+      [
         "whisp"
       ]
     ]
@@ -1421,7 +1462,6 @@
     "answer_groups": [
       [
         "standard",
-        "book",
         "spells"
       ]
     ]
@@ -1433,13 +1473,11 @@
     "answer_groups": [
       [
         "advanced",
-        "potion",
-        "making"
+        "potion"
       ],
       [
         "advanced",
-        "potions",
-        "making"
+        "potions"
       ]
     ]
   },
@@ -1449,7 +1487,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "libatius",
+        "libatius"
+      ],
+      [
         "borage"
       ]
     ]
@@ -1473,8 +1513,7 @@
     "answer_groups": [
       [
         "moste",
-        "potente",
-        "potions"
+        "potente"
       ]
     ]
   },
@@ -1494,7 +1533,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "gilderoy",
+        "gilderoy"
+      ],
+      [
         "lockhart"
       ]
     ]
@@ -1560,7 +1601,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "secrets",
         "darkest",
         "art"
       ]
@@ -1573,9 +1613,7 @@
     "answer_groups": [
       [
         "life",
-        "lies",
-        "albus",
-        "dumbledore"
+        "lies"
       ]
     ]
   },
@@ -1585,8 +1623,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "rita",
-        "skeeter"
+        "rita"
       ],
       [
         "skeeter"
@@ -1609,8 +1646,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "dolores",
-        "umbridge"
+        "dolores"
       ],
       [
         "umbridge"
@@ -1658,7 +1694,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "draught",
         "living",
         "death"
       ]
@@ -1670,9 +1705,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "mandrake",
-        "restorative",
-        "draught"
+        "mandrake"
       ]
     ]
   },
@@ -1794,10 +1827,6 @@
     "answer_groups": [
       [
         "amortentia"
-      ],
-      [
-        "love",
-        "potion"
       ]
     ]
   },
@@ -1822,15 +1851,6 @@
     "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/draught_of_living_death.png?raw=true",
     "answer_groups": [
       [
-        "draught",
-        "of",
-        "living",
-        "death"
-      ],
-      [
-        "the",
-        "draught",
-        "of",
         "living",
         "death"
       ]
@@ -1853,10 +1873,6 @@
     "answer_groups": [
       [
         "wolfsbane"
-      ],
-      [
-        "wolfsbane",
-        "potion"
       ]
     ]
   },
@@ -1866,12 +1882,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "emerald",
-        "potion"
-      ],
-      [
-        "drink",
-        "despair"
+        "emerald"
       ]
     ]
   },
@@ -1881,8 +1892,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "sopophorous",
-        "bean"
+        "sopophorous"
       ]
     ]
   },
@@ -1912,46 +1922,12 @@
     "image_url": null,
     "answer_groups": [
       [
-        "three",
-        "headed",
         "dog"
       ],
       [
-        "three",
-        "headed",
         "hound"
       ],
       [
-        "three",
-        "headed",
-        "canine"
-      ],
-      [
-        "three",
-        "headed",
-        "cerberus"
-      ],
-      [
-        "cerberus"
-      ],
-      [
-        "3",
-        "headed",
-        "dog"
-      ],
-      [
-        "3",
-        "headed",
-        "hound"
-      ],
-      [
-        "3",
-        "headed",
-        "canine"
-      ],
-      [
-        "3",
-        "headed",
         "cerberus"
       ]
     ]
@@ -1962,46 +1938,12 @@
     "image_url": null,
     "answer_groups": [
       [
-        "three",
-        "headed",
         "dog"
       ],
       [
-        "three",
-        "headed",
         "hound"
       ],
       [
-        "three",
-        "headed",
-        "canine"
-      ],
-      [
-        "three",
-        "headed",
-        "cerberus"
-      ],
-      [
-        "cerberus"
-      ],
-      [
-        "3",
-        "headed",
-        "dog"
-      ],
-      [
-        "3",
-        "headed",
-        "hound"
-      ],
-      [
-        "3",
-        "headed",
-        "canine"
-      ],
-      [
-        "3",
-        "headed",
         "cerberus"
       ]
     ]
@@ -2088,10 +2030,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "cornish",
-        "pixies"
-      ],
-      [
         "pixies"
       ]
     ]
@@ -2165,12 +2103,16 @@
     "image_url": null,
     "answer_groups": [
       [
-        "rooster",
-        "crowing"
+        "rooster"
       ],
       [
-        "cock",
+        "cock"
+      ],
+      [
         "crow"
+      ],
+      [
+        "crowing"
       ]
     ]
   },
@@ -2333,13 +2275,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "single",
-        "malt",
         "whisky"
       ],
       [
-        "single",
-        "malt",
         "whiskey"
       ]
     ]
@@ -2424,21 +2362,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "blast",
-        "ended",
         "skrewt"
       ],
       [
-        "blast",
-        "ended",
-        "skrewts"
-      ],
-      [
-        "blastended",
-        "skrewt"
-      ],
-      [
-        "blastended",
         "skrewts"
       ]
     ]
@@ -2449,21 +2375,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "blast",
-        "ended",
         "skrewt"
       ],
       [
-        "blast",
-        "ended",
-        "skrewts"
-      ],
-      [
-        "blastended",
-        "skrewt"
-      ],
-      [
-        "blastended",
         "skrewts"
       ]
     ]
@@ -2540,11 +2454,9 @@
     "answer_groups": [
       [
         "swedish",
-        "short",
         "snout"
       ],
       [
-        "swedish",
         "shortsnout"
       ]
     ]
@@ -2578,11 +2490,6 @@
       [
         "chinese",
         "fireball"
-      ],
-      [
-        "chinese",
-        "fireball",
-        "dragon"
       ]
     ]
   },
@@ -2592,20 +2499,8 @@
     "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/Dragon_CWG.png?raw=true",
     "answer_groups": [
       [
-        "common",
         "welsh",
         "green"
-      ],
-      [
-        "welsh",
-        "green",
-        "dragon"
-      ],
-      [
-        "common",
-        "welsh",
-        "green",
-        "dragon"
       ]
     ]
   },
@@ -2617,11 +2512,6 @@
       [
         "hungarian",
         "horntail"
-      ],
-      [
-        "hungarian",
-        "horntail",
-        "dragon"
       ]
     ]
   },
@@ -2632,17 +2522,10 @@
     "answer_groups": [
       [
         "swedish",
-        "short-snout"
-      ],
-      [
-        "swedish",
-        "short",
         "snout"
       ],
       [
-        "swedish",
-        "short-snout",
-        "dragon"
+        "shortsnout"
       ]
     ]
   },
@@ -3048,10 +2931,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "daisy",
-        "roots"
-      ],
-      [
         "roots"
       ]
     ]
@@ -3205,13 +3084,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "sir",
-        "nicholas",
-        "de",
-        "mimsy",
-        "porpington"
-      ],
-      [
         "nicholas",
         "de",
         "mimsy",
@@ -3308,10 +3180,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "argus",
-        "filch"
-      ],
-      [
         "filch"
       ]
     ]
@@ -3321,10 +3189,6 @@
     "question": "What is the name of Argus Filch's cat?",
     "image_url": null,
     "answer_groups": [
-      [
-        "mrs",
-        "norris"
-      ],
       [
         "norris"
       ]
@@ -3336,11 +3200,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "madam",
-        "pince"
-      ],
-      [
-        "irma",
         "pince"
       ]
     ]
@@ -3350,14 +3209,6 @@
     "question": "Which matron runs the Hogwarts hospital wing during Harry’s school years?",
     "image_url": null,
     "answer_groups": [
-      [
-        "madam",
-        "pomfrey"
-      ],
-      [
-        "poppy",
-        "pomfrey"
-      ],
       [
         "pomfrey"
       ]
@@ -3403,9 +3254,7 @@
     "answer_groups": [
       [
         "solemnly",
-        "swear",
-        "up",
-        "good"
+        "swear"
       ]
     ]
   },
@@ -3427,12 +3276,10 @@
     "answer_groups": [
       [
         "one",
-        "eyed",
-        "witch"
+        "eyed"
       ],
       [
-        "humpbacked",
-        "witch"
+        "humpbacked"
       ]
     ]
   },
@@ -3656,7 +3503,6 @@
     "answer_groups": [
       [
         "goblet",
-        "of",
         "fire"
       ]
     ]
@@ -3669,11 +3515,6 @@
       [
         "invisibility",
         "cloak"
-      ],
-      [
-        "cloak",
-        "of",
-        "invisibility"
       ]
     ]
   },
@@ -3703,11 +3544,6 @@
     "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/gryffindor_cr.png?raw=true",
     "answer_groups": [
       [
-        "gryffindor",
-        "common",
-        "room"
-      ],
-      [
         "gryffindor"
       ]
     ]
@@ -3727,11 +3563,6 @@
     "question": "Which Hogwarts common room is shown in this image?",
     "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/hufflepuff_cr.jpg?raw=true",
     "answer_groups": [
-      [
-        "hufflepuff",
-        "common",
-        "room"
-      ],
       [
         "hufflepuff"
       ]
@@ -3755,13 +3586,6 @@
     "answer_groups": [
       [
         "mirror",
-        "of",
-        "erised"
-      ],
-      [
-        "the",
-        "mirror",
-        "of",
         "erised"
       ]
     ]
@@ -3782,11 +3606,6 @@
     "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/ravenclaw_cr.jpg?raw=true",
     "answer_groups": [
       [
-        "ravenclaw",
-        "common",
-        "room"
-      ],
-      [
         "ravenclaw"
       ]
     ]
@@ -3796,11 +3615,6 @@
     "question": "Which Hogwarts common room is shown in this image?",
     "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/slytherin_cr.jpg?raw=true",
     "answer_groups": [
-      [
-        "slytherin",
-        "common",
-        "room"
-      ],
       [
         "slytherin"
       ]
@@ -3812,11 +3626,6 @@
     "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/sorting_hat.png?raw=true",
     "answer_groups": [
       [
-        "sorting",
-        "hat"
-      ],
-      [
-        "the",
         "sorting",
         "hat"
       ]
@@ -3842,10 +3651,6 @@
     "image_url": "https://github.com/Maiq-The-Liar/Bot_Quiz_Images/blob/main/wand_harry_potter.png?raw=true",
     "answer_groups": [
       [
-        "harry",
-        "potter"
-      ],
-      [
         "harry"
       ]
     ]
@@ -3856,7 +3661,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "godric",
+        "godric"
+      ],
+      [
         "gryffindor"
       ]
     ]
@@ -3876,18 +3683,20 @@
   },
   {
     "id": 324,
-    "question": "Which four Hogwarts students created the Marauder’s Map?",
+    "question": "Name one of the four Hogwarts students who created the Marauder's Map.",
     "image_url": null,
     "answer_groups": [
       [
-        "james",
-        "potter",
-        "sirius",
-        "black",
-        "remus",
-        "lupin",
-        "peter",
-        "pettigrew"
+        "james"
+      ],
+      [
+        "sirius"
+      ],
+      [
+        "remus"
+      ],
+      [
+        "peter"
       ]
     ]
   },
@@ -3949,13 +3758,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "regulus",
-        "black"
-      ],
-      [
-        "regulus",
-        "arcturus",
-        "black"
+        "regulus"
       ]
     ]
   },
@@ -3964,10 +3767,6 @@
     "question": "Who lost his memory when his own Memory Charm backfired in the Chamber of Secrets?",
     "image_url": null,
     "answer_groups": [
-      [
-        "gilderoy",
-        "lockhart"
-      ],
       [
         "lockhart"
       ]
@@ -3979,7 +3778,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "newt",
+        "newt"
+      ],
+      [
         "scamander"
       ]
     ]
@@ -3990,11 +3791,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "nicolas",
-        "flamel"
-      ],
-      [
-        "nicholas",
         "flamel"
       ]
     ]
@@ -4005,7 +3801,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "salazar",
+        "salazar"
+      ],
+      [
         "slytherin"
       ]
     ]
@@ -4033,14 +3831,18 @@
   },
   {
     "id": 337,
-    "question": "What are the three objects known collectively as the Deathly Hallows?",
+    "question": "Name one of the three objects known collectively as the Deathly Hallows.",
     "image_url": null,
     "answer_groups": [
       [
         "elder",
-        "wand",
+        "wand"
+      ],
+      [
         "resurrection",
-        "stone",
+        "stone"
+      ],
+      [
         "invisibility",
         "cloak"
       ]
@@ -4052,10 +3854,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "horace",
-        "slughorn"
-      ],
-      [
         "slughorn"
       ]
     ]
@@ -4066,10 +3864,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "right",
-        "hand"
-      ],
-      [
         "hand"
       ]
     ]
@@ -4079,10 +3873,6 @@
     "question": "Who supervises Harry, Hermione, Neville, and Draco during their detention in the Forbidden Forest?",
     "image_url": null,
     "answer_groups": [
-      [
-        "rubeus",
-        "hagrid"
-      ],
       [
         "hagrid"
       ]
@@ -4334,8 +4124,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "department",
-        "magical",
         "law",
         "enforcement"
       ]
@@ -4459,15 +4247,14 @@
   },
   {
     "id": 375,
-    "question": "What cursed opal necklace nearly kills Katie Bell after she touches its wrapping?",
+    "question": "What cursed object nearly kills Katie Bell after she touches its wrapping?",
     "image_url": null,
     "answer_groups": [
       [
-        "opal",
         "necklace"
       ],
       [
-        "necklace"
+        "opal"
       ]
     ]
   },
@@ -4515,16 +4302,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "tom",
-        "riddle",
-        "diary"
-      ],
-      [
-        "riddle",
-        "diary"
-      ],
-      [
-        "voldemort",
         "diary"
       ]
     ]
@@ -4535,12 +4312,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "marvolo",
-        "gaunt",
-        "ring"
-      ],
-      [
-        "gaunt",
         "ring"
       ]
     ]
@@ -4551,15 +4322,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "salazar",
-        "slytherin",
-        "locket"
-      ],
-      [
-        "slytherin",
-        "locket"
-      ],
-      [
         "locket"
       ]
     ]
@@ -4569,15 +4331,6 @@
     "question": "What heirloom of Helga Hufflepuff becomes one of Voldemort's Horcruxes?",
     "image_url": null,
     "answer_groups": [
-      [
-        "helga",
-        "hufflepuff",
-        "cup"
-      ],
-      [
-        "hufflepuff",
-        "cup"
-      ],
       [
         "cup"
       ]
@@ -4599,10 +4352,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "quirinus",
-        "quirrell"
-      ],
-      [
         "quirrell"
       ]
     ]
@@ -4614,11 +4363,17 @@
     "answer_groups": [
       [
         "barty",
-        "crouch",
         "jr"
       ],
       [
         "barty",
+        "junior"
+      ],
+      [
+        "crouch",
+        "jr"
+      ],
+      [
         "crouch",
         "junior"
       ]
@@ -4630,10 +4385,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "dolores",
-        "umbridge"
-      ],
-      [
         "umbridge"
       ]
     ]
@@ -4644,8 +4395,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "amycus",
-        "carrow"
+        "amycus"
       ],
       [
         "carrow"
@@ -4658,10 +4408,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "severus",
-        "snape"
-      ],
-      [
         "snape"
       ]
     ]
@@ -4671,15 +4417,6 @@
     "question": "Which retired Auror is famous for saying 'constant vigilance'?",
     "image_url": null,
     "answer_groups": [
-      [
-        "mad",
-        "eye",
-        "moody"
-      ],
-      [
-        "alastor",
-        "moody"
-      ],
       [
         "moody"
       ]
@@ -4692,7 +4429,6 @@
     "answer_groups": [
       [
         "defensive",
-        "magical",
         "theory"
       ]
     ]
@@ -4721,10 +4457,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "severus",
-        "snape"
-      ],
-      [
         "snape"
       ]
     ]
@@ -4734,10 +4466,6 @@
     "question": "Which Hogwarts professor invented spells including Sectumsempra while still a student?",
     "image_url": null,
     "answer_groups": [
-      [
-        "severus",
-        "snape"
-      ],
       [
         "snape"
       ]
@@ -4790,10 +4518,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "golden",
-        "snitch"
-      ],
-      [
         "snitch"
       ]
     ]
@@ -4820,10 +4544,6 @@
         "one",
         "hundred",
         "fifty"
-      ],
-      [
-        "150",
-        "points"
       ]
     ]
   },
@@ -4832,10 +4552,6 @@
     "question": "Which Hogwarts professor was a talented Quidditch player while at school?",
     "image_url": null,
     "answer_groups": [
-      [
-        "minerva",
-        "mcgonagall"
-      ],
       [
         "mcgonagall"
       ]
@@ -4858,7 +4574,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "gwenog",
+        "gwenog"
+      ],
+      [
         "jones"
       ]
     ]
@@ -4898,18 +4616,19 @@
   },
   {
     "id": 407,
-    "question": "What are the three types of balls used in Quidditch?",
+    "question": "Name one type of ball used in Quidditch.",
     "image_url": null,
     "answer_groups": [
       [
-        "quaffle",
-        "bludger",
-        "snitch"
+        "quaffle"
       ],
       [
-        "quaffle",
-        "bludgers",
-        "golden",
+        "bludger"
+      ],
+      [
+        "bludgers"
+      ],
+      [
         "snitch"
       ]
     ]
@@ -4944,24 +4663,18 @@
       ],
       [
         "ten"
-      ],
-      [
-        "10",
-        "points"
-      ],
-      [
-        "ten",
-        "points"
       ]
     ]
   },
   {
     "id": 411,
-    "question": "Which two national teams competed in the 1994 Quidditch World Cup Final?",
+    "question": "Name one of the two national teams that competed in the 1994 Quidditch World Cup Final.",
     "image_url": null,
     "answer_groups": [
       [
-        "ireland",
+        "ireland"
+      ],
+      [
         "bulgaria"
       ]
     ]
@@ -4971,10 +4684,6 @@
     "question": "Which Seeker caught the Golden Snitch even though his team lost the 1994 Quidditch World Cup Final?",
     "image_url": null,
     "answer_groups": [
-      [
-        "viktor",
-        "krum"
-      ],
       [
         "krum"
       ]
@@ -4987,11 +4696,17 @@
     "answer_groups": [
       [
         "barty",
+        "jr"
+      ],
+      [
+        "barty",
+        "junior"
+      ],
+      [
         "crouch",
         "jr"
       ],
       [
-        "bartemius",
         "crouch",
         "junior"
       ]
@@ -5025,13 +4740,20 @@
   },
   {
     "id": 416,
-    "question": "What spell does Seamus try to use to turn water into rum?",
+    "question": "In the film, what rhyme does Seamus try to use to turn water into rum?",
     "image_url": null,
     "answer_groups": [
       [
         "rabbit",
+        "harp"
+      ],
+      [
+        "rabbit",
+        "hum"
+      ],
+      [
         "harp",
-        "rum"
+        "hum"
       ]
     ]
   },
@@ -5040,6 +4762,14 @@
     "question": "What do the cores of Harry Potter's and Lord Voldemort's wands have in common?",
     "image_url": null,
     "answer_groups": [
+      [
+        "phoenix",
+        "feather"
+      ],
+      [
+        "phoenix",
+        "feathers"
+      ],
       [
         "fawkes",
         "feather"
@@ -5087,8 +4817,13 @@
     "image_url": null,
     "answer_groups": [
       [
-        "girls",
         "bathroom"
+      ],
+      [
+        "lavatory"
+      ],
+      [
+        "toilet"
       ]
     ]
   },
@@ -5114,14 +4849,10 @@
     "image_url": null,
     "answer_groups": [
       [
-        "muggle",
-        "artefacts",
-        "office"
+        "artefacts"
       ],
       [
-        "muggle",
-        "artifacts",
-        "office"
+        "artifacts"
       ]
     ]
   },
@@ -5272,7 +5003,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "weasley",
         "clock"
       ]
     ]
@@ -5303,28 +5033,13 @@
     "image_url": null,
     "answer_groups": [
       [
-        "nick",
-        "indirectly"
-      ],
-      [
-        "nick",
-        "indirect"
-      ],
-      [
-        "through",
         "nick"
       ],
       [
-        "ghost",
         "indirectly"
       ],
       [
-        "ghost",
         "indirect"
-      ],
-      [
-        "through",
-        "ghost"
       ]
     ]
   },
@@ -5468,11 +5183,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "wizard",
-        "chess"
-      ],
-      [
-        "wizarding",
         "chess"
       ]
     ]
@@ -5493,15 +5203,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "metal",
-        "gold"
-      ],
-      [
-        "metals",
-        "gold"
-      ],
-      [
-        "turn",
         "gold"
       ]
     ]
@@ -5663,8 +5364,15 @@
     "answer_groups": [
       [
         "sunshine",
-        "daisies",
-        "yellow"
+        "daisies"
+      ],
+      [
+        "butter",
+        "mellow"
+      ],
+      [
+        "stupid",
+        "rat"
       ]
     ]
   },
@@ -5697,16 +5405,13 @@
     "image_url": null,
     "answer_groups": [
       [
-        "merpeople",
         "song"
       ],
       [
-        "merpeople",
-        "clue"
+        "singing"
       ],
       [
-        "song",
-        "clue"
+        "merpeople"
       ]
     ]
   },
@@ -5729,13 +5434,10 @@
     "image_url": null,
     "answer_groups": [
       [
-        "100",
-        "years"
+        "100"
       ],
       [
-        "one",
-        "hundred",
-        "years"
+        "hundred"
       ],
       [
         "century"
@@ -5768,6 +5470,10 @@
       [
         "muggle",
         "lineage"
+      ],
+      [
+        "father",
+        "name"
       ]
     ]
   },
@@ -5783,31 +5489,18 @@
   },
   {
     "id": 477,
-    "question": "What does Ron see himself as when he looks into the Mirror of Erised?",
+    "question": "Name one thing Ron sees himself as when he looks into the Mirror of Erised.",
     "image_url": null,
     "answer_groups": [
       [
+        "headboy"
+      ],
+      [
         "head",
-        "boy",
-        "quidditch",
+        "boy"
+      ],
+      [
         "captain"
-      ],
-      [
-        "headboy",
-        "quidditch",
-        "captain"
-      ],
-      [
-        "head",
-        "boy",
-        "house",
-        "cup"
-      ],
-      [
-        "head",
-        "boy",
-        "quidditch",
-        "cup"
       ]
     ]
   },
@@ -5823,25 +5516,21 @@
   },
   {
     "id": 479,
-    "question": "What happens if someone drinks unicorn blood?",
+    "question": "What kind of life is someone condemned to after drinking unicorn blood?",
     "image_url": null,
     "answer_groups": [
       [
-        "alive",
         "cursed"
       ],
       [
-        "alive",
         "curse"
       ],
       [
-        "life",
-        "cursed"
+        "halflife"
       ],
       [
         "half",
-        "life",
-        "curse"
+        "life"
       ]
     ]
   },
@@ -5856,10 +5545,6 @@
       ],
       [
         "fathers",
-        "bone"
-      ],
-      [
-        "father",
         "bone"
       ]
     ]
@@ -5925,12 +5610,10 @@
     "image_url": null,
     "answer_groups": [
       [
-        "sleeping",
-        "potion"
+        "sleeping"
       ],
       [
-        "sleep",
-        "potion"
+        "sleep"
       ]
     ]
   },
@@ -5998,14 +5681,11 @@
   },
   {
     "id": 492,
-    "question": "Who conjures the Fiendfyre in the Room of Requirement that destroys Ravenclaw's diadem?",
+    "question": "In the book, who conjures the Fiendfyre in the Room of Requirement that destroys Ravenclaw's diadem?",
     "image_url": null,
     "answer_groups": [
       [
         "crabbe"
-      ],
-      [
-        "goyle"
       ]
     ]
   },
@@ -6099,23 +5779,16 @@
     "image_url": null,
     "answer_groups": [
       [
-        "voldemort",
+        "horcrux"
+      ],
+      [
+        "voldemort"
+      ],
+      [
         "soul"
       ],
       [
-        "voldemort",
         "fragment"
-      ],
-      [
-        "voldemort",
-        "powers"
-      ],
-      [
-        "voldemort",
-        "abilities"
-      ],
-      [
-        "horcrux"
       ]
     ]
   },
@@ -6146,12 +5819,12 @@
         "pain"
       ],
       [
-        "want",
-        "hurt"
+        "desire",
+        "pain"
       ],
       [
-        "wants",
-        "hurt"
+        "desires",
+        "pain"
       ],
       [
         "enjoy",
@@ -6160,6 +5833,18 @@
       [
         "enjoys",
         "pain"
+      ],
+      [
+        "want",
+        "hurt"
+      ],
+      [
+        "wants",
+        "hurt"
+      ],
+      [
+        "mean",
+        "harm"
       ]
     ]
   },
@@ -6206,11 +5891,17 @@
     "answer_groups": [
       [
         "barty",
-        "crouch",
         "jr"
       ],
       [
         "barty",
+        "junior"
+      ],
+      [
+        "crouch",
+        "jr"
+      ],
+      [
         "crouch",
         "junior"
       ]
@@ -6337,26 +6028,16 @@
     "image_url": null,
     "answer_groups": [
       [
-        "bellatrix",
-        "lestrange"
+        "bellatrix"
       ],
       [
-        "rodolphus",
-        "lestrange"
+        "rodolphus"
       ],
       [
-        "rabastan",
-        "lestrange"
+        "rabastan"
       ],
       [
-        "barty",
-        "crouch",
-        "jr"
-      ],
-      [
-        "barty",
-        "crouch",
-        "junior"
+        "barty"
       ]
     ]
   },
@@ -6396,7 +6077,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "ford",
+        "car"
+      ],
+      [
         "anglia"
       ]
     ]
@@ -6407,16 +6090,13 @@
     "image_url": null,
     "answer_groups": [
       [
-        "happy",
-        "memory"
+        "happy"
       ],
       [
-        "happiest",
-        "memory"
+        "happiest"
       ],
       [
-        "positive",
-        "memory"
+        "positive"
       ]
     ]
   },
@@ -6426,12 +6106,10 @@
     "image_url": null,
     "answer_groups": [
       [
-        "hogsmeade",
         "permission"
       ],
       [
-        "permission",
-        "form"
+        "hogsmeade"
       ]
     ]
   },
@@ -6480,14 +6158,11 @@
   },
   {
     "id": 529,
-    "question": "What spell does Hermione use to free Sirius from his prison at Hogwarts?",
+    "question": "In the Prisoner of Azkaban film, what spell does Hermione use to blast open Sirius's cell?",
     "image_url": null,
     "answer_groups": [
       [
         "bombarda"
-      ],
-      [
-        "alohomora"
       ]
     ]
   },
@@ -6498,8 +6173,11 @@
     "answer_groups": [
       [
         "black",
-        "still",
         "large"
+      ],
+      [
+        "black",
+        "still"
       ]
     ]
   },
@@ -6510,17 +6188,18 @@
     "answer_groups": [
       [
         "barty",
-        "crouch",
-        "sr"
-      ],
-      [
-        "bartemius",
-        "crouch",
         "sr"
       ],
       [
         "barty",
-        "crouch",
+        "senior"
+      ],
+      [
+        "bartemius",
+        "sr"
+      ],
+      [
+        "bartemius",
         "senior"
       ]
     ]
@@ -6601,12 +6280,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "viktor",
         "krum"
-      ],
-      [
-        "fleur",
-        "delacour"
       ]
     ]
   },
@@ -6616,11 +6290,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "sword",
-        "gryffindor"
-      ],
-      [
-        "gryffindors",
         "sword"
       ]
     ]
@@ -6665,21 +6334,17 @@
     "answer_groups": [
       [
         "international",
-        "magical",
         "cooperation"
       ]
     ]
   },
   {
     "id": 544,
-    "question": "What creature saves Harry from the hooded figure in the Forbidden Forest?",
+    "question": "Which centaur angrily objects to Firenze carrying Harry on his back in the Forbidden Forest?",
     "image_url": null,
     "answer_groups": [
       [
-        "firenze"
-      ],
-      [
-        "centaur"
+        "bane"
       ]
     ]
   },
@@ -6712,20 +6377,10 @@
     "image_url": null,
     "answer_groups": [
       [
-        "bones",
-        "disappear"
-      ],
-      [
-        "bones",
-        "gone"
-      ],
-      [
-        "removes",
         "bones"
       ],
       [
-        "no",
-        "bones"
+        "boneless"
       ]
     ]
   },
@@ -6802,24 +6457,19 @@
     "image_url": null,
     "answer_groups": [
       [
-        "flames",
         "reborn"
       ],
       [
-        "burns",
-        "reborn"
+        "flames"
       ],
       [
-        "fire",
-        "reborn"
+        "burns"
       ],
       [
-        "ashes",
-        "reborn"
+        "fire"
       ],
       [
-        "dies",
-        "reborn"
+        "ashes"
       ]
     ]
   },
@@ -6829,7 +6479,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "gaunt",
         "ring"
       ]
     ]
@@ -7016,20 +6665,13 @@
     "image_url": null,
     "answer_groups": [
       [
-        "first",
         "broom"
       ],
       [
-        "riding",
-        "broom"
+        "flying"
       ],
       [
-        "first",
         "flight"
-      ],
-      [
-        "broom",
-        "memory"
       ]
     ]
   },
@@ -7039,15 +6681,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "filchs",
-        "office"
+        "filch"
       ],
       [
-        "filch",
-        "office"
-      ],
-      [
-        "confiscated",
         "drawer"
       ]
     ]
@@ -7148,12 +6784,10 @@
     "image_url": null,
     "answer_groups": [
       [
-        "ford",
-        "anglia"
+        "car"
       ],
       [
-        "flying",
-        "car"
+        "anglia"
       ]
     ]
   },
@@ -7163,16 +6797,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "seaside",
         "cave"
-      ],
-      [
-        "horcrux",
-        "cave"
-      ],
-      [
-        "cave",
-        "sea"
       ]
     ]
   },
@@ -7252,37 +6877,31 @@
     "answer_groups": [
       [
         "memory",
+        "charm"
+      ],
+      [
+        "memory",
         "charms"
       ]
     ]
   },
   {
     "id": 591,
-    "question": "What saves Harry, Ron and Fang from being eaten by Aragog's spiders?",
+    "question": "Where does the flying Ford Anglia go after ejecting Harry and Ron at Hogwarts?",
     "image_url": null,
     "answer_groups": [
       [
-        "flying",
-        "ford",
-        "anglia"
+        "forbidden",
+        "forest"
       ]
     ]
   },
   {
     "id": 592,
-    "question": "What does the hooded figure do to the dead unicorn Harry and Draco see in the Forbidden Forest?",
+    "question": "What does the hooded figure drink from the dead unicorn Harry and Draco find in the Forbidden Forest?",
     "image_url": null,
     "answer_groups": [
       [
-        "drink",
-        "blood"
-      ],
-      [
-        "drinks",
-        "blood"
-      ],
-      [
-        "unicorn",
         "blood"
       ]
     ]
@@ -7337,22 +6956,18 @@
     "answer_groups": [
       [
         "murder",
-        "soul",
-        "object"
-      ],
-      [
-        "murder",
-        "split",
         "soul"
       ],
       [
         "kill",
-        "split",
         "soul"
       ],
       [
         "murder",
-        "soul",
+        "fragment"
+      ],
+      [
+        "kill",
         "fragment"
       ]
     ]
@@ -7458,11 +7073,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "undersecretary",
-        "minister"
-      ],
-      [
-        "senior",
         "undersecretary"
       ]
     ]
@@ -7503,8 +7113,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "goblet",
-        "fire"
+        "goblet"
       ]
     ]
   },
@@ -7530,14 +7139,11 @@
   },
   {
     "id": 613,
-    "question": "Who conjures the Dark Mark over Hogwarts on the night Dumbledore dies?",
+    "question": "In the book, who conjures the Dark Mark over Hogwarts on the night Dumbledore dies?",
     "image_url": null,
     "answer_groups": [
       [
         "gibbon"
-      ],
-      [
-        "bellatrix"
       ]
     ]
   },
@@ -7567,11 +7173,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "wools",
-        "orphanage"
-      ],
-      [
-        "wool",
         "orphanage"
       ]
     ]
@@ -7615,7 +7216,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "roller",
         "skates"
       ],
       [
@@ -7639,13 +7239,11 @@
     "image_url": null,
     "answer_groups": [
       [
-        "bubble",
-        "head",
-        "charm"
+        "bubblehead"
       ],
       [
-        "bubblehead",
-        "charm"
+        "bubble",
+        "head"
       ]
     ]
   },
@@ -7692,13 +7290,11 @@
     "image_url": null,
     "answer_groups": [
       [
-        "decree",
-        "twenty",
-        "three"
+        "23"
       ],
       [
-        "decree",
-        "23"
+        "twenty",
+        "three"
       ]
     ]
   },
@@ -7748,19 +7344,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "25",
-        "december"
+        "christmas"
       ],
       [
-        "christmas",
-        "day"
-      ],
-      [
-        "christmas",
-        "night"
-      ],
-      [
-        "december",
         "25"
       ]
     ]
@@ -7803,15 +7389,13 @@
     "image_url": null,
     "answer_groups": [
       [
-        "black",
         "dog"
       ],
       [
         "grim"
       ],
       [
-        "sirius",
-        "animagus"
+        "sirius"
       ]
     ]
   },
@@ -7870,7 +7454,7 @@
   },
   {
     "id": 640,
-    "question": "Which Gryffindor student gives Harry gillyweed so he can breathe underwater?",
+    "question": "In the Goblet of Fire film, which Gryffindor student gives Harry gillyweed so he can breathe underwater?",
     "image_url": null,
     "answer_groups": [
       [
@@ -7897,11 +7481,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "bicycle",
-        "bell"
-      ],
-      [
-        "bike",
         "bell"
       ]
     ]
@@ -7961,24 +7540,10 @@
     "image_url": null,
     "answer_groups": [
       [
-        "sand",
-        "slow",
-        "conversation"
+        "slow"
       ],
       [
-        "sand",
-        "slower",
-        "conversation"
-      ],
-      [
-        "sand",
-        "slow",
-        "interesting"
-      ],
-      [
-        "sand",
-        "slower",
-        "interesting"
+        "slower"
       ]
     ]
   },
@@ -7994,23 +7559,10 @@
   },
   {
     "id": 649,
-    "question": "What does a Dementor's Kiss do?",
+    "question": "What does a Dementor's Kiss remove from its victim?",
     "image_url": null,
     "answer_groups": [
       [
-        "sucks",
-        "soul"
-      ],
-      [
-        "removes",
-        "soul"
-      ],
-      [
-        "takes",
-        "soul"
-      ],
-      [
-        "extracts",
         "soul"
       ]
     ]
@@ -8033,24 +7585,15 @@
       [
         "tell",
         "lies"
-      ],
-      [
-        "telling",
-        "lies"
       ]
     ]
   },
   {
     "id": 652,
-    "question": "What happens when Hermione uses Oppugno on the birds she conjured?",
+    "question": "Who do Hermione's conjured birds attack when she uses Oppugno?",
     "image_url": null,
     "answer_groups": [
       [
-        "attack",
-        "ron"
-      ],
-      [
-        "birds",
         "ron"
       ]
     ]
@@ -8146,11 +7689,14 @@
   },
   {
     "id": 660,
-    "question": "How long must house-elves serve a family?",
+    "question": "Who must give a house-elf clothes for the elf to be set free?",
     "image_url": null,
     "answer_groups": [
       [
-        "clothes"
+        "master"
+      ],
+      [
+        "owner"
       ]
     ]
   },
@@ -8186,15 +7732,11 @@
   },
   {
     "id": 664,
-    "question": "Who signed the note found with the fake Horcrux locket?",
+    "question": "What is Regulus Black's middle name?",
     "image_url": null,
     "answer_groups": [
       [
-        "rab"
-      ],
-      [
-        "regulus",
-        "black"
+        "arcturus"
       ]
     ]
   },
@@ -8223,6 +7765,10 @@
       [
         "paper",
         "airplanes"
+      ],
+      [
+        "paper",
+        "planes"
       ]
     ]
   },
@@ -8316,6 +7862,9 @@
     "answer_groups": [
       [
         "disposal",
+        "creatures"
+      ],
+      [
         "dangerous",
         "creatures"
       ]
@@ -8343,9 +7892,6 @@
         "ordinary",
         "wizarding",
         "level"
-      ],
-      [
-        "owl"
       ]
     ]
   },
@@ -8355,7 +7901,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "draught",
         "living",
         "death"
       ]
@@ -8397,11 +7942,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "slytherins",
-        "locket"
-      ],
-      [
-        "slytherin",
         "locket"
       ]
     ]
@@ -8436,11 +7976,11 @@
     "image_url": null,
     "answer_groups": [
       [
-        "dumbledores",
+        "dumbledore",
         "office"
       ],
       [
-        "dumbledore",
+        "dumbledores",
         "office"
       ]
     ]
@@ -8483,12 +8023,15 @@
     "answer_groups": [
       [
         "quick",
-        "quotes",
         "quill"
       ],
       [
         "quickquotes",
         "quill"
+      ],
+      [
+        "quick",
+        "quotes"
       ]
     ]
   },
@@ -8508,37 +8051,17 @@
     "image_url": null,
     "answer_groups": [
       [
-        "search",
-        "sirius"
-      ],
-      [
-        "searching",
-        "sirius"
-      ],
-      [
-        "find",
-        "sirius"
-      ],
-      [
-        "hunt",
-        "sirius"
-      ],
-      [
-        "hunting",
         "sirius"
       ]
     ]
   },
   {
     "id": 691,
-    "question": "Who sets Hagrid's hut on fire after Dumbledore is killed?",
+    "question": "In the book, who sets Hagrid's hut on fire after Dumbledore is killed?",
     "image_url": null,
     "answer_groups": [
       [
         "rowle"
-      ],
-      [
-        "bellatrix"
       ]
     ]
   },
@@ -8573,11 +8096,11 @@
   },
   {
     "id": 694,
-    "question": "According to Slughorn, what is the purpose of a Horcrux?",
+    "question": "Which professor explains Horcruxes to young Tom Riddle?",
     "image_url": null,
     "answer_groups": [
       [
-        "immortality"
+        "slughorn"
       ]
     ]
   },
@@ -8642,7 +8165,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "care",
         "magical",
         "creatures"
       ]
@@ -8654,16 +8176,16 @@
     "image_url": null,
     "answer_groups": [
       [
-        "any",
         "object"
       ],
       [
-        "living",
-        "being"
+        "living"
       ],
       [
-        "object",
-        "living"
+        "person"
+      ],
+      [
+        "anything"
       ]
     ]
   },
@@ -8683,8 +8205,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "department",
-        "magical",
         "law",
         "enforcement"
       ]
@@ -8738,6 +8258,12 @@
     "image_url": null,
     "answer_groups": [
       [
+        "placebo"
+      ],
+      [
+        "confidence"
+      ],
+      [
         "believes",
         "felix"
       ],
@@ -8746,10 +8272,12 @@
         "felix"
       ],
       [
-        "placebo"
+        "believes",
+        "luck"
       ],
       [
-        "confidence"
+        "thinks",
+        "luck"
       ]
     ]
   },
@@ -8814,8 +8342,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "peverell",
-        "family"
+        "peverell"
       ],
       [
         "peverells"
@@ -8828,12 +8355,10 @@
     "image_url": null,
     "answer_groups": [
       [
-        "younger",
         "brother"
       ],
       [
-        "regulus",
-        "black"
+        "regulus"
       ]
     ]
   },
@@ -8958,12 +8483,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "charms",
-        "owl"
-      ],
-      [
-        "charms",
-        "exam"
+        "charms"
       ]
     ]
   },
@@ -9023,11 +8543,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "sword",
-        "gryffindor"
-      ],
-      [
-        "gryffindors",
         "sword"
       ]
     ]
@@ -9096,11 +8611,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "invisibility",
-        "cloak"
-      ],
-      [
-        "cloak",
         "invisibility"
       ]
     ]
@@ -9125,19 +8635,22 @@
     "image_url": null,
     "answer_groups": [
       [
-        "hermione",
-        "harry"
-      ],
-      [
-        "jealous",
-        "harry"
-      ],
-      [
-        "overshadowed",
-        "harry"
-      ],
-      [
         "insecurities"
+      ],
+      [
+        "insecurity"
+      ],
+      [
+        "jealousy"
+      ],
+      [
+        "jealous"
+      ],
+      [
+        "fears"
+      ],
+      [
+        "fear"
       ]
     ]
   },
@@ -9157,8 +8670,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "extension",
-        "charm"
+        "extension"
       ]
     ]
   },
@@ -9205,7 +8717,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "basilisk",
         "fang"
       ]
     ]
@@ -9226,20 +8737,28 @@
     "image_url": null,
     "answer_groups": [
       [
-        "protect",
-        "conceal"
+        "protect"
       ],
       [
-        "protect",
+        "protection"
+      ],
+      [
         "hide"
       ],
       [
-        "protection",
+        "hidden"
+      ],
+      [
+        "conceal"
+      ],
+      [
         "concealment"
       ],
       [
-        "safe",
-        "hidden"
+        "safe"
+      ],
+      [
+        "safety"
       ]
     ]
   },
@@ -9282,7 +8801,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "phineas",
+        "phineas"
+      ],
+      [
         "nigellus"
       ]
     ]
@@ -9343,7 +8864,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "high",
         "inquisitor"
       ]
     ]
@@ -9421,16 +8941,13 @@
     "image_url": null,
     "answer_groups": [
       [
-        "take",
         "turns"
       ],
       [
-        "switch",
-        "wearing"
+        "switch"
       ],
       [
-        "rotate",
-        "locket"
+        "rotate"
       ]
     ]
   },
@@ -9503,8 +9020,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "lion",
-        "hat"
+        "lion"
       ]
     ]
   },
@@ -9527,11 +9043,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "sword",
-        "gryffindor"
-      ],
-      [
-        "gryffindors",
         "sword"
       ]
     ]
@@ -9552,12 +9063,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "undesirable",
-        "1"
-      ],
-      [
-        "undesirable",
-        "one"
+        "undesirable"
       ]
     ]
   },
@@ -9592,8 +9098,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "lucius",
-        "wand"
+        "lucius"
       ]
     ]
   },
@@ -9616,15 +9121,11 @@
     "image_url": null,
     "answer_groups": [
       [
-        "muggle",
-        "born",
-        "registration",
-        "commission"
+        "muggleborn"
       ],
       [
-        "muggleborn",
-        "registration",
-        "commission"
+        "muggle",
+        "born"
       ]
     ]
   },
@@ -9644,12 +9145,10 @@
     "image_url": null,
     "answer_groups": [
       [
-        "golden",
         "snitch"
       ],
       [
-        "sword",
-        "gryffindor"
+        "sword"
       ]
     ]
   },
@@ -9758,11 +9257,15 @@
   },
   {
     "id": 793,
-    "question": "What is the Trace?",
+    "question": "What does the Trace allow the Ministry to detect?",
     "image_url": null,
     "answer_groups": [
       [
         "underage",
+        "magic"
+      ],
+      [
+        "minor",
         "magic"
       ]
     ]
@@ -9826,7 +9329,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "triwizard",
         "cup"
       ]
     ]
@@ -9891,13 +9393,40 @@
         "cores"
       ],
       [
+        "twin",
+        "core"
+      ],
+      [
         "same",
         "cores"
       ],
       [
-        "phoenix",
-        "feather",
+        "same",
+        "core"
+      ],
+      [
+        "matching",
         "cores"
+      ],
+      [
+        "matching",
+        "core"
+      ],
+      [
+        "phoenix",
+        "feathers"
+      ],
+      [
+        "phoenix",
+        "feather"
+      ],
+      [
+        "fawkes",
+        "feathers"
+      ],
+      [
+        "fawkes",
+        "feather"
       ]
     ]
   },
@@ -9933,24 +9462,14 @@
   },
   {
     "id": 809,
-    "question": "In the Half-Blood Prince film, how do the students and teachers honour Dumbledore immediately after his death?",
+    "question": "In the Half-Blood Prince film, what do the students and teachers raise to honour Dumbledore immediately after his death?",
     "image_url": null,
     "answer_groups": [
       [
-        "raise",
         "wands"
       ],
       [
-        "raised",
-        "wands"
-      ],
-      [
-        "lit",
-        "wands"
-      ],
-      [
-        "wands",
-        "light"
+        "wand"
       ]
     ]
   },
@@ -10001,11 +9520,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "hufflepuffs",
-        "cup"
-      ],
-      [
-        "hufflepuff",
         "cup"
       ]
     ]
@@ -10016,8 +9530,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "muggle",
-        "studies"
+        "muggle"
       ]
     ]
   },
@@ -10053,11 +9566,15 @@
   },
   {
     "id": 819,
-    "question": "How can Dobby enter and leave Malfoy Manor despite its magical protections?",
+    "question": "What kind of magic lets Dobby enter and leave Malfoy Manor despite its protections?",
     "image_url": null,
     "answer_groups": [
       [
         "elf",
+        "magic"
+      ],
+      [
+        "houseelf",
         "magic"
       ]
     ]
@@ -10134,16 +9651,10 @@
   },
   {
     "id": 826,
-    "question": "Who is the ghost of Ravenclaw Tower, and how is she related to Rowena Ravenclaw?",
+    "question": "How is Helena Ravenclaw related to Rowena Ravenclaw?",
     "image_url": null,
     "answer_groups": [
       [
-        "grey",
-        "lady",
-        "daughter"
-      ],
-      [
-        "helena",
         "daughter"
       ]
     ]
@@ -10154,20 +9665,10 @@
     "image_url": null,
     "answer_groups": [
       [
-        "stop",
         "fall"
       ],
       [
-        "cushion",
-        "fall"
-      ],
-      [
-        "slow",
-        "fall"
-      ],
-      [
-        "stops",
-        "fall"
+        "falling"
       ]
     ]
   },
@@ -10177,12 +9678,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "mirror",
-        "shard"
-      ],
-      [
-        "two",
-        "way",
         "mirror"
       ]
     ]
@@ -10203,7 +9698,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "ukrainian",
         "ironbelly"
       ]
     ]
@@ -10238,12 +9732,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "stinging",
-        "jinx"
-      ],
-      [
-        "stinging",
-        "hex"
+        "stinging"
       ]
     ]
   },
@@ -10263,15 +9752,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "acromantula",
-        "venom"
-      ],
-      [
-        "aragogs",
-        "venom"
-      ],
-      [
-        "aragog",
         "venom"
       ]
     ]
@@ -10288,12 +9768,11 @@
   },
   {
     "id": 837,
-    "question": "In the Half-Blood Prince film, what is Professor Slughorn doing when Harry encounters him after drinking Felix Felicis?",
+    "question": "In the Half-Blood Prince film, what plant is Professor Slughorn taking leaves from when Harry encounters him after drinking Felix Felicis?",
     "image_url": null,
     "answer_groups": [
       [
-        "tentacula",
-        "leaves"
+        "tentacula"
       ]
     ]
   },
@@ -10313,11 +9792,9 @@
     "image_url": null,
     "answer_groups": [
       [
-        "decoy",
         "detonator"
       ],
       [
-        "decoy",
         "detonators"
       ]
     ]
@@ -10368,25 +9845,24 @@
     "image_url": null,
     "answer_groups": [
       [
-        "bellatrix",
-        "lestranges",
-        "vault"
+        "bellatrix"
       ],
       [
-        "lestrange",
-        "vault"
+        "lestrange"
       ]
     ]
   },
   {
     "id": 845,
-    "question": "What serious crime did Dumbledore's father commit, according to Auntie Muriel?",
+    "question": "Whom did Dumbledore's father attack, according to Auntie Muriel?",
     "image_url": null,
     "answer_groups": [
       [
-        "three",
         "muggle",
         "boys"
+      ],
+      [
+        "muggles"
       ]
     ]
   },
@@ -10397,18 +9873,23 @@
     "answer_groups": [
       [
         "master",
-        "elder",
         "wand"
       ],
       [
-        "elder",
-        "wand",
-        "master"
+        "owner",
+        "wand"
       ],
       [
-        "believes",
-        "snape",
-        "master"
+        "ownership",
+        "wand"
+      ],
+      [
+        "master",
+        "elder"
+      ],
+      [
+        "owner",
+        "elder"
       ]
     ]
   },
@@ -10424,24 +9905,23 @@
   },
   {
     "id": 848,
-    "question": "What happens to objects in Bellatrix Lestrange's vault when Harry, Ron and Hermione touch them?",
+    "question": "Name one effect of the curses on objects in Bellatrix Lestrange's vault when they are touched.",
     "image_url": null,
     "answer_groups": [
       [
-        "multiply",
+        "multiply"
+      ],
+      [
+        "duplicate"
+      ],
+      [
+        "duplicates"
+      ],
+      [
         "burn"
       ],
       [
-        "multiply",
         "hot"
-      ],
-      [
-        "duplicate",
-        "burn"
-      ],
-      [
-        "gemino",
-        "flagrante"
       ]
     ]
   },
@@ -10502,8 +9982,7 @@
         "imperio"
       ],
       [
-        "imperius",
-        "curse"
+        "imperius"
       ]
     ]
   },
@@ -10650,14 +10129,11 @@
   },
   {
     "id": 867,
-    "question": "Who finds Harry after Draco Malfoy attacks him on the Hogwarts Express?",
+    "question": "In the book, who finds Harry after Draco Malfoy attacks him on the Hogwarts Express?",
     "image_url": null,
     "answer_groups": [
       [
         "tonks"
-      ],
-      [
-        "luna"
       ]
     ]
   },
@@ -10667,6 +10143,7 @@
     "image_url": null,
     "answer_groups": [
       [
+        "dragon",
         "heartstring"
       ]
     ]
@@ -10677,16 +10154,13 @@
     "image_url": null,
     "answer_groups": [
       [
-        "third",
-        "brother"
+        "youngest"
       ],
       [
-        "youngest",
-        "brother"
+        "third"
       ],
       [
-        "ignotus",
-        "peverell"
+        "ignotus"
       ]
     ]
   },
@@ -10726,11 +10200,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "sword",
-        "gryffindor"
-      ],
-      [
-        "gryffindors",
         "sword"
       ]
     ]
@@ -10741,13 +10210,13 @@
     "image_url": null,
     "answer_groups": [
       [
-        "peverell"
+        "ignotus"
       ]
     ]
   },
   {
     "id": 875,
-    "question": "What giant beings fight on Voldemort's side during the Battle of Hogwarts?",
+    "question": "What creatures fight on Voldemort's side during the Battle of Hogwarts?",
     "image_url": null,
     "answer_groups": [
       [
@@ -10784,11 +10253,6 @@
     "image_url": null,
     "answer_groups": [
       [
-        "bellatrixs",
-        "hair"
-      ],
-      [
-        "bellatrix",
         "hair"
       ]
     ]
@@ -10878,11 +10342,9 @@
         "potters"
       ],
       [
-        "7",
-        "potters"
+        "polyjuice"
       ],
       [
-        "polyjuice",
         "decoys"
       ]
     ]
@@ -10909,11 +10371,11 @@
   },
   {
     "id": 888,
-    "question": "Who kills Nagini?",
+    "question": "What weapon does Neville use to kill Nagini?",
     "image_url": null,
     "answer_groups": [
       [
-        "neville"
+        "sword"
       ]
     ]
   },
@@ -10926,8 +10388,7 @@
         "portraits"
       ],
       [
-        "paintings",
-        "walls"
+        "paintings"
       ]
     ]
   },
@@ -11036,9 +10497,7 @@
     "image_url": null,
     "answer_groups": [
       [
-        "albus",
-        "severus",
-        "potter"
+        "albus"
       ]
     ]
   },
